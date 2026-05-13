@@ -19,10 +19,13 @@ struct MainTabView: View {
 
         let timeline = TimelineViewModel(
             repository: dependencies.timelineRepository,
+            closetRepository: dependencies.closetRepository,
+            outfitsRepository: dependencies.outfitsRepository,
             tokenProvider: tokenProvider
         )
         let outfits = OutfitsViewModel(
             repository: dependencies.outfitsRepository,
+            closetRepository: dependencies.closetRepository,
             tokenProvider: tokenProvider
         )
         let profile = ProfileViewModel(

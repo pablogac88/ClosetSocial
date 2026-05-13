@@ -6,7 +6,7 @@ import Foundation
 ///  - refrescar profile (sube el contador)
 ///
 /// Encapsulamos esa orquestación aquí para que el ViewModel quede simple.
-public struct AddGarmentResult: Sendable, Hashable {
+public struct AddGarmentResult: Sendable, Equatable {
     public let garment: Garment
     public let updatedTimeline: [FeedPost]
     public let updatedProfile: UserProfile

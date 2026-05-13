@@ -15,15 +15,21 @@ public final class OutfitsViewModel {
     public typealias TokenProvider = @MainActor () -> String?
 
     public private(set) var state: OutfitsState = .idle
+    public private(set) var availableGarments: [Garment] = []
+    public private(set) var isSaving = false
+    public var saveError: String?
 
     private let repository: any OutfitsRepository
+    private let closetRepository: any ClosetRepository
     private let tokenProvider: TokenProvider
 
     public init(
         repository: any OutfitsRepository,
+        closetRepository: any ClosetRepository,
         tokenProvider: @escaping TokenProvider
     ) {
         self.repository = repository
+        self.closetRepository = closetRepository
         self.tokenProvider = tokenProvider
     }
 
@@ -41,20 +47,35 @@ public final class OutfitsViewModel {
         }
     }
 
-    /// Outfits locales (creación todavía no persiste en backend).
-    public func appendLocal(title: String?, note: String?, garments: [Garment]) {
-        let outfit = Outfit(
-            id: UUID(),
+    public func loadAvailableGarments() async {
+        guard let token = tokenProvider() else { return }
+        availableGarments = (try? await closetRepository.fetchCloset(token: token)) ?? []
+    }
+
+    public func create(title: String?, note: String?, garments: [Garment]) async {
+        guard let token = tokenProvider() else {
+            saveError = DomainError.unauthenticated.userMessage
+            return
+        }
+        isSaving = true
+        saveError = nil
+        defer { isSaving = false }
+
+        let request = CreateOutfitRequest(
             title: title,
             note: note,
-            garments: garments,
-            createdAt: .now
+            garmentIDs: garments.map(\.id)
         )
-        switch state {
-        case let .content(items):
-            state = .content([outfit] + items)
-        default:
-            state = .content([outfit])
+        do {
+            let outfit = try await repository.createOutfit(token: token, request: request)
+            switch state {
+            case let .content(items):
+                state = .content([outfit] + items)
+            default:
+                state = .content([outfit])
+            }
+        } catch {
+            saveError = error.userMessage
         }
     }
 }

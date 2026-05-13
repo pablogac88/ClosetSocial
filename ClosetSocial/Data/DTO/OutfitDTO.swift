@@ -13,3 +13,15 @@ struct OutfitDTO: Codable, Sendable, Equatable, Identifiable {
 struct OutfitsResponseDTO: Codable, Sendable, Equatable {
     let items: [OutfitDTO]
 }
+
+struct CreateOutfitRequestDTO: Encodable, Sendable {
+    let title: String?
+    let note: String?
+    let garmentIDs: [UUID]
+}
+
+extension CreateOutfitRequest {
+    func toDTO() -> CreateOutfitRequestDTO {
+        CreateOutfitRequestDTO(title: title, note: note, garmentIDs: garmentIDs)
+    }
+}

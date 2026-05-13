@@ -79,51 +79,107 @@ private struct CreateOutfitSheet: View {
 
     @State private var title = ""
     @State private var note = ""
-    @State private var garmentLine = ""
+    @State private var selectedIDs: Set<UUID> = []
+
+    private var selectedGarments: [Garment] {
+        viewModel.availableGarments.filter { selectedIDs.contains($0.id) }
+    }
+
+    private var canSave: Bool {
+        !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            && !selectedIDs.isEmpty
+            && !viewModel.isSaving
+    }
 
     var body: some View {
         NavigationStack {
             Form {
-                Section("Nuevo outfit") {
+                Section("Outfit") {
                     TextField("Título", text: $title)
-                    TextField("Nota", text: $note, axis: .vertical)
-                    TextField("Prendas separadas por coma", text: $garmentLine, axis: .vertical)
+                    TextField("Nota (opcional)", text: $note, axis: .vertical)
+                }
+
+                Section("Prendas") {
+                    if viewModel.availableGarments.isEmpty {
+                        Text("No tienes prendas en tu armario.")
+                            .foregroundStyle(.secondary)
+                            .font(DSFont.footnote)
+                    } else {
+                        ForEach(viewModel.availableGarments) { garment in
+                            GarmentPickerRow(
+                                garment: garment,
+                                isSelected: selectedIDs.contains(garment.id)
+                            ) {
+                                if selectedIDs.contains(garment.id) {
+                                    selectedIDs.remove(garment.id)
+                                } else {
+                                    selectedIDs.insert(garment.id)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if let error = viewModel.saveError {
+                    Section {
+                        Text(error)
+                            .font(DSFont.footnote)
+                            .foregroundStyle(.red)
+                    }
                 }
             }
             .navigationTitle("Crear outfit")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancelar") { dismiss() }
+                        .disabled(viewModel.isSaving)
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Guardar") {
-                        let garments = garmentLine
-                            .split(separator: ",")
-                            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                            .filter { !$0.isEmpty }
-                            .map {
-                                Garment(
-                                    id: UUID(),
-                                    name: $0,
-                                    brand: nil,
-                                    type: .other,
-                                    color: "",
-                                    imageURL: nil,
-                                    createdAt: .now
+                    if viewModel.isSaving {
+                        ProgressView()
+                    } else {
+                        Button("Guardar") {
+                            Task {
+                                await viewModel.create(
+                                    title: title.trimmedToNil,
+                                    note: note.trimmedToNil,
+                                    garments: selectedGarments
                                 )
+                                if viewModel.saveError == nil {
+                                    dismiss()
+                                }
                             }
-
-                        viewModel.appendLocal(
-                            title: title.trimmedToNil,
-                            note: note.trimmedToNil,
-                            garments: garments
-                        )
-                        dismiss()
+                        }
+                        .disabled(!canSave)
                     }
-                    .disabled(garmentLine.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
             }
+            .task { await viewModel.loadAvailableGarments() }
         }
+    }
+}
+
+private struct GarmentPickerRow: View {
+    let garment: Garment
+    let isSelected: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 12) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(garment.name)
+                        .foregroundStyle(.primary)
+                    Text(garment.type.rawValue)
+                        .font(DSFont.footnote)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .foregroundStyle(isSelected ? DSColor.highlightSoft : .secondary)
+            }
+        }
+        .buttonStyle(.plain)
     }
 }
 

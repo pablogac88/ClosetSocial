@@ -6,7 +6,8 @@ extension UserDTO {
             id: id,
             username: username,
             displayName: displayName,
-            avatarURL: avatarURL.flatMap(URL.init(string:))
+            avatarURL: avatarURL.flatMap(URL.init(string:)),
+            bio: bio
         )
     }
 }
@@ -25,32 +26,20 @@ extension FeedPostDTO {
             kind: FeedPostKind(rawValue: kind) ?? .post,
             caption: caption,
             outfit: outfit?.toDomain(),
-            garment: garment?.toDomain() ?? garmentName.map(Self.makeLegacyGarment),
-            imageURLs: resolvedImageURLs,
+            garment: garment?.toDomain(),
+            imageURLs: imageURLs?.compactMap(URL.init(string:)) ?? [],
+            likesCount: likesCount ?? 0,
+            isLikedByCurrentUser: isLikedByCurrentUser ?? false,
+            commentsCount: commentsCount ?? 0,
+            isReal: isReal ?? false,
             createdAt: createdAt
         )
     }
+}
 
-    private var resolvedImageURLs: [URL] {
-        if let imageURLs {
-            return imageURLs.compactMap(URL.init(string:))
-        }
-        if let imageURL = imageURL.flatMap(URL.init(string:)) {
-            return [imageURL]
-        }
-        return []
-    }
-
-    private static func makeLegacyGarment(named name: String) -> Garment {
-        Garment(
-            id: UUID(),
-            name: name,
-            brand: nil,
-            type: .other,
-            color: "",
-            imageURL: nil,
-            createdAt: .now
-        )
+extension CommentDTO {
+    func toDomain() -> Comment {
+        Comment(id: id, author: author.toDomain(), text: text, createdAt: createdAt)
     }
 }
 
@@ -102,10 +91,32 @@ extension UserProfileDTO {
     func toDomain() -> UserProfile {
         UserProfile(
             user: user.toDomain(),
-            followerCount: followerCount,
-            followingCount: followingCount,
             closetCount: closetCount,
-            outfitCount: outfitCount
+            outfitCount: outfitCount,
+            postsCount: postsCount
+        )
+    }
+}
+
+extension PublicUserProfileDTO {
+    func toDomain() -> PublicUserProfile {
+        PublicUserProfile(
+            user: user.toDomain(),
+            closetCount: closetCount,
+            outfitCount: outfitCount,
+            postsCount: postsCount,
+            posts: recentPosts.map { $0.toDomain() }
+        )
+    }
+}
+
+extension CreatePostRequest {
+    func toDTO() -> CreatePostRequestDTO {
+        CreatePostRequestDTO(
+            caption: caption,
+            outfitID: outfitID,
+            garmentID: garmentID,
+            imageURLs: imageURLs
         )
     }
 }

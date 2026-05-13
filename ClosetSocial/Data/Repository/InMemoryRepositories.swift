@@ -17,6 +17,7 @@ public actor InMemoryClosetSocialBackend {
     private var closet: [Garment]
     private var outfits: [Outfit]
     private var timeline: [FeedPost]
+    private var comments: [UUID: [Comment]] = [:]
 
     public init() {
         let session = Self.sampleSession
@@ -48,6 +49,10 @@ public actor InMemoryClosetSocialBackend {
                 outfit: baseOutfit,
                 garment: nil,
                 imageURLs: [],
+                likesCount: 0,
+                isLikedByCurrentUser: false,
+                commentsCount: 0,
+                isReal: false,
                 createdAt: .now
             )
         ]
@@ -62,6 +67,50 @@ public actor InMemoryClosetSocialBackend {
         let user = User(id: UUID(), username: username, displayName: displayName, avatarURL: nil)
         session = AuthSession(token: "preview-token", user: user)
         return session
+    }
+
+    func createPost(_ request: CreatePostRequest) -> FeedPost {
+        let garmentsByID = Dictionary(uniqueKeysWithValues: closet.map { ($0.id, $0) })
+        let outfitsByID = Dictionary(uniqueKeysWithValues: outfits.map { ($0.id, $0) })
+        let garment = request.garmentID.flatMap { garmentsByID[$0] }
+        let outfit = request.outfitID.flatMap { outfitsByID[$0] }
+        let kind: FeedPostKind = request.outfitID != nil ? .outfit
+            : (request.garmentID != nil ? .garment : .post)
+        let post = FeedPost(
+            id: UUID(),
+            author: session.user,
+            kind: kind,
+            caption: request.caption,
+            outfit: outfit,
+            garment: garment,
+            imageURLs: request.imageURLs.compactMap(URL.init(string:)),
+            likesCount: 0,
+            isLikedByCurrentUser: false,
+            commentsCount: 0,
+            isReal: true,
+            createdAt: .now
+        )
+        timeline.insert(post, at: 0)
+        return post
+    }
+
+    func toggleLike(postID: UUID) {
+        guard let index = timeline.firstIndex(where: { $0.id == postID }) else { return }
+        timeline[index] = timeline[index].togglingLike()
+    }
+
+    func createOutfit(_ request: CreateOutfitRequest) -> Outfit {
+        let garmentsByID = Dictionary(uniqueKeysWithValues: closet.map { ($0.id, $0) })
+        let selectedGarments = request.garmentIDs.compactMap { garmentsByID[$0] }
+        let outfit = Outfit(
+            id: UUID(),
+            title: request.title,
+            note: request.note,
+            garments: selectedGarments,
+            createdAt: .now
+        )
+        outfits.insert(outfit, at: 0)
+        return outfit
     }
 
     func addGarment(_ new: NewGarment) -> Garment {
@@ -84,11 +133,33 @@ public actor InMemoryClosetSocialBackend {
                 outfit: nil,
                 garment: garment,
                 imageURLs: garment.imageURL.map { [$0] } ?? [],
+                likesCount: 0,
+                isLikedByCurrentUser: false,
+                commentsCount: 0,
+                isReal: false,
                 createdAt: .now
             ),
             at: 0
         )
         return garment
+    }
+
+    func fetchComments(postID: UUID) -> [Comment] {
+        comments[postID] ?? []
+    }
+
+    func addComment(postID: UUID, text: String) -> Comment {
+        let comment = Comment(
+            id: UUID(),
+            author: session.user,
+            text: text,
+            createdAt: .now
+        )
+        comments[postID, default: []].append(comment)
+        if let index = timeline.firstIndex(where: { $0.id == postID }) {
+            timeline[index] = timeline[index].incrementingCommentCount()
+        }
+        return comment
     }
 }
 
@@ -123,6 +194,26 @@ public struct InMemoryTimelineRepository: TimelineRepository {
     public func fetchTimeline(token: String) async throws -> [FeedPost] {
         await backend.currentTimeline()
     }
+
+    public func createPost(token: String, request: CreatePostRequest) async throws -> FeedPost {
+        await backend.createPost(request)
+    }
+
+    public func likePost(token: String, postID: UUID) async throws {
+        await backend.toggleLike(postID: postID)
+    }
+
+    public func unlikePost(token: String, postID: UUID) async throws {
+        await backend.toggleLike(postID: postID)
+    }
+
+    public func fetchComments(token: String, postID: UUID) async throws -> [Comment] {
+        await backend.fetchComments(postID: postID)
+    }
+
+    public func createComment(token: String, postID: UUID, request: CreateCommentRequest) async throws -> Comment {
+        await backend.addComment(postID: postID, text: request.text)
+    }
 }
 
 public struct InMemoryClosetRepository: ClosetRepository {
@@ -151,6 +242,10 @@ public struct InMemoryOutfitsRepository: OutfitsRepository {
     public func fetchOutfits(token: String) async throws -> [Outfit] {
         await backend.currentOutfits()
     }
+
+    public func createOutfit(token: String, request: CreateOutfitRequest) async throws -> Outfit {
+        await backend.createOutfit(request)
+    }
 }
 
 public struct InMemoryProfileRepository: ProfileRepository {
@@ -164,12 +259,28 @@ public struct InMemoryProfileRepository: ProfileRepository {
         let session = await backend.currentSession()
         let closet = await backend.currentCloset()
         let outfits = await backend.currentOutfits()
+        let timeline = await backend.currentTimeline()
+        let postsCount = timeline.filter { $0.author.id == session.user.id && $0.isReal }.count
         return UserProfile(
             user: session.user,
-            followerCount: 12,
-            followingCount: 8,
             closetCount: closet.count,
-            outfitCount: outfits.count
+            outfitCount: outfits.count,
+            postsCount: postsCount
+        )
+    }
+
+    public func fetchPublicProfile(userID: UUID, token: String) async throws -> PublicUserProfile {
+        let session = await backend.currentSession()
+        let closet = await backend.currentCloset()
+        let outfits = await backend.currentOutfits()
+        let timeline = await backend.currentTimeline()
+        let userPosts = timeline.filter { $0.author.id == userID && $0.isReal }
+        return PublicUserProfile(
+            user: session.user,
+            closetCount: closet.count,
+            outfitCount: outfits.count,
+            postsCount: userPosts.count,
+            posts: userPosts
         )
     }
 }

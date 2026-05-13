@@ -37,6 +37,25 @@ struct RemoteRequestSender: Sendable {
         return try await execute(path: path, method: method, body: data, token: token, as: Response.self)
     }
 
+    func sendVoid(
+        path: String,
+        method: HTTPMethod,
+        token: String? = nil
+    ) async throws {
+        let request = HTTPRequest(method: method, path: path, body: nil, bearerToken: token)
+        let response: HTTPClientResponse
+        do {
+            response = try await client.send(request)
+        } catch HTTPError.offline {
+            throw DomainError.transport(.offline)
+        } catch {
+            throw DomainError.transport(.unknown)
+        }
+        guard response.isSuccess else {
+            throw mapServerError(status: response.status, data: response.data)
+        }
+    }
+
     private func execute<Response: Decodable & Sendable>(
         path: String,
         method: HTTPMethod,

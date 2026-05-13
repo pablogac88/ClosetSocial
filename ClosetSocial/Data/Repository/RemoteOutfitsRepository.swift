@@ -16,4 +16,15 @@ public struct RemoteOutfitsRepository: OutfitsRepository {
         )
         return dto.items.map { $0.toDomain() }
     }
+
+    public func createOutfit(token: String, request: CreateOutfitRequest) async throws -> Outfit {
+        let dto = try await sender.send(
+            path: ClosetSocialEndpoint.outfits,
+            method: .post,
+            body: request.toDTO(),
+            token: token,
+            as: OutfitDTO.self
+        )
+        return dto.toDomain()
+    }
 }

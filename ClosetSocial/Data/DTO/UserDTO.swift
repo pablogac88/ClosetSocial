@@ -5,4 +5,5 @@ struct UserDTO: Codable, Sendable, Equatable, Identifiable {
     let username: String
     let displayName: String
     let avatarURL: String?
+    let bio: String?
 }
