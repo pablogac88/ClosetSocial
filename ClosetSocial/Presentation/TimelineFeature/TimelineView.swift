@@ -2,11 +2,17 @@ import SwiftUI
 
 public struct TimelineView: View {
     @Bindable private var viewModel: TimelineViewModel
+    private let makePublicProfileViewModel: (UUID) -> PublicProfileViewModel
     @State private var isPresentingCreateSheet = false
     @State private var postForComments: FeedPost? = nil
+    @State private var selectedAuthor: User? = nil
 
-    public init(viewModel: TimelineViewModel) {
+    public init(
+        viewModel: TimelineViewModel,
+        makePublicProfileViewModel: @escaping (UUID) -> PublicProfileViewModel
+    ) {
         self.viewModel = viewModel
+        self.makePublicProfileViewModel = makePublicProfileViewModel
     }
 
     public var body: some View {
@@ -47,6 +53,11 @@ public struct TimelineView: View {
         .sheet(item: $postForComments) { post in
             CommentsSheet(post: post, viewModel: viewModel)
         }
+        .sheet(item: $selectedAuthor) { author in
+            NavigationStack {
+                PublicProfileView(viewModel: makePublicProfileViewModel(author.id))
+            }
+        }
         .task { await viewModel.load() }
     }
 
@@ -56,6 +67,7 @@ public struct TimelineView: View {
                 ForEach(items) { post in
                     FeedPostCard(
                         post: post,
+                        onAuthorTap: { selectedAuthor = post.author },
                         onLikeTap: { Task { await viewModel.toggleLike(for: post) } },
                         onCommentTap: { postForComments = post }
                     )
@@ -217,22 +229,26 @@ private struct SelectionRow: View {
 
 private struct FeedPostCard: View {
     let post: FeedPost
+    let onAuthorTap: () -> Void
     let onLikeTap: () -> Void
     let onCommentTap: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 12) {
-                AvatarBubble(displayName: post.author.displayName)
+            Button(action: onAuthorTap) {
+                HStack(spacing: 12) {
+                    AvatarBubble(displayName: post.author.displayName)
 
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(post.author.displayName).font(DSFont.headline)
-                    Text("@\(post.author.username) · \(post.kind.title)")
-                        .font(DSFont.footnote)
-                        .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text(post.author.displayName).font(DSFont.headline)
+                        Text("@\(post.author.username) · \(post.kind.title)")
+                            .font(DSFont.footnote)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
                 }
-                Spacer()
             }
+            .buttonStyle(.plain)
 
             Text(post.caption)
                 .font(DSFont.body)

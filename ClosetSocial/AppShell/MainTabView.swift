@@ -9,6 +9,8 @@ struct MainTabView: View {
     @State private var outfitsViewModel: OutfitsViewModel
     @State private var profileViewModel: ProfileViewModel
 
+    private let tokenProvider: @MainActor () -> String?
+
     init(session: AppSession, dependencies: AppDependencies) {
         self.session = session
         self.dependencies = dependencies
@@ -16,6 +18,7 @@ struct MainTabView: View {
         let tokenProvider: @MainActor () -> String? = { [session] in
             session.currentToken
         }
+        self.tokenProvider = tokenProvider
 
         let timeline = TimelineViewModel(
             repository: dependencies.timelineRepository,
@@ -48,10 +51,22 @@ struct MainTabView: View {
         self._profileViewModel = State(initialValue: profile)
     }
 
+    @MainActor
+    private func makePublicProfileViewModel(for userID: UUID) -> PublicProfileViewModel {
+        PublicProfileViewModel(
+            userID: userID,
+            repository: dependencies.profileRepository,
+            tokenProvider: tokenProvider
+        )
+    }
+
     var body: some View {
         TabView {
             NavigationStack {
-                TimelineView(viewModel: timelineViewModel)
+                TimelineView(
+                    viewModel: timelineViewModel,
+                    makePublicProfileViewModel: makePublicProfileViewModel(for:)
+                )
             }
             .tabItem { Label("Timeline", systemImage: "sparkles.rectangle.stack") }
 

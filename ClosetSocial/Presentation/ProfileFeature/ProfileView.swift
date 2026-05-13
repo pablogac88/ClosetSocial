@@ -61,11 +61,7 @@ public struct ProfileView: View {
         .padding(.top, 20)
 
         HStack(spacing: 12) {
-            MetricCard(title: "Seguidores", value: "\(profile.followerCount)")
-            MetricCard(title: "Siguiendo", value: "\(profile.followingCount)")
-        }
-
-        HStack(spacing: 12) {
+            MetricCard(title: "Posts", value: "\(profile.postsCount)")
             MetricCard(title: "Prendas", value: "\(profile.closetCount)")
             MetricCard(title: "Outfits", value: "\(profile.outfitCount)")
         }

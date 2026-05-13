@@ -7,7 +7,8 @@ extension UserDTO {
             username: username,
             displayName: displayName,
             avatarURL: avatarURL.flatMap(URL.init(string:)),
-            bio: bio
+            bio: bio,
+            role: role ?? .user
         )
     }
 }
