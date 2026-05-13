@@ -1,0 +1,637 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 71;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9A1B2C3D4E5F6A7B8C9D0201 /* ClosetSocialApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A1B2C3D4E5F6A7B8C9D0101 /* ClosetSocialApp.swift */; };
+		E9A2C9482FB4805D0008B99E /* TimelineViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9462FB4805D0008B99E /* TimelineViewModel.swift */; };
+		E9A2C9492FB4805D0008B99E /* OutfitsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C93F2FB4805D0008B99E /* OutfitsView.swift */; };
+		E9A2C94A2FB4805D0008B99E /* TimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9452FB4805D0008B99E /* TimelineView.swift */; };
+		E9A2C94B2FB4805D0008B99E /* AddGarmentSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C93A2FB4805D0008B99E /* AddGarmentSheet.swift */; };
+		E9A2C94C2FB4805D0008B99E /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9372FB4805D0008B99E /* LoginView.swift */; };
+		E9A2C94D2FB4805D0008B99E /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9422FB4805D0008B99E /* ProfileView.swift */; };
+		E9A2C94E2FB4805D0008B99E /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9382FB4805D0008B99E /* LoginViewModel.swift */; };
+		E9A2C94F2FB4805D0008B99E /* ClosetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C93D2FB4805D0008B99E /* ClosetViewModel.swift */; };
+		E9A2C9502FB4805D0008B99E /* ClosetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C93C2FB4805D0008B99E /* ClosetView.swift */; };
+		E9A2C9512FB4805D0008B99E /* AddGarmentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C93B2FB4805D0008B99E /* AddGarmentViewModel.swift */; };
+		E9A2C9522FB4805D0008B99E /* OutfitsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9402FB4805D0008B99E /* OutfitsViewModel.swift */; };
+		E9A2C9532FB4805D0008B99E /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9432FB4805D0008B99E /* ProfileViewModel.swift */; };
+		E9A2C9912FB480670008B99E /* OutfitsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9832FB480670008B99E /* OutfitsRepository.swift */; };
+		E9A2C9922FB480670008B99E /* URLSessionHTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C98F2FB480670008B99E /* URLSessionHTTPClient.swift */; };
+		E9A2C9932FB480670008B99E /* HTTPRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C98E2FB480670008B99E /* HTTPRequest.swift */; };
+		E9A2C9942FB480670008B99E /* AddGarmentUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9872FB480670008B99E /* AddGarmentUseCase.swift */; };
+		E9A2C9952FB480670008B99E /* AppSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9552FB480670008B99E /* AppSession.swift */; };
+		E9A2C9962FB480670008B99E /* ServerErrorDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C95D2FB480670008B99E /* ServerErrorDTO.swift */; };
+		E9A2C9972FB480670008B99E /* MetricCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9712FB480670008B99E /* MetricCard.swift */; };
+		E9A2C9982FB480670008B99E /* DomainMappers.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9642FB480670008B99E /* DomainMappers.swift */; };
+		E9A2C9992FB480670008B99E /* InMemoryRepositories.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9662FB480670008B99E /* InMemoryRepositories.swift */; };
+		E9A2C99A2FB480670008B99E /* DomainError+UI.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9752FB480670008B99E /* DomainError+UI.swift */; };
+		E9A2C99B2FB480670008B99E /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9562FB480670008B99E /* MainTabView.swift */; };
+		E9A2C99C2FB480670008B99E /* RemoteOutfitsRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9692FB480670008B99E /* RemoteOutfitsRepository.swift */; };
+		E9A2C99D2FB480670008B99E /* HTTPMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C98D2FB480670008B99E /* HTTPMethod.swift */; };
+		E9A2C99E2FB480670008B99E /* ClosetRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9822FB480670008B99E /* ClosetRepository.swift */; };
+		E9A2C99F2FB480670008B99E /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C97D2FB480670008B99E /* UserProfile.swift */; };
+		E9A2C9A02FB480670008B99E /* RemoteAuthRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9672FB480670008B99E /* RemoteAuthRepository.swift */; };
+		E9A2C9A12FB480670008B99E /* OutfitDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C95C2FB480670008B99E /* OutfitDTO.swift */; };
+		E9A2C9A22FB480670008B99E /* Garment.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C97A2FB480670008B99E /* Garment.swift */; };
+		E9A2C9A32FB480670008B99E /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C97C2FB480670008B99E /* User.swift */; };
+		E9A2C9A42FB480670008B99E /* ClosetSocialEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9612FB480670008B99E /* ClosetSocialEndpoint.swift */; };
+		E9A2C9A52FB480670008B99E /* RemoteProfileRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C96A2FB480670008B99E /* RemoteProfileRepository.swift */; };
+		E9A2C9A62FB480670008B99E /* UserDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C95E2FB480670008B99E /* UserDTO.swift */; };
+		E9A2C9A72FB480670008B99E /* AppDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9542FB480670008B99E /* AppDependencies.swift */; };
+		E9A2C9A82FB480670008B99E /* Typography.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9762FB480670008B99E /* Typography.swift */; };
+		E9A2C9A92FB480670008B99E /* PrimaryButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9722FB480670008B99E /* PrimaryButton.swift */; };
+		E9A2C9AA2FB480670008B99E /* Outfit.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C97B2FB480670008B99E /* Outfit.swift */; };
+		E9A2C9AB2FB480670008B99E /* AuthenticateUserUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9882FB480670008B99E /* AuthenticateUserUseCase.swift */; };
+		E9A2C9AC2FB480670008B99E /* DomainError.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C97F2FB480670008B99E /* DomainError.swift */; };
+		E9A2C9AD2FB480670008B99E /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9742FB480670008B99E /* Colors.swift */; };
+		E9A2C9AE2FB480670008B99E /* GarmentDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C95B2FB480670008B99E /* GarmentDTO.swift */; };
+		E9A2C9AF2FB480670008B99E /* TimelineRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9852FB480670008B99E /* TimelineRepository.swift */; };
+		E9A2C9B02FB480670008B99E /* BackgroundGradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9702FB480670008B99E /* BackgroundGradient.swift */; };
+		E9A2C9B12FB480670008B99E /* ProfileRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9842FB480670008B99E /* ProfileRepository.swift */; };
+		E9A2C9B22FB480670008B99E /* UserProfileDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C95F2FB480670008B99E /* UserProfileDTO.swift */; };
+		E9A2C9B32FB480670008B99E /* RemoteTimelineRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C96B2FB480670008B99E /* RemoteTimelineRepository.swift */; };
+		E9A2C9B42FB480670008B99E /* AuthSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9782FB480670008B99E /* AuthSession.swift */; };
+		E9A2C9B52FB480670008B99E /* DataLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C96D2FB480670008B99E /* DataLayer.swift */; };
+		E9A2C9B62FB480670008B99E /* FeedPostDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C95A2FB480670008B99E /* FeedPostDTO.swift */; };
+		E9A2C9B72FB480670008B99E /* FeedPost.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9792FB480670008B99E /* FeedPost.swift */; };
+		E9A2C9B82FB480670008B99E /* AuthRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9812FB480670008B99E /* AuthRepository.swift */; };
+		E9A2C9B92FB480670008B99E /* HTTPError.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C98C2FB480670008B99E /* HTTPError.swift */; };
+		E9A2C9BA2FB480670008B99E /* AvatarBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C96F2FB480670008B99E /* AvatarBubble.swift */; };
+		E9A2C9BB2FB480670008B99E /* RemoteRequestSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9622FB480670008B99E /* RemoteRequestSender.swift */; };
+		E9A2C9BC2FB480670008B99E /* RemoteClosetRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9682FB480670008B99E /* RemoteClosetRepository.swift */; };
+		E9A2C9BD2FB480670008B99E /* HTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C98B2FB480670008B99E /* HTTPClient.swift */; };
+		E9A2C9BE2FB480670008B99E /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9572FB480670008B99E /* RootView.swift */; };
+		E9A2C9BF2FB480670008B99E /* AuthSessionDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9592FB480670008B99E /* AuthSessionDTO.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		9A1B2C3D4E5F6A7B8C9D0005 /* ClosetSocial.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClosetSocial.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9A1B2C3D4E5F6A7B8C9D0101 /* ClosetSocialApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClosetSocialApp.swift; sourceTree = "<group>"; };
+		E9A2C9372FB4805D0008B99E /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		E9A2C9382FB4805D0008B99E /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
+		E9A2C93A2FB4805D0008B99E /* AddGarmentSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGarmentSheet.swift; sourceTree = "<group>"; };
+		E9A2C93B2FB4805D0008B99E /* AddGarmentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGarmentViewModel.swift; sourceTree = "<group>"; };
+		E9A2C93C2FB4805D0008B99E /* ClosetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClosetView.swift; sourceTree = "<group>"; };
+		E9A2C93D2FB4805D0008B99E /* ClosetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClosetViewModel.swift; sourceTree = "<group>"; };
+		E9A2C93F2FB4805D0008B99E /* OutfitsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutfitsView.swift; sourceTree = "<group>"; };
+		E9A2C9402FB4805D0008B99E /* OutfitsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutfitsViewModel.swift; sourceTree = "<group>"; };
+		E9A2C9422FB4805D0008B99E /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
+		E9A2C9432FB4805D0008B99E /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
+		E9A2C9452FB4805D0008B99E /* TimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineView.swift; sourceTree = "<group>"; };
+		E9A2C9462FB4805D0008B99E /* TimelineViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineViewModel.swift; sourceTree = "<group>"; };
+		E9A2C9542FB480670008B99E /* AppDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependencies.swift; sourceTree = "<group>"; };
+		E9A2C9552FB480670008B99E /* AppSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSession.swift; sourceTree = "<group>"; };
+		E9A2C9562FB480670008B99E /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		E9A2C9572FB480670008B99E /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		E9A2C9592FB480670008B99E /* AuthSessionDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSessionDTO.swift; sourceTree = "<group>"; };
+		E9A2C95A2FB480670008B99E /* FeedPostDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedPostDTO.swift; sourceTree = "<group>"; };
+		E9A2C95B2FB480670008B99E /* GarmentDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GarmentDTO.swift; sourceTree = "<group>"; };
+		E9A2C95C2FB480670008B99E /* OutfitDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutfitDTO.swift; sourceTree = "<group>"; };
+		E9A2C95D2FB480670008B99E /* ServerErrorDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerErrorDTO.swift; sourceTree = "<group>"; };
+		E9A2C95E2FB480670008B99E /* UserDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDTO.swift; sourceTree = "<group>"; };
+		E9A2C95F2FB480670008B99E /* UserProfileDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileDTO.swift; sourceTree = "<group>"; };
+		E9A2C9612FB480670008B99E /* ClosetSocialEndpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClosetSocialEndpoint.swift; sourceTree = "<group>"; };
+		E9A2C9622FB480670008B99E /* RemoteRequestSender.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteRequestSender.swift; sourceTree = "<group>"; };
+		E9A2C9642FB480670008B99E /* DomainMappers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainMappers.swift; sourceTree = "<group>"; };
+		E9A2C9662FB480670008B99E /* InMemoryRepositories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InMemoryRepositories.swift; sourceTree = "<group>"; };
+		E9A2C9672FB480670008B99E /* RemoteAuthRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteAuthRepository.swift; sourceTree = "<group>"; };
+		E9A2C9682FB480670008B99E /* RemoteClosetRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteClosetRepository.swift; sourceTree = "<group>"; };
+		E9A2C9692FB480670008B99E /* RemoteOutfitsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteOutfitsRepository.swift; sourceTree = "<group>"; };
+		E9A2C96A2FB480670008B99E /* RemoteProfileRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteProfileRepository.swift; sourceTree = "<group>"; };
+		E9A2C96B2FB480670008B99E /* RemoteTimelineRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteTimelineRepository.swift; sourceTree = "<group>"; };
+		E9A2C96D2FB480670008B99E /* DataLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataLayer.swift; sourceTree = "<group>"; };
+		E9A2C96F2FB480670008B99E /* AvatarBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarBubble.swift; sourceTree = "<group>"; };
+		E9A2C9702FB480670008B99E /* BackgroundGradient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundGradient.swift; sourceTree = "<group>"; };
+		E9A2C9712FB480670008B99E /* MetricCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricCard.swift; sourceTree = "<group>"; };
+		E9A2C9722FB480670008B99E /* PrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryButton.swift; sourceTree = "<group>"; };
+		E9A2C9742FB480670008B99E /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
+		E9A2C9752FB480670008B99E /* DomainError+UI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DomainError+UI.swift"; sourceTree = "<group>"; };
+		E9A2C9762FB480670008B99E /* Typography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Typography.swift; sourceTree = "<group>"; };
+		E9A2C9782FB480670008B99E /* AuthSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSession.swift; sourceTree = "<group>"; };
+		E9A2C9792FB480670008B99E /* FeedPost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedPost.swift; sourceTree = "<group>"; };
+		E9A2C97A2FB480670008B99E /* Garment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Garment.swift; sourceTree = "<group>"; };
+		E9A2C97B2FB480670008B99E /* Outfit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Outfit.swift; sourceTree = "<group>"; };
+		E9A2C97C2FB480670008B99E /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		E9A2C97D2FB480670008B99E /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
+		E9A2C97F2FB480670008B99E /* DomainError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainError.swift; sourceTree = "<group>"; };
+		E9A2C9812FB480670008B99E /* AuthRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthRepository.swift; sourceTree = "<group>"; };
+		E9A2C9822FB480670008B99E /* ClosetRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClosetRepository.swift; sourceTree = "<group>"; };
+		E9A2C9832FB480670008B99E /* OutfitsRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutfitsRepository.swift; sourceTree = "<group>"; };
+		E9A2C9842FB480670008B99E /* ProfileRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileRepository.swift; sourceTree = "<group>"; };
+		E9A2C9852FB480670008B99E /* TimelineRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineRepository.swift; sourceTree = "<group>"; };
+		E9A2C9872FB480670008B99E /* AddGarmentUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGarmentUseCase.swift; sourceTree = "<group>"; };
+		E9A2C9882FB480670008B99E /* AuthenticateUserUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticateUserUseCase.swift; sourceTree = "<group>"; };
+		E9A2C98B2FB480670008B99E /* HTTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClient.swift; sourceTree = "<group>"; };
+		E9A2C98C2FB480670008B99E /* HTTPError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPError.swift; sourceTree = "<group>"; };
+		E9A2C98D2FB480670008B99E /* HTTPMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPMethod.swift; sourceTree = "<group>"; };
+		E9A2C98E2FB480670008B99E /* HTTPRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPRequest.swift; sourceTree = "<group>"; };
+		E9A2C98F2FB480670008B99E /* URLSessionHTTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionHTTPClient.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9A1B2C3D4E5F6A7B8C9D0007 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		9A1B2C3D4E5F6A7B8C9D0002 = {
+			isa = PBXGroup;
+			children = (
+				9A1B2C3D4E5F6A7B8C9D0010 /* ClosetSocial */,
+				9A1B2C3D4E5F6A7B8C9D0003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		9A1B2C3D4E5F6A7B8C9D0003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9A1B2C3D4E5F6A7B8C9D0005 /* ClosetSocial.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9A1B2C3D4E5F6A7B8C9D0010 /* ClosetSocial */ = {
+			isa = PBXGroup;
+			children = (
+				E9A2C9582FB480670008B99E /* AppShell */,
+				E9A2C96E2FB480670008B99E /* Data */,
+				E9A2C9772FB480670008B99E /* DesignSystem */,
+				E9A2C98A2FB480670008B99E /* Domain */,
+				E9A2C9902FB480670008B99E /* Networking */,
+				E9A2C9362FB480500008B99E /* Presentation */,
+				9A1B2C3D4E5F6A7B8C9D0101 /* ClosetSocialApp.swift */,
+			);
+			path = ClosetSocial;
+			sourceTree = "<group>";
+		};
+		E9A2C9362FB480500008B99E /* Presentation */ = {
+			isa = PBXGroup;
+			children = (
+				E9A2C9392FB4805D0008B99E /* AuthFeature */,
+				E9A2C93E2FB4805D0008B99E /* ClosetFeature */,
+				E9A2C9412FB4805D0008B99E /* OutfitsFeature */,
+				E9A2C9442FB4805D0008B99E /* ProfileFeature */,
+				E9A2C9472FB4805D0008B99E /* TimelineFeature */,
+			);
+			path = Presentation;
+			sourceTree = "<group>";
+		};
+		E9A2C9392FB4805D0008B99E /* AuthFeature */ = {
+			isa = PBXGroup;
+			children = (
+				E9A2C9372FB4805D0008B99E /* LoginView.swift */,
+				E9A2C9382FB4805D0008B99E /* LoginViewModel.swift */,
+			);
+			path = AuthFeature;
+			sourceTree = "<group>";
+		};
+		E9A2C93E2FB4805D0008B99E /* ClosetFeature */ = {
+			isa = PBXGroup;
+			children = (
+				E9A2C93A2FB4805D0008B99E /* AddGarmentSheet.swift */,
+				E9A2C93B2FB4805D0008B99E /* AddGarmentViewModel.swift */,
+				E9A2C93C2FB4805D0008B99E /* ClosetView.swift */,
+				E9A2C93D2FB4805D0008B99E /* ClosetViewModel.swift */,
+			);
+			path = ClosetFeature;
+			sourceTree = "<group>";
+		};
+		E9A2C9412FB4805D0008B99E /* OutfitsFeature */ = {
+			isa = PBXGroup;
+			children = (
+				E9A2C93F2FB4805D0008B99E /* OutfitsView.swift */,
+				E9A2C9402FB4805D0008B99E /* OutfitsViewModel.swift */,
+			);
+			path = OutfitsFeature;
+			sourceTree = "<group>";
+		};
+		E9A2C9442FB4805D0008B99E /* ProfileFeature */ = {
+			isa = PBXGroup;
+			children = (
+				E9A2C9422FB4805D0008B99E /* ProfileView.swift */,
+				E9A2C9432FB4805D0008B99E /* ProfileViewModel.swift */,
+			);
+			path = ProfileFeature;
+			sourceTree = "<group>";
+		};
+		E9A2C9472FB4805D0008B99E /* TimelineFeature */ = {
+			isa = PBXGroup;
+			children = (
+				E9A2C9452FB4805D0008B99E /* TimelineView.swift */,
+				E9A2C9462FB4805D0008B99E /* TimelineViewModel.swift */,
+			);
+			path = TimelineFeature;
+			sourceTree = "<group>";
+		};
+		E9A2C9582FB480670008B99E /* AppShell */ = {
+			isa = PBXGroup;
+			children = (
+				E9A2C9542FB480670008B99E /* AppDependencies.swift */,
+				E9A2C9552FB480670008B99E /* AppSession.swift */,
+				E9A2C9562FB480670008B99E /* MainTabView.swift */,
+				E9A2C9572FB480670008B99E /* RootView.swift */,
+			);
+			path = AppShell;
+			sourceTree = "<group>";
+		};
+		E9A2C9602FB480670008B99E /* DTO */ = {
+			isa = PBXGroup;
+			children = (
+				E9A2C9592FB480670008B99E /* AuthSessionDTO.swift */,
+				E9A2C95A2FB480670008B99E /* FeedPostDTO.swift */,
+				E9A2C95B2FB480670008B99E /* GarmentDTO.swift */,
+				E9A2C95C2FB480670008B99E /* OutfitDTO.swift */,
+				E9A2C95D2FB480670008B99E /* ServerErrorDTO.swift */,
+				E9A2C95E2FB480670008B99E /* UserDTO.swift */,
+				E9A2C95F2FB480670008B99E /* UserProfileDTO.swift */,
+			);
+			path = DTO;
+			sourceTree = "<group>";
+		};
+		E9A2C9632FB480670008B99E /* Endpoint */ = {
+			isa = PBXGroup;
+			children = (
+				E9A2C9612FB480670008B99E /* ClosetSocialEndpoint.swift */,
+				E9A2C9622FB480670008B99E /* RemoteRequestSender.swift */,
+			);
+			path = Endpoint;
+			sourceTree = "<group>";
+		};
+		E9A2C9652FB480670008B99E /* Mapper */ = {
+			isa = PBXGroup;
+			children = (
+				E9A2C9642FB480670008B99E /* DomainMappers.swift */,
+			);
+			path = Mapper;
+			sourceTree = "<group>";
+		};
+		E9A2C96C2FB480670008B99E /* Repository */ = {
+			isa = PBXGroup;
+			children = (
+				E9A2C9662FB480670008B99E /* InMemoryRepositories.swift */,
+				E9A2C9672FB480670008B99E /* RemoteAuthRepository.swift */,
+				E9A2C9682FB480670008B99E /* RemoteClosetRepository.swift */,
+				E9A2C9692FB480670008B99E /* RemoteOutfitsRepository.swift */,
+				E9A2C96A2FB480670008B99E /* RemoteProfileRepository.swift */,
+				E9A2C96B2FB480670008B99E /* RemoteTimelineRepository.swift */,
+			);
+			path = Repository;
+			sourceTree = "<group>";
+		};
+		E9A2C96E2FB480670008B99E /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				E9A2C9602FB480670008B99E /* DTO */,
+				E9A2C9632FB480670008B99E /* Endpoint */,
+				E9A2C9652FB480670008B99E /* Mapper */,
+				E9A2C96C2FB480670008B99E /* Repository */,
+				E9A2C96D2FB480670008B99E /* DataLayer.swift */,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		E9A2C9732FB480670008B99E /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				E9A2C96F2FB480670008B99E /* AvatarBubble.swift */,
+				E9A2C9702FB480670008B99E /* BackgroundGradient.swift */,
+				E9A2C9712FB480670008B99E /* MetricCard.swift */,
+				E9A2C9722FB480670008B99E /* PrimaryButton.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		E9A2C9772FB480670008B99E /* DesignSystem */ = {
+			isa = PBXGroup;
+			children = (
+				E9A2C9732FB480670008B99E /* Components */,
+				E9A2C9742FB480670008B99E /* Colors.swift */,
+				E9A2C9752FB480670008B99E /* DomainError+UI.swift */,
+				E9A2C9762FB480670008B99E /* Typography.swift */,
+			);
+			path = DesignSystem;
+			sourceTree = "<group>";
+		};
+		E9A2C97E2FB480670008B99E /* Entities */ = {
+			isa = PBXGroup;
+			children = (
+				E9A2C9782FB480670008B99E /* AuthSession.swift */,
+				E9A2C9792FB480670008B99E /* FeedPost.swift */,
+				E9A2C97A2FB480670008B99E /* Garment.swift */,
+				E9A2C97B2FB480670008B99E /* Outfit.swift */,
+				E9A2C97C2FB480670008B99E /* User.swift */,
+				E9A2C97D2FB480670008B99E /* UserProfile.swift */,
+			);
+			path = Entities;
+			sourceTree = "<group>";
+		};
+		E9A2C9802FB480670008B99E /* Errors */ = {
+			isa = PBXGroup;
+			children = (
+				E9A2C97F2FB480670008B99E /* DomainError.swift */,
+			);
+			path = Errors;
+			sourceTree = "<group>";
+		};
+		E9A2C9862FB480670008B99E /* Repositories */ = {
+			isa = PBXGroup;
+			children = (
+				E9A2C9812FB480670008B99E /* AuthRepository.swift */,
+				E9A2C9822FB480670008B99E /* ClosetRepository.swift */,
+				E9A2C9832FB480670008B99E /* OutfitsRepository.swift */,
+				E9A2C9842FB480670008B99E /* ProfileRepository.swift */,
+				E9A2C9852FB480670008B99E /* TimelineRepository.swift */,
+			);
+			path = Repositories;
+			sourceTree = "<group>";
+		};
+		E9A2C9892FB480670008B99E /* UseCases */ = {
+			isa = PBXGroup;
+			children = (
+				E9A2C9872FB480670008B99E /* AddGarmentUseCase.swift */,
+				E9A2C9882FB480670008B99E /* AuthenticateUserUseCase.swift */,
+			);
+			path = UseCases;
+			sourceTree = "<group>";
+		};
+		E9A2C98A2FB480670008B99E /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				E9A2C97E2FB480670008B99E /* Entities */,
+				E9A2C9802FB480670008B99E /* Errors */,
+				E9A2C9862FB480670008B99E /* Repositories */,
+				E9A2C9892FB480670008B99E /* UseCases */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		E9A2C9902FB480670008B99E /* Networking */ = {
+			isa = PBXGroup;
+			children = (
+				E9A2C98B2FB480670008B99E /* HTTPClient.swift */,
+				E9A2C98C2FB480670008B99E /* HTTPError.swift */,
+				E9A2C98D2FB480670008B99E /* HTTPMethod.swift */,
+				E9A2C98E2FB480670008B99E /* HTTPRequest.swift */,
+				E9A2C98F2FB480670008B99E /* URLSessionHTTPClient.swift */,
+			);
+			path = Networking;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9A1B2C3D4E5F6A7B8C9D0004 /* ClosetSocial */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9A1B2C3D4E5F6A7B8C9D000A /* Build configuration list for PBXNativeTarget "ClosetSocial" */;
+			buildPhases = (
+				9A1B2C3D4E5F6A7B8C9D0006 /* Sources */,
+				9A1B2C3D4E5F6A7B8C9D0007 /* Frameworks */,
+				9A1B2C3D4E5F6A7B8C9D0008 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ClosetSocial;
+			packageProductDependencies = (
+			);
+			productName = ClosetSocial;
+			productReference = 9A1B2C3D4E5F6A7B8C9D0005 /* ClosetSocial.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9A1B2C3D4E5F6A7B8C9D0001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					9A1B2C3D4E5F6A7B8C9D0004 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+				};
+			};
+			buildConfigurationList = 9A1B2C3D4E5F6A7B8C9D0009 /* Build configuration list for PBXProject "ClosetSocial" */;
+			compatibilityVersion = "Xcode 16.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 9A1B2C3D4E5F6A7B8C9D0002;
+			packageReferences = (
+			);
+			productRefGroup = 9A1B2C3D4E5F6A7B8C9D0003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9A1B2C3D4E5F6A7B8C9D0004 /* ClosetSocial */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9A1B2C3D4E5F6A7B8C9D0008 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9A1B2C3D4E5F6A7B8C9D0006 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9A1B2C3D4E5F6A7B8C9D0201 /* ClosetSocialApp.swift in Sources */,
+				E9A2C9482FB4805D0008B99E /* TimelineViewModel.swift in Sources */,
+				E9A2C9492FB4805D0008B99E /* OutfitsView.swift in Sources */,
+				E9A2C94A2FB4805D0008B99E /* TimelineView.swift in Sources */,
+				E9A2C94B2FB4805D0008B99E /* AddGarmentSheet.swift in Sources */,
+				E9A2C94C2FB4805D0008B99E /* LoginView.swift in Sources */,
+				E9A2C94D2FB4805D0008B99E /* ProfileView.swift in Sources */,
+				E9A2C94E2FB4805D0008B99E /* LoginViewModel.swift in Sources */,
+				E9A2C94F2FB4805D0008B99E /* ClosetViewModel.swift in Sources */,
+				E9A2C9502FB4805D0008B99E /* ClosetView.swift in Sources */,
+				E9A2C9512FB4805D0008B99E /* AddGarmentViewModel.swift in Sources */,
+				E9A2C9522FB4805D0008B99E /* OutfitsViewModel.swift in Sources */,
+				E9A2C9532FB4805D0008B99E /* ProfileViewModel.swift in Sources */,
+				E9A2C9912FB480670008B99E /* OutfitsRepository.swift in Sources */,
+				E9A2C9922FB480670008B99E /* URLSessionHTTPClient.swift in Sources */,
+				E9A2C9932FB480670008B99E /* HTTPRequest.swift in Sources */,
+				E9A2C9942FB480670008B99E /* AddGarmentUseCase.swift in Sources */,
+				E9A2C9952FB480670008B99E /* AppSession.swift in Sources */,
+				E9A2C9962FB480670008B99E /* ServerErrorDTO.swift in Sources */,
+				E9A2C9972FB480670008B99E /* MetricCard.swift in Sources */,
+				E9A2C9982FB480670008B99E /* DomainMappers.swift in Sources */,
+				E9A2C9992FB480670008B99E /* InMemoryRepositories.swift in Sources */,
+				E9A2C99A2FB480670008B99E /* DomainError+UI.swift in Sources */,
+				E9A2C99B2FB480670008B99E /* MainTabView.swift in Sources */,
+				E9A2C99C2FB480670008B99E /* RemoteOutfitsRepository.swift in Sources */,
+				E9A2C99D2FB480670008B99E /* HTTPMethod.swift in Sources */,
+				E9A2C99E2FB480670008B99E /* ClosetRepository.swift in Sources */,
+				E9A2C99F2FB480670008B99E /* UserProfile.swift in Sources */,
+				E9A2C9A02FB480670008B99E /* RemoteAuthRepository.swift in Sources */,
+				E9A2C9A12FB480670008B99E /* OutfitDTO.swift in Sources */,
+				E9A2C9A22FB480670008B99E /* Garment.swift in Sources */,
+				E9A2C9A32FB480670008B99E /* User.swift in Sources */,
+				E9A2C9A42FB480670008B99E /* ClosetSocialEndpoint.swift in Sources */,
+				E9A2C9A52FB480670008B99E /* RemoteProfileRepository.swift in Sources */,
+				E9A2C9A62FB480670008B99E /* UserDTO.swift in Sources */,
+				E9A2C9A72FB480670008B99E /* AppDependencies.swift in Sources */,
+				E9A2C9A82FB480670008B99E /* Typography.swift in Sources */,
+				E9A2C9A92FB480670008B99E /* PrimaryButton.swift in Sources */,
+				E9A2C9AA2FB480670008B99E /* Outfit.swift in Sources */,
+				E9A2C9AB2FB480670008B99E /* AuthenticateUserUseCase.swift in Sources */,
+				E9A2C9AC2FB480670008B99E /* DomainError.swift in Sources */,
+				E9A2C9AD2FB480670008B99E /* Colors.swift in Sources */,
+				E9A2C9AE2FB480670008B99E /* GarmentDTO.swift in Sources */,
+				E9A2C9AF2FB480670008B99E /* TimelineRepository.swift in Sources */,
+				E9A2C9B02FB480670008B99E /* BackgroundGradient.swift in Sources */,
+				E9A2C9B12FB480670008B99E /* ProfileRepository.swift in Sources */,
+				E9A2C9B22FB480670008B99E /* UserProfileDTO.swift in Sources */,
+				E9A2C9B32FB480670008B99E /* RemoteTimelineRepository.swift in Sources */,
+				E9A2C9B42FB480670008B99E /* AuthSession.swift in Sources */,
+				E9A2C9B52FB480670008B99E /* DataLayer.swift in Sources */,
+				E9A2C9B62FB480670008B99E /* FeedPostDTO.swift in Sources */,
+				E9A2C9B72FB480670008B99E /* FeedPost.swift in Sources */,
+				E9A2C9B82FB480670008B99E /* AuthRepository.swift in Sources */,
+				E9A2C9B92FB480670008B99E /* HTTPError.swift in Sources */,
+				E9A2C9BA2FB480670008B99E /* AvatarBubble.swift in Sources */,
+				E9A2C9BB2FB480670008B99E /* RemoteRequestSender.swift in Sources */,
+				E9A2C9BC2FB480670008B99E /* RemoteClosetRepository.swift in Sources */,
+				E9A2C9BD2FB480670008B99E /* HTTPClient.swift in Sources */,
+				E9A2C9BE2FB480670008B99E /* RootView.swift in Sources */,
+				E9A2C9BF2FB480670008B99E /* AuthSessionDTO.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		9A1B2C3D4E5F6A7B8C9D000B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		9A1B2C3D4E5F6A7B8C9D000C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		9A1B2C3D4E5F6A7B8C9D000D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WCJ54NV34M;
+				ENABLE_PREVIEWS = YES;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.playground.ClosetSocial;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		9A1B2C3D4E5F6A7B8C9D000E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = WCJ54NV34M;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.playground.ClosetSocial;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9A1B2C3D4E5F6A7B8C9D0009 /* Build configuration list for PBXProject "ClosetSocial" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9A1B2C3D4E5F6A7B8C9D000B /* Debug */,
+				9A1B2C3D4E5F6A7B8C9D000C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9A1B2C3D4E5F6A7B8C9D000A /* Build configuration list for PBXNativeTarget "ClosetSocial" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9A1B2C3D4E5F6A7B8C9D000D /* Debug */,
+				9A1B2C3D4E5F6A7B8C9D000E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+	};
+	rootObject = 9A1B2C3D4E5F6A7B8C9D0001 /* Project object */;
+}

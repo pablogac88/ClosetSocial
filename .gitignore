@@ -1,0 +1,18 @@
+.DS_Store
+
+# Xcode user data
+xcuserdata/
+*.xcuserdatad
+*.xcuserstate
+
+# Build artifacts
+build/
+DerivedData/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Xcode workspace user data
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
