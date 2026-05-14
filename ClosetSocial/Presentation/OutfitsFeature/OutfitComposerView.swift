@@ -5,7 +5,8 @@ public struct OutfitComposerView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var selectedCategory: GarmentType? = nil
-    @State private var showSaveSheet = false
+    @State private var showSaveSheet    = false
+    @State private var showPublishSheet = false
 
     public init(viewModel: OutfitComposerViewModel) {
         self.viewModel = viewModel
@@ -34,6 +35,9 @@ public struct OutfitComposerView: View {
         }
         .sheet(isPresented: $showSaveSheet) {
             SaveOutfitSheet(viewModel: viewModel) { dismiss() }
+        }
+        .sheet(isPresented: $showPublishSheet) {
+            PublishOutfitSheet(viewModel: viewModel) { dismiss() }
         }
         .onChange(of: viewModel.savedOutfit) { _, outfit in
             if outfit != nil { dismiss() }
@@ -208,22 +212,41 @@ public struct OutfitComposerView: View {
     // MARK: Bottom bar
 
     private var bottomBar: some View {
-        VStack(spacing: 0) {
+        let hasSelection = !viewModel.selectedGarments.isEmpty
+        let busy = viewModel.isPublishing || viewModel.isSaving
+        return VStack(spacing: 0) {
             Color(red: 0.87, green: 0.85, blue: 0.82).opacity(0.45).frame(height: 0.5)
-            HStack(spacing: 14) {
-                if viewModel.selectedGarments.count > 0 {
-                    Text("\(viewModel.selectedGarments.count)/\(OutfitComposerViewModel.maxGarments)")
-                        .font(.system(.caption2, design: .rounded, weight: .semibold))
-                        .foregroundStyle(DSColor.accent)
-                        .padding(.horizontal, 10).padding(.vertical, 6)
-                        .background(DSColor.accentSoft, in: Capsule())
-                        .transition(.scale(scale: 0.7).combined(with: .opacity))
+            VStack(spacing: 12) {
+                HStack(spacing: 14) {
+                    if viewModel.selectedGarments.count > 0 {
+                        Text("\(viewModel.selectedGarments.count)/\(OutfitComposerViewModel.maxGarments)")
+                            .font(.system(.caption2, design: .rounded, weight: .semibold))
+                            .foregroundStyle(DSColor.accent)
+                            .padding(.horizontal, 10).padding(.vertical, 6)
+                            .background(DSColor.accentSoft, in: Capsule())
+                            .transition(.scale(scale: 0.7).combined(with: .opacity))
+                    }
+                    ComposerSaveButton(
+                        title: "Publicar",
+                        loadingTitle: "Publicando…",
+                        icon: "sparkles",
+                        isLoading: viewModel.isPublishing,
+                        isEnabled: hasSelection && !busy
+                    ) {
+                        showPublishSheet = true
+                    }
                 }
-                ComposerSaveButton(
-                    isLoading: viewModel.isSaving,
-                    isEnabled: !viewModel.selectedGarments.isEmpty && !viewModel.isSaving
-                ) {
-                    showSaveSheet = true
+                if hasSelection {
+                    Button {
+                        showSaveSheet = true
+                    } label: {
+                        Text("Guardar sin publicar")
+                            .font(.system(.subheadline, design: .rounded, weight: .medium))
+                            .foregroundStyle(Color(red: 0.55, green: 0.50, blue: 0.46))
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(busy)
+                    .transition(.opacity.combined(with: .move(edge: .bottom)))
                 }
             }
             .animation(.spring(response: 0.3, dampingFraction: 0.82), value: viewModel.selectedGarments.count)
@@ -364,6 +387,9 @@ private struct SpringScaleButtonStyle: ButtonStyle {
 // MARK: - Composer save button
 
 private struct ComposerSaveButton: View {
+    var title: String       = "Guardar look"
+    var loadingTitle: String = "Guardando…"
+    var icon: String        = "checkmark"
     let isLoading: Bool
     let isEnabled: Bool
     let action: @MainActor () -> Void
@@ -374,9 +400,9 @@ private struct ComposerSaveButton: View {
                 if isLoading {
                     ProgressView().tint(.white).scaleEffect(0.85)
                 } else {
-                    Image(systemName: "checkmark").font(.system(size: 13, weight: .semibold))
+                    Image(systemName: icon).font(.system(size: 13, weight: .semibold))
                 }
-                Text(isLoading ? "Guardando…" : "Guardar look")
+                Text(isLoading ? loadingTitle : title)
                     .font(.system(.subheadline, design: .rounded, weight: .semibold))
             }
             .frame(maxWidth: .infinity).frame(height: 50)
@@ -455,7 +481,8 @@ private struct SaveOutfitSheet: View {
     }
 
     private var preview: some View {
-        OutfitCanvasPreview(layout: viewModel.currentLayout, garments: viewModel.selectedGarments)
+        OutfitCanvasView(layout: viewModel.currentLayout, garments: viewModel.selectedGarments)
+            .aspectRatio(3/4, contentMode: .fit)
             .frame(width: 130)
             .shadow(color: .black.opacity(0.09), radius: 16, x: 0, y: 6)
     }
@@ -514,53 +541,134 @@ private struct SaveOutfitSheet: View {
     }
 }
 
-// MARK: - Outfit canvas preview (non-interactive, for save sheet)
+// MARK: - Publish sheet
 
-private struct OutfitCanvasPreview: View {
-    let layout: OutfitComposerLayout?
-    let garments: [Garment]
+private struct PublishOutfitSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    let viewModel: OutfitComposerViewModel
+    let onPublished: () -> Void
 
-    var body: some View {
-        Color.clear
-            .aspectRatio(3 / 4, contentMode: .fit)
-            .overlay {
-                GeometryReader { geo in
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .fill(Color(red: 0.982, green: 0.973, blue: 0.957))
-                        if let layout { previewItems(layout: layout, geo: geo) }
-                    }
-                }
-            }
-            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+    @State private var caption = ""
+    @State private var title   = ""
+    @State private var note    = ""
+    @FocusState private var captionFocused: Bool
+
+    private var canPublish: Bool {
+        !caption.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !viewModel.isPublishing
     }
-
-    private func previewItems(layout: OutfitComposerLayout, geo: GeometryProxy) -> some View {
-        let W = geo.size.width
-        let H = geo.size.height
-        let byID = Dictionary(uniqueKeysWithValues: garments.map { ($0.id, $0) })
-        return ForEach(layout.items.sorted { $0.zIndex < $1.zIndex }, id: \.garmentID) { item in
-            if let garment = byID[item.garmentID] {
-                let f = item.normalizedFrame
-                MiniGarmentTile(garment: garment)
-                    .frame(width: f.width * W, height: f.height * H)
-                    .position(x: (f.x + f.width / 2) * W, y: (f.y + f.height / 2) * H)
-            }
-        }
-    }
-}
-
-private struct MiniGarmentTile: View {
-    let garment: Garment
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 9, style: .continuous)
-                .fill(Color.white)
-                .shadow(color: .black.opacity(0.07), radius: 4, x: 0, y: 2)
-            GarmentImage(url: garment.imageURL)
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .padding(2.5)
+            Color(red: 0.96, green: 0.955, blue: 0.945).ignoresSafeArea()
+            ScrollView {
+                VStack(spacing: 0) {
+                    dragHandle
+                    VStack(spacing: 30) {
+                        header
+                        preview
+                        garmentHint
+                        fields
+                        if let error = viewModel.publishError { errorBanner(error) }
+                        actions
+                    }
+                    .padding(.horizontal, 24).padding(.bottom, 32)
+                }
+            }
+            .scrollDismissesKeyboard(.interactively)
+        }
+        .presentationDetents([.fraction(0.88)])
+        .presentationCornerRadius(32)
+        .onAppear { captionFocused = true }
+    }
+
+    private var dragHandle: some View {
+        Capsule()
+            .fill(Color(red: 0.80, green: 0.78, blue: 0.75).opacity(0.55))
+            .frame(width: 36, height: 4)
+            .padding(.top, 12).padding(.bottom, 26)
+    }
+
+    private var header: some View {
+        VStack(spacing: 6) {
+            Text("Publicar look")
+                .font(.system(size: 22, weight: .semibold, design: .rounded))
+                .foregroundStyle(Color(red: 0.18, green: 0.15, blue: 0.13))
+            Text("Comparte este outfit con la comunidad")
+                .font(.system(.subheadline, design: .rounded, weight: .regular))
+                .foregroundStyle(Color(red: 0.58, green: 0.53, blue: 0.48))
+        }
+    }
+
+    private var preview: some View {
+        OutfitCanvasView(layout: viewModel.currentLayout, garments: viewModel.selectedGarments)
+            .aspectRatio(3/4, contentMode: .fit)
+            .frame(width: 130)
+            .shadow(color: .black.opacity(0.09), radius: 16, x: 0, y: 6)
+    }
+
+    private var garmentHint: some View {
+        let count = viewModel.selectedGarments.count
+        let label = count == 1 ? "1 prenda" : "\(count) prendas"
+        return Text(label)
+            .font(.system(.caption, design: .rounded, weight: .medium))
+            .foregroundStyle(Color(red: 0.62, green: 0.57, blue: 0.52))
+            .padding(.horizontal, 14).padding(.vertical, 6)
+            .background(Color(red: 0.89, green: 0.87, blue: 0.84).opacity(0.6), in: Capsule())
+    }
+
+    private var fields: some View {
+        VStack(spacing: 14) {
+            SheetInputCard(label: "Caption *", placeholder: "Describe tu look…",
+                           text: $caption, axis: .vertical, lineLimit: 2...4)
+                .focused($captionFocused)
+            SheetInputCard(label: "Título del outfit", placeholder: "Nombre del look (opcional)", text: $title)
+            SheetInputCard(label: "Nota", placeholder: "Para qué ocasión, inspiración…",
+                           text: $note, axis: .vertical, lineLimit: 2...4)
+        }
+    }
+
+    private func errorBanner(_ message: String) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: "exclamationmark.circle").font(.system(size: 15, weight: .medium))
+            Text(message).font(.system(.footnote, design: .rounded, weight: .medium))
+        }
+        .foregroundStyle(Color(red: 0.80, green: 0.22, blue: 0.18))
+        .padding(.horizontal, 16).padding(.vertical, 12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color(red: 0.80, green: 0.22, blue: 0.18).opacity(0.08),
+                    in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .transition(.move(edge: .top).combined(with: .opacity))
+    }
+
+    private var actions: some View {
+        VStack(spacing: 14) {
+            ComposerSaveButton(
+                title: "Publicar",
+                loadingTitle: "Publicando…",
+                icon: "sparkles",
+                isLoading: viewModel.isPublishing,
+                isEnabled: canPublish
+            ) {
+                Task {
+                    await viewModel.publishOutfit(
+                        title: title.trimmedToNil,
+                        note: note.trimmedToNil,
+                        caption: caption.trimmingCharacters(in: .whitespacesAndNewlines)
+                    )
+                    if viewModel.publishError == nil {
+                        HapticEngine.notification(.success)
+                        dismiss()
+                        onPublished()
+                    }
+                }
+            }
+            Button { dismiss() } label: {
+                Text("Cancelar")
+                    .font(.system(.subheadline, design: .rounded, weight: .medium))
+                    .foregroundStyle(Color(red: 0.55, green: 0.50, blue: 0.46))
+            }
+            .buttonStyle(.plain)
+            .disabled(viewModel.isPublishing)
         }
     }
 }

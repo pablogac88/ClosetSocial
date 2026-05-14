@@ -6,6 +6,8 @@ public struct TimelineView: View {
     @State private var isPresentingCreateSheet = false
     @State private var postForComments: FeedPost? = nil
     @State private var selectedAuthor: User? = nil
+    @State private var outfitDetailPost: FeedPost? = nil
+    @State private var garmentDetail: Garment? = nil
 
     public init(
         viewModel: TimelineViewModel,
@@ -58,6 +60,23 @@ public struct TimelineView: View {
                 PublicProfileView(viewModel: makePublicProfileViewModel(author.id))
             }
         }
+        .sheet(item: $garmentDetail) { garment in
+            NavigationStack {
+                GarmentDetailView(garment: garment, relatedOutfits: [])
+            }
+        }
+        .sheet(item: $outfitDetailPost) { post in
+            NavigationStack {
+                OutfitDetailView(
+                    context: .feedPost(post),
+                    onLikeTap: { Task { await viewModel.toggleLike(for: post) } },
+                    onCommentTap: {
+                        outfitDetailPost = nil
+                        postForComments = post
+                    }
+                )
+            }
+        }
         .task { await viewModel.load() }
     }
 
@@ -69,7 +88,9 @@ public struct TimelineView: View {
                         post: post,
                         onAuthorTap: { selectedAuthor = post.author },
                         onLikeTap: { Task { await viewModel.toggleLike(for: post) } },
-                        onCommentTap: { postForComments = post }
+                        onCommentTap: { postForComments = post },
+                        onOutfitTap: post.outfit != nil ? { outfitDetailPost = post } : nil,
+                        onGarmentTap: post.garment != nil ? { garmentDetail = post.garment } : nil
                     )
                 }
             }
@@ -232,6 +253,8 @@ private struct FeedPostCard: View {
     let onAuthorTap: () -> Void
     let onLikeTap: () -> Void
     let onCommentTap: () -> Void
+    var onOutfitTap: (() -> Void)?  = nil
+    var onGarmentTap: (() -> Void)? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -255,19 +278,53 @@ private struct FeedPostCard: View {
                 .foregroundStyle(DSColor.secondaryText)
 
             if let outfit = post.outfit {
-                Text("Outfit: \(outfit.title ?? outfit.garments.map(\.name).joined(separator: " · "))")
-                    .font(DSFont.footnoteBold)
-                    .foregroundStyle(DSColor.highlight)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 10)
-                    .background(DSColor.pillBackground, in: Capsule())
+                let pillLabel = "Outfit: \(outfit.title ?? outfit.garments.map(\.name).joined(separator: " · "))"
+                if let onOutfitTap {
+                    Button(action: onOutfitTap) {
+                        HStack(spacing: 6) {
+                            Text(pillLabel)
+                            Image(systemName: "arrow.up.right")
+                                .font(.system(size: 10, weight: .semibold))
+                        }
+                        .font(DSFont.footnoteBold)
+                        .foregroundStyle(DSColor.highlight)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 10)
+                        .background(DSColor.pillBackground, in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    Text(pillLabel)
+                        .font(DSFont.footnoteBold)
+                        .foregroundStyle(DSColor.highlight)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 10)
+                        .background(DSColor.pillBackground, in: Capsule())
+                }
             } else if let garment = post.garment {
-                Text("Prenda destacada: \(garment.name)")
-                    .font(DSFont.footnoteBold)
-                    .foregroundStyle(DSColor.highlight)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 10)
-                    .background(DSColor.pillBackground, in: Capsule())
+                let garmentLabel = "Prenda: \(garment.name)"
+                if let onGarmentTap {
+                    Button(action: onGarmentTap) {
+                        HStack(spacing: 6) {
+                            Text(garmentLabel)
+                            Image(systemName: "arrow.up.right")
+                                .font(.system(size: 10, weight: .semibold))
+                        }
+                        .font(DSFont.footnoteBold)
+                        .foregroundStyle(DSColor.highlight)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 10)
+                        .background(DSColor.pillBackground, in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                } else {
+                    Text(garmentLabel)
+                        .font(DSFont.footnoteBold)
+                        .foregroundStyle(DSColor.highlight)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 10)
+                        .background(DSColor.pillBackground, in: Capsule())
+                }
             }
 
             HStack(spacing: 20) {

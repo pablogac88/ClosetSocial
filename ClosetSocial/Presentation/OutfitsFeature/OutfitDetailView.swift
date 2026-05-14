@@ -1,0 +1,297 @@
+import SwiftUI
+
+// MARK: - Context
+
+public enum OutfitDetailContext {
+    case myOutfit(Outfit)
+    case feedPost(FeedPost)
+
+    var outfit: Outfit? {
+        switch self {
+        case .myOutfit(let o):  return o
+        case .feedPost(let p):  return p.outfit
+        }
+    }
+
+    var post: FeedPost? {
+        if case .feedPost(let p) = self { return p }
+        return nil
+    }
+}
+
+// MARK: - View
+
+public struct OutfitDetailView: View {
+    let context: OutfitDetailContext
+    var onLikeTap: (() -> Void)?    = nil
+    var onCommentTap: (() -> Void)? = nil
+
+    @Environment(\.dismiss) private var dismiss
+    @State private var selectedGarment: Garment?
+
+    private var outfit: Outfit? { context.outfit }
+    private var post: FeedPost? { context.post }
+
+    public init(
+        context: OutfitDetailContext,
+        onLikeTap: (() -> Void)? = nil,
+        onCommentTap: (() -> Void)? = nil
+    ) {
+        self.context      = context
+        self.onLikeTap    = onLikeTap
+        self.onCommentTap = onCommentTap
+    }
+
+    public var body: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 0) {
+                hero
+                infoSection
+                if let outfit, !outfit.garments.isEmpty {
+                    garmentsSection(outfit.garments)
+                }
+                if let post { actionsSection(post) }
+            }
+        }
+        .background(Color(red: 0.975, green: 0.970, blue: 0.962).ignoresSafeArea())
+        .sheet(item: $selectedGarment) { garment in
+            NavigationStack {
+                GarmentDetailView(
+                    garment: garment,
+                    relatedOutfits: [context.outfit].compactMap { $0 }
+                        .filter { $0.garments.contains { $0.id == garment.id } }
+                )
+            }
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text(outfit?.title ?? "Look")
+                    .font(.system(.subheadline, design: .rounded, weight: .medium))
+                    .foregroundStyle(Color(red: 0.30, green: 0.26, blue: 0.22).opacity(0.7))
+            }
+        }
+    }
+
+    // MARK: Hero
+
+    private var hero: some View {
+        GeometryReader { geo in
+            ZStack {
+                Color(red: 0.982, green: 0.973, blue: 0.957)
+
+                if let outfit {
+                    OutfitCanvasView(
+                        layout: outfit.layout,
+                        garments: outfit.garments,
+                        cornerRadius: 0,
+                        backgroundColor: .clear
+                    )
+                    .padding(.horizontal, heroCanvasPadding(geo.size.width))
+                    .padding(.vertical, 20)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .aspectRatio(1 / 0.78, contentMode: .fit)
+        .clipShape(UnevenRoundedRectangle(
+            bottomLeadingRadius: 28,
+            bottomTrailingRadius: 28
+        ))
+        .shadow(color: .black.opacity(0.08), radius: 24, x: 0, y: 10)
+        .shadow(color: .black.opacity(0.03), radius: 4,  x: 0, y: 2)
+    }
+
+    // Keep canvas proportionally tall (3:4) inside the wide hero.
+    private func heroCanvasPadding(_ heroWidth: CGFloat) -> CGFloat {
+        let heroHeight = heroWidth * 0.78
+        let canvasWidth = heroHeight * 3 / 4  // 3:4 portrait aspect
+        return max((heroWidth - canvasWidth) / 2, 24)
+    }
+
+    // MARK: Info
+
+    private var infoSection: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            // Title + note
+            VStack(alignment: .leading, spacing: 8) {
+                if let title = outfit?.title {
+                    Text(title)
+                        .font(.system(size: 26, weight: .semibold, design: .rounded))
+                        .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
+                }
+                if let note = outfit?.note {
+                    Text(note)
+                        .font(.system(.body, design: .rounded, weight: .regular))
+                        .foregroundStyle(Color(red: 0.52, green: 0.47, blue: 0.43))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
+            // Author + date (feedPost context)
+            if let post {
+                authorRow(post)
+                if !post.caption.isEmpty {
+                    Text(post.caption)
+                        .font(.system(.subheadline, design: .rounded, weight: .regular))
+                        .italic()
+                        .foregroundStyle(Color(red: 0.48, green: 0.44, blue: 0.40))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            } else if let createdAt = outfit?.createdAt {
+                Text(createdAt.formatted(date: .abbreviated, time: .omitted))
+                    .font(.system(.caption, design: .rounded, weight: .regular))
+                    .foregroundStyle(Color(red: 0.62, green: 0.57, blue: 0.52))
+            }
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 28)
+        .padding(.bottom, 8)
+    }
+
+    private func authorRow(_ post: FeedPost) -> some View {
+        HStack(spacing: 12) {
+            AvatarBubble(
+                displayName: post.author.displayName,
+                size: 40,
+                fillColor: Color(red: 0.91, green: 0.87, blue: 0.82),
+                textColor: Color(red: 0.44, green: 0.38, blue: 0.32)
+            )
+            VStack(alignment: .leading, spacing: 2) {
+                Text(post.author.displayName)
+                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                    .foregroundStyle(Color(red: 0.18, green: 0.15, blue: 0.13))
+                Text("@\(post.author.username) · \(post.createdAt.formatted(date: .abbreviated, time: .omitted))")
+                    .font(.system(.caption, design: .rounded, weight: .regular))
+                    .foregroundStyle(Color(red: 0.60, green: 0.55, blue: 0.51))
+            }
+        }
+    }
+
+    // MARK: Garments
+
+    private func garmentsSection(_ garments: [Garment]) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text("Prendas")
+                .font(.system(.footnote, design: .rounded, weight: .semibold))
+                .foregroundStyle(Color(red: 0.60, green: 0.55, blue: 0.51))
+                .padding(.horizontal, 24)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 14) {
+                    ForEach(garments) { garment in
+                        GarmentDetailCard(garment: garment) {
+                            selectedGarment = garment
+                        }
+                    }
+                }
+                .padding(.horizontal, 24)
+            }
+        }
+        .padding(.top, 28)
+        .padding(.bottom, 8)
+    }
+
+    // MARK: Actions
+
+    private func actionsSection(_ post: FeedPost) -> some View {
+        HStack(spacing: 16) {
+            if let onLikeTap {
+                ActionPill(
+                    icon: post.isLikedByCurrentUser ? "heart.fill" : "heart",
+                    label: "\(post.likesCount)",
+                    isActive: post.isLikedByCurrentUser,
+                    activeColor: Color(red: 0.88, green: 0.25, blue: 0.28),
+                    disabled: !post.isReal,
+                    action: onLikeTap
+                )
+            }
+            if let onCommentTap {
+                ActionPill(
+                    icon: "bubble.right",
+                    label: "\(post.commentsCount)",
+                    isActive: false,
+                    activeColor: DSColor.accent,
+                    disabled: !post.isReal,
+                    action: onCommentTap
+                )
+            }
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 28)
+        .padding(.bottom, 40)
+    }
+}
+
+// MARK: - Garment detail card
+
+private struct GarmentDetailCard: View {
+    let garment: Garment
+    var onTap: (() -> Void)? = nil
+
+    var body: some View {
+        Button { onTap?() } label: { cardContent }
+            .buttonStyle(.plain)
+            .disabled(onTap == nil)
+    }
+
+    private var cardContent: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            GarmentImage(url: garment.imageURL)
+                .frame(width: 96, height: 96)
+                .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .shadow(color: .black.opacity(0.07), radius: 8, x: 0, y: 3)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(garment.name)
+                    .font(.system(.caption, design: .rounded, weight: .semibold))
+                    .foregroundStyle(Color(red: 0.18, green: 0.15, blue: 0.13))
+                    .lineLimit(1)
+                Text(garment.type.rawValue)
+                    .font(.system(.caption2, design: .rounded, weight: .regular))
+                    .foregroundStyle(Color(red: 0.62, green: 0.57, blue: 0.52))
+                if let brand = garment.brand {
+                    Text(brand)
+                        .font(.system(.caption2, design: .rounded, weight: .regular))
+                        .foregroundStyle(Color(red: 0.72, green: 0.67, blue: 0.62))
+                        .lineLimit(1)
+                }
+            }
+            .frame(width: 96, alignment: .leading)
+        }
+    }
+}
+
+// MARK: - Action pill
+
+private struct ActionPill: View {
+    let icon: String
+    let label: String
+    let isActive: Bool
+    let activeColor: Color
+    let disabled: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 7) {
+                Image(systemName: icon)
+                    .font(.system(size: 15, weight: isActive ? .semibold : .regular))
+                Text(label)
+                    .font(.system(.subheadline, design: .rounded, weight: isActive ? .semibold : .regular))
+            }
+            .foregroundStyle(isActive ? activeColor : Color(red: 0.52, green: 0.47, blue: 0.43))
+            .padding(.horizontal, 18)
+            .padding(.vertical, 12)
+            .background(
+                isActive
+                    ? activeColor.opacity(0.10)
+                    : Color(red: 0.91, green: 0.89, blue: 0.86).opacity(0.7),
+                in: Capsule()
+            )
+            .animation(.easeInOut(duration: 0.18), value: isActive)
+        }
+        .buttonStyle(.plain)
+        .disabled(disabled)
+    }
+}

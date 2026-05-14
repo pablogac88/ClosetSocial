@@ -1,6 +1,6 @@
 import Foundation
 
-public enum GarmentType: String, Codable, Sendable, Equatable, CaseIterable, Identifiable {
+public enum GarmentType: String, Codable, Sendable, Equatable, Hashable, CaseIterable, Identifiable {
     case tShirt = "Camiseta"
     case shirt = "Camisa"
     case blazer = "Blazer"
@@ -22,7 +22,7 @@ public enum GarmentType: String, Codable, Sendable, Equatable, CaseIterable, Ide
     }
 }
 
-public struct Garment: Codable, Sendable, Equatable, Identifiable {
+public struct Garment: Codable, Sendable, Equatable, Hashable, Identifiable {
     public let id: UUID
     public let name: String
     public let brand: String?

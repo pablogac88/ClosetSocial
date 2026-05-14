@@ -29,6 +29,7 @@ struct MainTabView: View {
         let outfits = OutfitsViewModel(
             repository: dependencies.outfitsRepository,
             closetRepository: dependencies.closetRepository,
+            timelineRepository: dependencies.timelineRepository,
             tokenProvider: tokenProvider
         )
         let profile = ProfileViewModel(
@@ -71,7 +72,17 @@ struct MainTabView: View {
             .tabItem { Label("Timeline", systemImage: "sparkles.rectangle.stack") }
 
             NavigationStack {
-                ClosetView(viewModel: closetViewModel)
+                ClosetView(
+                    viewModel: closetViewModel,
+                    findRelatedOutfits: { garment in
+                        if case .content(let outfits) = outfitsViewModel.state {
+                            return outfits.filter { outfit in
+                                outfit.garments.contains { $0.id == garment.id }
+                            }
+                        }
+                        return []
+                    }
+                )
             }
             .tabItem { Label("Armario", systemImage: "hanger") }
 

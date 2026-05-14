@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Outfit: Codable, Sendable, Equatable, Identifiable {
+public struct Outfit: Codable, Sendable, Equatable, Hashable, Identifiable {
     public let id: UUID
     public let title: String?
     public let note: String?

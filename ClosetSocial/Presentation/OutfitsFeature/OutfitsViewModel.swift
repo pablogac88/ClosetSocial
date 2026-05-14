@@ -21,15 +21,18 @@ public final class OutfitsViewModel {
 
     private let repository: any OutfitsRepository
     private let closetRepository: any ClosetRepository
+    private let timelineRepository: any TimelineRepository
     private let tokenProvider: TokenProvider
 
     public init(
         repository: any OutfitsRepository,
         closetRepository: any ClosetRepository,
+        timelineRepository: any TimelineRepository,
         tokenProvider: @escaping TokenProvider
     ) {
         self.repository = repository
         self.closetRepository = closetRepository
+        self.timelineRepository = timelineRepository
         self.tokenProvider = tokenProvider
     }
 
@@ -58,6 +61,7 @@ public final class OutfitsViewModel {
         OutfitComposerViewModel(
             closetRepository: closetRepository,
             outfitsRepository: repository,
+            timelineRepository: timelineRepository,
             tokenProvider: tokenProvider,
             onOutfitSaved: { [weak self] outfit in self?.appendOutfit(outfit) }
         )

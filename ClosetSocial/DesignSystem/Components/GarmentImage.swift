@@ -2,6 +2,7 @@ import SwiftUI
 
 /// Drop-in for AsyncImage in garment contexts.
 /// Warm shimmer during loading; fades the image in on success.
+/// Shows a styled fallback (not an eternal shimmer) on failure.
 /// Caller is responsible for clipping and frame sizing.
 struct GarmentImage: View {
     let url: URL?
@@ -9,14 +10,26 @@ struct GarmentImage: View {
     var body: some View {
         if let url {
             AsyncImage(url: url) { phase in
-                ZStack {
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                        .transition(.opacity.animation(.easeIn(duration: 0.22)))
+
+                case .failure(let error):
+                    FailurePlaceholder()
+                        .onAppear {
+                            #if DEBUG
+                            print("[GarmentImage] ❌ \(url.absoluteString)\n  → \(error.localizedDescription)")
+                            #endif
+                        }
+
+                case .empty:
                     ShimmerPlaceholder()
-                    if case .success(let image) = phase {
-                        image
-                            .resizable()
-                            .scaledToFill()
-                            .transition(.opacity.animation(.easeIn(duration: 0.22)))
-                    }
+
+                @unknown default:
+                    ShimmerPlaceholder()
                 }
             }
         } else {
@@ -24,6 +37,21 @@ struct GarmentImage: View {
         }
     }
 }
+
+// MARK: - Failure placeholder
+
+private struct FailurePlaceholder: View {
+    var body: some View {
+        ZStack {
+            Color(red: 0.93, green: 0.91, blue: 0.88)
+            Image(systemName: "photo")
+                .font(.system(size: 18, weight: .ultraLight))
+                .foregroundStyle(Color(red: 0.64, green: 0.58, blue: 0.52))
+        }
+    }
+}
+
+// MARK: - Shimmer placeholder
 
 private struct ShimmerPlaceholder: View {
     @State private var phase: CGFloat = 0

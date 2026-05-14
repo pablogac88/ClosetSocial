@@ -4,6 +4,7 @@ public struct OutfitsView: View {
     @Bindable private var viewModel: OutfitsViewModel
     @State private var isPresentingCreateSheet = false
     @State private var composerVM: OutfitComposerViewModel?
+    @State private var selectedOutfit: Outfit?
 
     public init(viewModel: OutfitsViewModel) {
         self.viewModel = viewModel
@@ -57,23 +58,44 @@ public struct OutfitsView: View {
                 OutfitComposerView(viewModel: vm)
             }
         }
+        .navigationDestination(item: $selectedOutfit) { outfit in
+            OutfitDetailView(context: .myOutfit(outfit))
+        }
         .task { await viewModel.load() }
     }
 
     private func list(_ items: [Outfit]) -> some View {
         List {
             ForEach(items) { outfit in
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(outfit.title ?? "Outfit sin título").font(DSFont.headline)
-                    if let note = outfit.note {
-                        Text(note)
-                            .font(DSFont.footnote)
-                            .foregroundStyle(.secondary)
+                Button { selectedOutfit = outfit } label: {
+                    HStack(spacing: 14) {
+                        OutfitCanvasView(
+                            layout: outfit.layout,
+                            garments: outfit.garments,
+                            cornerRadius: 10
+                        )
+                        .frame(width: 52, height: 52)
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(outfit.title ?? "Outfit sin título").font(DSFont.headline)
+                            if let note = outfit.note {
+                                Text(note)
+                                    .font(DSFont.footnote)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(1)
+                            }
+                            Text(outfit.garments.map(\.name).joined(separator: " · "))
+                                .font(DSFont.footnoteBold)
+                                .foregroundStyle(DSColor.highlightSoft)
+                                .lineLimit(1)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(Color.secondary.opacity(0.4))
                     }
-                    Text(outfit.garments.map(\.name).joined(separator: " · "))
-                        .font(DSFont.footnoteBold)
-                        .foregroundStyle(DSColor.highlightSoft)
                 }
+                .buttonStyle(.plain)
                 .padding(.vertical, 6)
                 .listRowBackground(
                     RoundedRectangle(cornerRadius: 18, style: .continuous)

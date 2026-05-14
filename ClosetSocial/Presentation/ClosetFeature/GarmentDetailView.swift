@@ -1,0 +1,161 @@
+import SwiftUI
+
+public struct GarmentDetailView: View {
+    let garment: Garment
+    let relatedOutfits: [Outfit]
+
+    @State private var selectedOutfit: Outfit?
+
+    public init(garment: Garment, relatedOutfits: [Outfit] = []) {
+        self.garment       = garment
+        self.relatedOutfits = relatedOutfits
+    }
+
+    public var body: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 0) {
+                hero
+                metadataSection
+                if !relatedOutfits.isEmpty {
+                    looksSection
+                }
+                Color.clear.frame(height: 40)
+            }
+        }
+        .background(Color(red: 0.975, green: 0.970, blue: 0.962).ignoresSafeArea())
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text(garment.type.rawValue)
+                    .font(.system(.subheadline, design: .rounded, weight: .medium))
+                    .foregroundStyle(Color(red: 0.30, green: 0.26, blue: 0.22).opacity(0.7))
+            }
+        }
+        .sheet(item: $selectedOutfit) { outfit in
+            NavigationStack {
+                OutfitDetailView(context: .myOutfit(outfit))
+            }
+        }
+    }
+
+    // MARK: Hero
+
+    private var hero: some View {
+        Color.clear
+            .frame(maxWidth: .infinity)
+            .aspectRatio(1 / 1.1, contentMode: .fit)
+            .overlay { GarmentImage(url: garment.imageURL) }
+            .clipShape(UnevenRoundedRectangle(
+                bottomLeadingRadius: 28,
+                bottomTrailingRadius: 28
+            ))
+            .shadow(color: .black.opacity(0.09), radius: 28, x: 0, y: 12)
+            .shadow(color: .black.opacity(0.03), radius: 4,  x: 0, y: 2)
+    }
+
+    // MARK: Metadata
+
+    private var metadataSection: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(garment.name)
+                    .font(.system(size: 26, weight: .semibold, design: .rounded))
+                    .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
+
+                if let brand = garment.brand, !brand.isEmpty {
+                    Text(brand)
+                        .font(.system(.title3, design: .rounded, weight: .regular))
+                        .foregroundStyle(Color(red: 0.44, green: 0.39, blue: 0.35))
+                }
+            }
+
+            HStack(spacing: 8) {
+                MetaPill(label: garment.type.rawValue)
+                if !garment.color.isEmpty {
+                    MetaPill(label: garment.color)
+                }
+            }
+
+            Text(garment.createdAt.formatted(date: .abbreviated, time: .omitted))
+                .font(.system(.caption, design: .rounded, weight: .regular))
+                .foregroundStyle(Color(red: 0.64, green: 0.59, blue: 0.54))
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 28)
+        .padding(.bottom, 8)
+    }
+
+    // MARK: Looks
+
+    private var looksSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Looks con esta prenda")
+                .font(.system(.footnote, design: .rounded, weight: .semibold))
+                .foregroundStyle(Color(red: 0.60, green: 0.55, blue: 0.51))
+                .padding(.horizontal, 24)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 20) {
+                    ForEach(relatedOutfits) { outfit in
+                        LookbookCard(outfit: outfit) {
+                            selectedOutfit = outfit
+                        }
+                    }
+                }
+                .padding(.horizontal, 24)
+                .padding(.vertical, 4)
+            }
+        }
+        .padding(.top, 36)
+    }
+}
+
+// MARK: - Meta pill
+
+private struct MetaPill: View {
+    let label: String
+
+    var body: some View {
+        Text(label)
+            .font(.system(.caption, design: .rounded, weight: .medium))
+            .foregroundStyle(Color(red: 0.44, green: 0.39, blue: 0.35))
+            .padding(.horizontal, 14)
+            .padding(.vertical, 7)
+            .background(
+                Color(red: 0.91, green: 0.88, blue: 0.84).opacity(0.8),
+                in: Capsule()
+            )
+    }
+}
+
+// MARK: - Lookbook card
+
+private struct LookbookCard: View {
+    let outfit: Outfit
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            VStack(alignment: .leading, spacing: 12) {
+                OutfitCanvasView(
+                    layout: outfit.layout,
+                    garments: outfit.garments,
+                    cornerRadius: 20
+                )
+                .aspectRatio(3 / 4, contentMode: .fit)
+                .frame(width: 160)
+                .shadow(color: .black.opacity(0.09), radius: 14, x: 0, y: 5)
+                .shadow(color: .black.opacity(0.03), radius: 3,  x: 0, y: 1)
+
+                if let title = outfit.title {
+                    Text(title)
+                        .font(.system(.caption, design: .rounded, weight: .medium))
+                        .foregroundStyle(Color(red: 0.28, green: 0.24, blue: 0.22))
+                        .lineLimit(1)
+                        .frame(width: 160, alignment: .leading)
+                }
+            }
+        }
+        .buttonStyle(.plain)
+    }
+}

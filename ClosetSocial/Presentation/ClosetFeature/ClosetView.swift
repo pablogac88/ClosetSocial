@@ -3,9 +3,13 @@ import SwiftUI
 public struct ClosetView: View {
     @Bindable private var viewModel: ClosetViewModel
     @State private var isPresentingAddSheet = false
+    @State private var selectedGarment: Garment?
 
-    public init(viewModel: ClosetViewModel) {
-        self.viewModel = viewModel
+    var findRelatedOutfits: ((Garment) -> [Outfit])? = nil
+
+    public init(viewModel: ClosetViewModel, findRelatedOutfits: ((Garment) -> [Outfit])? = nil) {
+        self.viewModel            = viewModel
+        self.findRelatedOutfits   = findRelatedOutfits
     }
 
     public var body: some View {
@@ -42,18 +46,38 @@ public struct ClosetView: View {
         .sheet(isPresented: $isPresentingAddSheet) {
             AddGarmentSheet(viewModel: viewModel.makeAddGarmentViewModel())
         }
+        .navigationDestination(item: $selectedGarment) { garment in
+            GarmentDetailView(
+                garment: garment,
+                relatedOutfits: findRelatedOutfits?(garment) ?? []
+            )
+        }
         .task { await viewModel.load() }
     }
 
     private func list(_ items: [Garment]) -> some View {
         List {
             ForEach(items) { item in
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(item.name).font(DSFont.headline)
-                    Text(item.subtitle)
-                        .font(DSFont.footnote)
-                        .foregroundStyle(.secondary)
+                Button { selectedGarment = item } label: {
+                    HStack(spacing: 14) {
+                        GarmentImage(url: item.imageURL)
+                            .frame(width: 52, height: 52)
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(item.name).font(DSFont.headline)
+                            Text(item.subtitle)
+                                .font(DSFont.footnote)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(Color.secondary.opacity(0.4))
+                    }
                 }
+                .buttonStyle(.plain)
                 .padding(.vertical, 6)
                 .listRowBackground(
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
