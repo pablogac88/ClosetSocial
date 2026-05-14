@@ -21,9 +21,17 @@ struct RemoteRequestSender: Sendable {
         path: String,
         method: HTTPMethod,
         token: String? = nil,
+        queryItems: [HTTPRequestQueryItem] = [],
         as: Response.Type
     ) async throws -> Response {
-        try await execute(path: path, method: method, body: Data?.none, token: token, as: Response.self)
+        try await execute(
+            path: path,
+            method: method,
+            queryItems: queryItems,
+            body: Data?.none,
+            token: token,
+            as: Response.self
+        )
     }
 
     func send<Body: Encodable & Sendable, Response: Decodable & Sendable>(
@@ -31,18 +39,33 @@ struct RemoteRequestSender: Sendable {
         method: HTTPMethod,
         body: Body,
         token: String? = nil,
+        queryItems: [HTTPRequestQueryItem] = [],
         as: Response.Type
     ) async throws -> Response {
         let data = try encoder.encode(body)
-        return try await execute(path: path, method: method, body: data, token: token, as: Response.self)
+        return try await execute(
+            path: path,
+            method: method,
+            queryItems: queryItems,
+            body: data,
+            token: token,
+            as: Response.self
+        )
     }
 
     func sendVoid(
         path: String,
         method: HTTPMethod,
-        token: String? = nil
+        token: String? = nil,
+        queryItems: [HTTPRequestQueryItem] = []
     ) async throws {
-        let request = HTTPRequest(method: method, path: path, body: nil, bearerToken: token)
+        let request = HTTPRequest(
+            method: method,
+            path: path,
+            queryItems: queryItems,
+            body: nil,
+            bearerToken: token
+        )
         let response: HTTPClientResponse
         do {
             response = try await client.send(request)
@@ -59,11 +82,18 @@ struct RemoteRequestSender: Sendable {
     private func execute<Response: Decodable & Sendable>(
         path: String,
         method: HTTPMethod,
+        queryItems: [HTTPRequestQueryItem],
         body: Data?,
         token: String?,
         as: Response.Type
     ) async throws -> Response {
-        let request = HTTPRequest(method: method, path: path, body: body, bearerToken: token)
+        let request = HTTPRequest(
+            method: method,
+            path: path,
+            queryItems: queryItems,
+            body: body,
+            bearerToken: token
+        )
 
         let response: HTTPClientResponse
         do {

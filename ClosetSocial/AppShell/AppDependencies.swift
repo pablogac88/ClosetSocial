@@ -5,6 +5,7 @@ import Foundation
 public struct AppDependencies: Sendable {
     public let authRepository: any AuthRepository
     public let timelineRepository: any TimelineRepository
+    public let searchRepository: any SearchRepository
     public let closetRepository: any ClosetRepository
     public let outfitsRepository: any OutfitsRepository
     public let profileRepository: any ProfileRepository
@@ -14,12 +15,14 @@ public struct AppDependencies: Sendable {
     public init(
         authRepository: any AuthRepository,
         timelineRepository: any TimelineRepository,
+        searchRepository: any SearchRepository,
         closetRepository: any ClosetRepository,
         outfitsRepository: any OutfitsRepository,
         profileRepository: any ProfileRepository
     ) {
         self.authRepository = authRepository
         self.timelineRepository = timelineRepository
+        self.searchRepository = searchRepository
         self.closetRepository = closetRepository
         self.outfitsRepository = outfitsRepository
         self.profileRepository = profileRepository
@@ -39,6 +42,7 @@ public struct AppDependencies: Sendable {
         return AppDependencies(
             authRepository: repos.auth,
             timelineRepository: repos.timeline,
+            searchRepository: repos.search,
             closetRepository: repos.closet,
             outfitsRepository: repos.outfits,
             profileRepository: repos.profile
@@ -51,6 +55,7 @@ public struct AppDependencies: Sendable {
         return AppDependencies(
             authRepository: InMemoryAuthRepository(backend: backend),
             timelineRepository: InMemoryTimelineRepository(backend: backend),
+            searchRepository: InMemorySearchRepository(backend: backend),
             closetRepository: InMemoryClosetRepository(backend: backend),
             outfitsRepository: InMemoryOutfitsRepository(backend: backend),
             profileRepository: InMemoryProfileRepository(backend: backend)

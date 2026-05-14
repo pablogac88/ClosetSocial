@@ -5,6 +5,7 @@ struct MainTabView: View {
     let dependencies: AppDependencies
 
     @State private var timelineViewModel: TimelineViewModel
+    @State private var exploreViewModel: ExploreViewModel
     @State private var closetViewModel: ClosetViewModel
     @State private var outfitsViewModel: OutfitsViewModel
     @State private var profileViewModel: ProfileViewModel
@@ -28,8 +29,16 @@ struct MainTabView: View {
         )
         let profile = ProfileViewModel(
             repository: dependencies.profileRepository,
+            timelineRepository: dependencies.timelineRepository,
+            closetRepository: dependencies.closetRepository,
+            outfitsRepository: dependencies.outfitsRepository,
             tokenProvider: tokenProvider,
             onLogout: { [session] in session.signOut() }
+        )
+        let explore = ExploreViewModel(
+            editorialRepository: dependencies.timelineRepository,
+            searchRepository: dependencies.searchRepository,
+            tokenProvider: tokenProvider
         )
         let outfits = OutfitsViewModel(
             repository: dependencies.outfitsRepository,
@@ -39,6 +48,7 @@ struct MainTabView: View {
             onOutfitDeleted: {
                 Task {
                     await timeline.load()
+                    await explore.load()
                     await profile.load()
                 }
             }
@@ -49,15 +59,18 @@ struct MainTabView: View {
             tokenProvider: tokenProvider
         ) { result in
             timeline.replace(with: result.updatedTimeline)
+            explore.replace(with: result.updatedTimeline)
             profile.replace(with: result.updatedProfile)
         } onGarmentDeleted: {
             Task {
                 await timeline.load()
+                await explore.load()
                 await profile.load()
             }
         }
 
         self._timelineViewModel = State(initialValue: timeline)
+        self._exploreViewModel = State(initialValue: explore)
         self._closetViewModel = State(initialValue: closet)
         self._outfitsViewModel = State(initialValue: outfits)
         self._profileViewModel = State(initialValue: profile)
@@ -72,15 +85,28 @@ struct MainTabView: View {
         )
     }
 
+    @State private var selectedTab = 0
+
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             NavigationStack {
                 TimelineView(
                     viewModel: timelineViewModel,
+                    makePublicProfileViewModel: makePublicProfileViewModel(for:),
+                    onAddGarmentTap: { selectedTab = 2 }
+                )
+            }
+            .tag(0)
+            .tabItem { Label("Timeline", systemImage: "sparkles.rectangle.stack") }
+
+            NavigationStack {
+                ExploreView(
+                    viewModel: exploreViewModel,
                     makePublicProfileViewModel: makePublicProfileViewModel(for:)
                 )
             }
-            .tabItem { Label("Timeline", systemImage: "sparkles.rectangle.stack") }
+            .tag(1)
+            .tabItem { Label("Explore", systemImage: "square.grid.3x3.square") }
 
             NavigationStack {
                 ClosetView(
@@ -95,16 +121,19 @@ struct MainTabView: View {
                     }
                 )
             }
+            .tag(2)
             .tabItem { Label("Armario", systemImage: "hanger") }
 
             NavigationStack {
                 OutfitsView(viewModel: outfitsViewModel)
             }
+            .tag(3)
             .tabItem { Label("Outfits", systemImage: "square.grid.2x2") }
 
             NavigationStack {
                 ProfileView(viewModel: profileViewModel)
             }
+            .tag(4)
             .tabItem { Label("Perfil", systemImage: "person.crop.circle") }
         }
     }

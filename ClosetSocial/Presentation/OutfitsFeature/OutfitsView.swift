@@ -20,10 +20,13 @@ public struct OutfitsView: View {
             case let .content(items):
                 list(items)
             case .empty:
-                ContentUnavailableView(
-                    "Aún no tienes outfits",
-                    systemImage: "square.grid.2x2",
-                    description: Text("Combina prendas para crear tu primer look.")
+                EmptyStateView(
+                    icon: "square.grid.2x2",
+                    title: "Sin looks todavía",
+                    message: "Combina prendas del armario y crea tu primer outfit con el compositor visual.",
+                    action: .init(label: "Crear look") {
+                        composerVM = viewModel.makeComposerViewModel()
+                    }
                 )
             case let .error(message):
                 ContentUnavailableView(

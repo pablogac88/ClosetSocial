@@ -5,6 +5,7 @@ import Foundation
 public struct RemoteRepositories: Sendable {
     public let auth: any AuthRepository
     public let timeline: any TimelineRepository
+    public let search: any SearchRepository
     public let closet: any ClosetRepository
     public let outfits: any OutfitsRepository
     public let profile: any ProfileRepository
@@ -17,6 +18,7 @@ public struct RemoteRepositories: Sendable {
 
         self.auth = RemoteAuthRepository(client: client, encoder: encoder, decoder: decoder)
         self.timeline = RemoteTimelineRepository(client: client, encoder: encoder, decoder: decoder)
+        self.search = RemoteSearchRepository(client: client, encoder: encoder, decoder: decoder)
         self.closet = RemoteClosetRepository(client: client, encoder: encoder, decoder: decoder)
         self.outfits = RemoteOutfitsRepository(client: client, encoder: encoder, decoder: decoder)
         self.profile = RemoteProfileRepository(client: client, encoder: encoder, decoder: decoder)

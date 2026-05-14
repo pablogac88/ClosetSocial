@@ -10,7 +10,8 @@ public struct URLSessionHTTPClient: HTTPClient {
     }
 
     public func send(_ request: HTTPRequest) async throws -> HTTPClientResponse {
-        var urlRequest = URLRequest(url: baseURL.appending(path: request.path))
+        let url = try makeURL(for: request)
+        var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = request.method.rawValue
         urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
         urlRequest.setValue("application/json", forHTTPHeaderField: "Accept")
@@ -40,5 +41,26 @@ public struct URLSessionHTTPClient: HTTPClient {
         } catch {
             throw HTTPError.unknown
         }
+    }
+
+    private func makeURL(for request: HTTPRequest) throws -> URL {
+        guard let relativeURL = URL(string: request.path, relativeTo: baseURL),
+              var components = URLComponents(url: relativeURL, resolvingAgainstBaseURL: true)
+        else {
+            throw HTTPError.invalidResponse
+        }
+
+        if !request.queryItems.isEmpty {
+            let mappedItems = request.queryItems.map { item in
+                URLQueryItem(name: item.name, value: item.value)
+            }
+            components.queryItems = (components.queryItems ?? []) + mappedItems
+        }
+
+        guard let finalURL = components.url else {
+            throw HTTPError.invalidResponse
+        }
+
+        return finalURL
     }
 }

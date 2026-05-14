@@ -3,6 +3,7 @@ import SwiftUI
 public struct TimelineView: View {
     @Bindable private var viewModel: TimelineViewModel
     private let makePublicProfileViewModel: (UUID) -> PublicProfileViewModel
+    private let onAddGarmentTap: (@MainActor () -> Void)?
     @State private var isPresentingCreateSheet = false
     @State private var postForComments: FeedPost? = nil
     @State private var selectedAuthor: User? = nil
@@ -11,10 +12,12 @@ public struct TimelineView: View {
 
     public init(
         viewModel: TimelineViewModel,
-        makePublicProfileViewModel: @escaping (UUID) -> PublicProfileViewModel
+        makePublicProfileViewModel: @escaping (UUID) -> PublicProfileViewModel,
+        onAddGarmentTap: (@MainActor () -> Void)? = nil
     ) {
         self.viewModel = viewModel
         self.makePublicProfileViewModel = makePublicProfileViewModel
+        self.onAddGarmentTap = onAddGarmentTap
     }
 
     public var body: some View {
@@ -25,10 +28,11 @@ public struct TimelineView: View {
             case let .content(items):
                 content(items)
             case .empty:
-                ContentUnavailableView(
-                    "Tu timeline está vacío",
-                    systemImage: "sparkles",
-                    description: Text("Cuando tus amigos compartan compras u outfits aparecerán aquí.")
+                EmptyStateView(
+                    icon: "sparkles",
+                    title: "Tu inspiración, aún por llegar",
+                    message: "Empieza añadiendo prendas a tu armario. La comunidad se irá animando.",
+                    action: onAddGarmentTap.map { .init(label: "Añadir prenda", handler: $0) }
                 )
             case let .error(message):
                 ContentUnavailableView(

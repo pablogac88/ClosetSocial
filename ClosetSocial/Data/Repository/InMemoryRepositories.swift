@@ -63,6 +63,34 @@ public actor InMemoryClosetSocialBackend {
     func currentOutfits() -> [Outfit] { outfits }
     func currentTimeline() -> [FeedPost] { timeline }
 
+    func search(query: String) -> SearchResults {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            return SearchResults(users: [], garments: [], outfits: [])
+        }
+
+        let normalizedQuery = normalized(trimmed)
+
+        let users = uniqueUsers().filter { user in
+            normalized(user.displayName).contains(normalizedQuery)
+                || normalized(user.username).contains(normalizedQuery)
+        }
+
+        let garments = closet.filter { garment in
+            normalized(garment.name).contains(normalizedQuery)
+                || normalized(garment.brand).contains(normalizedQuery)
+                || normalized(garment.type.rawValue).contains(normalizedQuery)
+                || normalized(garment.color).contains(normalizedQuery)
+        }
+
+        let outfits = outfits.filter { outfit in
+            normalized(outfit.title).contains(normalizedQuery)
+                || normalized(outfit.note).contains(normalizedQuery)
+        }
+
+        return SearchResults(users: users, garments: garments, outfits: outfits)
+    }
+
     func register(username: String, displayName: String) -> AuthSession {
         let user = User(id: UUID(), username: username, displayName: displayName, avatarURL: nil)
         session = AuthSession(token: "preview-token", user: user)
@@ -183,6 +211,21 @@ public actor InMemoryClosetSocialBackend {
         }
         return comment
     }
+
+    private func uniqueUsers() -> [User] {
+        var seen = Set<UUID>()
+        return timeline.compactMap { post in
+            let author = post.author
+            guard seen.insert(author.id).inserted else { return nil }
+            return author
+        }
+    }
+
+    private func normalized(_ value: String?) -> String {
+        value?
+            .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
+            .lowercased() ?? ""
+    }
 }
 
 public struct InMemoryAuthRepository: AuthRepository {
@@ -255,6 +298,18 @@ public struct InMemoryClosetRepository: ClosetRepository {
 
     public func deleteGarment(token: String, id: UUID) async throws {
         try await backend.deleteGarment(id: id)
+    }
+}
+
+public struct InMemorySearchRepository: SearchRepository {
+    private let backend: InMemoryClosetSocialBackend
+
+    public init(backend: InMemoryClosetSocialBackend) {
+        self.backend = backend
+    }
+
+    public func search(token: String, query: String) async throws -> SearchResults {
+        await backend.search(query: query)
     }
 }
 

@@ -117,6 +117,16 @@ extension PublicUserProfileDTO {
     }
 }
 
+extension SearchResultsDTO {
+    func toDomain() -> SearchResults {
+        SearchResults(
+            users: users.map { $0.toDomain() },
+            garments: garments.map { $0.toDomain() },
+            outfits: outfits.map { $0.toDomain() }
+        )
+    }
+}
+
 extension CreatePostRequest {
     func toDTO() -> CreatePostRequestDTO {
         CreatePostRequestDTO(

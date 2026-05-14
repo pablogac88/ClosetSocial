@@ -22,10 +22,11 @@ public struct ClosetView: View {
             case let .content(items):
                 list(items)
             case .empty:
-                ContentUnavailableView(
-                    "Tu armario está vacío",
-                    systemImage: "hanger",
-                    description: Text("Añade tu primera prenda para empezar.")
+                EmptyStateView(
+                    icon: "hanger",
+                    title: "Tu armario está esperando",
+                    message: "Añade tu primera prenda y empieza a construir tu estilo.",
+                    action: .init(label: "Añadir prenda") { isPresentingAddSheet = true }
                 )
             case let .error(message):
                 ContentUnavailableView(

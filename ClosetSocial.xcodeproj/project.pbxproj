@@ -11,6 +11,12 @@
 		E9A2C9482FB4805D0008B99E /* TimelineViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9462FB4805D0008B99E /* TimelineViewModel.swift */; };
 		E9A2C9492FB4805D0008B99E /* OutfitsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C93F2FB4805D0008B99E /* OutfitsView.swift */; };
 		E9A2C94A2FB4805D0008B99E /* TimelineView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9452FB4805D0008B99E /* TimelineView.swift */; };
+		E9A4D1042FB5805D0008B99E /* ExploreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A4D1012FB5805D0008B99E /* ExploreView.swift */; };
+		E9A4D1052FB5805D0008B99E /* ExploreViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A4D1022FB5805D0008B99E /* ExploreViewModel.swift */; };
+		E9A4D1062FB5805D0008B99E /* SearchResults.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A4D10A2FB5805D0008B99E /* SearchResults.swift */; };
+		E9A4D1072FB5805D0008B99E /* SearchRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A4D10B2FB5805D0008B99E /* SearchRepository.swift */; };
+		E9A4D1082FB5805D0008B99E /* SearchResultsDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A4D10C2FB5805D0008B99E /* SearchResultsDTO.swift */; };
+		E9A4D1092FB5805D0008B99E /* RemoteSearchRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A4D10D2FB5805D0008B99E /* RemoteSearchRepository.swift */; };
 		E9A2C94B2FB4805D0008B99E /* AddGarmentSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C93A2FB4805D0008B99E /* AddGarmentSheet.swift */; };
 		E9A2C94C2FB4805D0008B99E /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9372FB4805D0008B99E /* LoginView.swift */; };
 		E9A2C94D2FB4805D0008B99E /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9422FB4805D0008B99E /* ProfileView.swift */; };
@@ -24,6 +30,7 @@
 		CC010A052FB4805D0008B99E /* OutfitComposerLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC010A042FB4805D0008B99E /* OutfitComposerLayout.swift */; };
 		CC010A072FB4805D0008B99E /* OutfitLayoutEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC010A062FB4805D0008B99E /* OutfitLayoutEngine.swift */; };
 		CC020A012FB4805D0008B99E /* OutfitCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC020A002FB4805D0008B99E /* OutfitCanvasView.swift */; };
+		CC050A012FB4805D0008B99E /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC050A002FB4805D0008B99E /* EmptyStateView.swift */; };
 		CC020A032FB4805D0008B99E /* OutfitDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC020A022FB4805D0008B99E /* OutfitDetailView.swift */; };
 		CC030A012FB4805D0008B99E /* GarmentDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC030A002FB4805D0008B99E /* GarmentDetailView.swift */; };
 		E9A2C9532FB4805D0008B99E /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9432FB4805D0008B99E /* ProfileViewModel.swift */; };
@@ -97,6 +104,12 @@
 		E9A2C9432FB4805D0008B99E /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		E9A453CDCEAD4A699261ACB2 /* PublicProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicProfileView.swift; sourceTree = "<group>"; };
 		6D1C07AC72A74D2F9DE23626 /* PublicProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicProfileViewModel.swift; sourceTree = "<group>"; };
+		E9A4D1012FB5805D0008B99E /* ExploreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreView.swift; sourceTree = "<group>"; };
+		E9A4D1022FB5805D0008B99E /* ExploreViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExploreViewModel.swift; sourceTree = "<group>"; };
+		E9A4D10A2FB5805D0008B99E /* SearchResults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResults.swift; sourceTree = "<group>"; };
+		E9A4D10B2FB5805D0008B99E /* SearchRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchRepository.swift; sourceTree = "<group>"; };
+		E9A4D10C2FB5805D0008B99E /* SearchResultsDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultsDTO.swift; sourceTree = "<group>"; };
+		E9A4D10D2FB5805D0008B99E /* RemoteSearchRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteSearchRepository.swift; sourceTree = "<group>"; };
 		E9A2C9452FB4805D0008B99E /* TimelineView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineView.swift; sourceTree = "<group>"; };
 		E9A2C9462FB4805D0008B99E /* TimelineViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineViewModel.swift; sourceTree = "<group>"; };
 		E9A2C9542FB480670008B99E /* AppDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependencies.swift; sourceTree = "<group>"; };
@@ -123,6 +136,7 @@
 		E9A2C96F2FB480670008B99E /* AvatarBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarBubble.swift; sourceTree = "<group>"; };
 		CC002A002FB4805D0008B99E /* GarmentImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GarmentImage.swift; sourceTree = "<group>"; };
 		CC020A002FB4805D0008B99E /* OutfitCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutfitCanvasView.swift; sourceTree = "<group>"; };
+		CC050A002FB4805D0008B99E /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		E9A2C9702FB480670008B99E /* BackgroundGradient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundGradient.swift; sourceTree = "<group>"; };
 		E9A2C9712FB480670008B99E /* MetricCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricCard.swift; sourceTree = "<group>"; };
 		E9A2C9722FB480670008B99E /* PrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryButton.swift; sourceTree = "<group>"; };
@@ -201,11 +215,21 @@
 			children = (
 				E9A2C9392FB4805D0008B99E /* AuthFeature */,
 				E9A2C93E2FB4805D0008B99E /* ClosetFeature */,
+				E9A4D1032FB5805D0008B99E /* ExploreFeature */,
 				E9A2C9412FB4805D0008B99E /* OutfitsFeature */,
 				E9A2C9442FB4805D0008B99E /* ProfileFeature */,
 				E9A2C9472FB4805D0008B99E /* TimelineFeature */,
 			);
 			path = Presentation;
+			sourceTree = "<group>";
+		};
+		E9A4D1032FB5805D0008B99E /* ExploreFeature */ = {
+			isa = PBXGroup;
+			children = (
+				E9A4D1012FB5805D0008B99E /* ExploreView.swift */,
+				E9A4D1022FB5805D0008B99E /* ExploreViewModel.swift */,
+			);
+			path = ExploreFeature;
 			sourceTree = "<group>";
 		};
 		E9A2C9392FB4805D0008B99E /* AuthFeature */ = {
@@ -279,6 +303,7 @@
 				E9A2C95A2FB480670008B99E /* FeedPostDTO.swift */,
 				E9A2C95B2FB480670008B99E /* GarmentDTO.swift */,
 				E9A2C95C2FB480670008B99E /* OutfitDTO.swift */,
+				E9A4D10C2FB5805D0008B99E /* SearchResultsDTO.swift */,
 				E9A2C95D2FB480670008B99E /* ServerErrorDTO.swift */,
 				E9A2C95E2FB480670008B99E /* UserDTO.swift */,
 				E9A2C95F2FB480670008B99E /* UserProfileDTO.swift */,
@@ -311,6 +336,7 @@
 				E9A2C9682FB480670008B99E /* RemoteClosetRepository.swift */,
 				E9A2C9692FB480670008B99E /* RemoteOutfitsRepository.swift */,
 				E9A2C96A2FB480670008B99E /* RemoteProfileRepository.swift */,
+				E9A4D10D2FB5805D0008B99E /* RemoteSearchRepository.swift */,
 				E9A2C96B2FB480670008B99E /* RemoteTimelineRepository.swift */,
 			);
 			path = Repository;
@@ -335,6 +361,7 @@
 				E9A2C9702FB480670008B99E /* BackgroundGradient.swift */,
 				CC002A002FB4805D0008B99E /* GarmentImage.swift */,
 				CC020A002FB4805D0008B99E /* OutfitCanvasView.swift */,
+				CC050A002FB4805D0008B99E /* EmptyStateView.swift */,
 				E9A2C9712FB480670008B99E /* MetricCard.swift */,
 				E9A2C9722FB480670008B99E /* PrimaryButton.swift */,
 			);
@@ -362,6 +389,7 @@
 				E9A2C97B2FB480670008B99E /* Outfit.swift */,
 				CC010A042FB4805D0008B99E /* OutfitComposerLayout.swift */,
 				CC010A062FB4805D0008B99E /* OutfitLayoutEngine.swift */,
+				E9A4D10A2FB5805D0008B99E /* SearchResults.swift */,
 				E9A2C97C2FB480670008B99E /* User.swift */,
 				E9A2C97D2FB480670008B99E /* UserProfile.swift */,
 			);
@@ -383,6 +411,7 @@
 				E9A2C9822FB480670008B99E /* ClosetRepository.swift */,
 				E9A2C9832FB480670008B99E /* OutfitsRepository.swift */,
 				E9A2C9842FB480670008B99E /* ProfileRepository.swift */,
+				E9A4D10B2FB5805D0008B99E /* SearchRepository.swift */,
 				E9A2C9852FB480670008B99E /* TimelineRepository.swift */,
 			);
 			path = Repositories;
@@ -496,6 +525,12 @@
 				E9A2C9482FB4805D0008B99E /* TimelineViewModel.swift in Sources */,
 				E9A2C9492FB4805D0008B99E /* OutfitsView.swift in Sources */,
 				E9A2C94A2FB4805D0008B99E /* TimelineView.swift in Sources */,
+				E9A4D1042FB5805D0008B99E /* ExploreView.swift in Sources */,
+				E9A4D1052FB5805D0008B99E /* ExploreViewModel.swift in Sources */,
+				E9A4D1062FB5805D0008B99E /* SearchResults.swift in Sources */,
+				E9A4D1072FB5805D0008B99E /* SearchRepository.swift in Sources */,
+				E9A4D1082FB5805D0008B99E /* SearchResultsDTO.swift in Sources */,
+				E9A4D1092FB5805D0008B99E /* RemoteSearchRepository.swift in Sources */,
 				E9A2C94B2FB4805D0008B99E /* AddGarmentSheet.swift in Sources */,
 				E9A2C94C2FB4805D0008B99E /* LoginView.swift in Sources */,
 				E9A2C94D2FB4805D0008B99E /* ProfileView.swift in Sources */,
@@ -509,6 +544,7 @@
 				CC010A052FB4805D0008B99E /* OutfitComposerLayout.swift in Sources */,
 				CC010A072FB4805D0008B99E /* OutfitLayoutEngine.swift in Sources */,
 				CC020A012FB4805D0008B99E /* OutfitCanvasView.swift in Sources */,
+				CC050A012FB4805D0008B99E /* EmptyStateView.swift in Sources */,
 				CC020A032FB4805D0008B99E /* OutfitDetailView.swift in Sources */,
 				CC030A012FB4805D0008B99E /* GarmentDetailView.swift in Sources */,
 				E9A2C9532FB4805D0008B99E /* ProfileViewModel.swift in Sources */,
