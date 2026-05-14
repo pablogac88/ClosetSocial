@@ -22,12 +22,27 @@ public struct PublicUserProfile: Sendable, Equatable, Identifiable {
     public let outfitCount: Int
     public let postsCount: Int
     public let posts: [FeedPost]
+    public let followerCount: Int
+    public let followingCount: Int
+    public let isFollowing: Bool
 
-    public init(user: User, closetCount: Int, outfitCount: Int, postsCount: Int, posts: [FeedPost]) {
+    public init(
+        user: User,
+        closetCount: Int,
+        outfitCount: Int,
+        postsCount: Int,
+        posts: [FeedPost],
+        followerCount: Int,
+        followingCount: Int,
+        isFollowing: Bool
+    ) {
         self.user = user
         self.closetCount = closetCount
         self.outfitCount = outfitCount
         self.postsCount = postsCount
         self.posts = posts
+        self.followerCount = followerCount
+        self.followingCount = followingCount
+        self.isFollowing = isFollowing
     }
 }

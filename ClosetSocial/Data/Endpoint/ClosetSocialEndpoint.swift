@@ -15,4 +15,5 @@ enum ClosetSocialEndpoint {
     static func postLike(id: UUID) -> String { "api/posts/\(id)/like" }
     static func postComments(id: UUID) -> String { "api/posts/\(id)/comments" }
     static func userProfile(id: UUID) -> String { "api/users/\(id)/profile" }
+    static func followUser(id: UUID) -> String { "api/users/\(id)/follow" }
 }

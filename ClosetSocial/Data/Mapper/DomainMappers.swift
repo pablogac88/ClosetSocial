@@ -112,7 +112,10 @@ extension PublicUserProfileDTO {
             closetCount: closetCount,
             outfitCount: outfitCount,
             postsCount: postsCount,
-            posts: recentPosts.map { $0.toDomain() }
+            posts: recentPosts.map { $0.toDomain() },
+            followerCount: followerCount,
+            followingCount: followingCount,
+            isFollowing: isFollowing
         )
     }
 }

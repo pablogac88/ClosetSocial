@@ -13,4 +13,7 @@ struct PublicUserProfileDTO: Codable, Sendable, Equatable {
     let outfitCount: Int
     let postsCount: Int
     let recentPosts: [FeedPostDTO]
+    let followerCount: Int
+    let followingCount: Int
+    let isFollowing: Bool
 }

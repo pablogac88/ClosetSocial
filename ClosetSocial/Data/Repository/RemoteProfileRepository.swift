@@ -26,4 +26,20 @@ public struct RemoteProfileRepository: ProfileRepository {
         )
         return dto.toDomain()
     }
+
+    public func follow(userID: UUID, token: String) async throws {
+        try await sender.sendVoid(
+            path: ClosetSocialEndpoint.followUser(id: userID),
+            method: .post,
+            token: token
+        )
+    }
+
+    public func unfollow(userID: UUID, token: String) async throws {
+        try await sender.sendVoid(
+            path: ClosetSocialEndpoint.followUser(id: userID),
+            method: .delete,
+            token: token
+        )
+    }
 }
