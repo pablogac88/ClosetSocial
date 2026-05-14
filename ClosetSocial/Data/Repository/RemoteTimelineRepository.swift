@@ -17,6 +17,16 @@ public struct RemoteTimelineRepository: TimelineRepository {
         return dto.items.map { $0.toDomain() }
     }
 
+    public func fetchDiscovery(token: String) async throws -> [FeedPost] {
+        let dto = try await sender.send(
+            path: ClosetSocialEndpoint.discover,
+            method: .get,
+            token: token,
+            as: TimelineResponseDTO.self
+        )
+        return dto.items.map { $0.toDomain() }
+    }
+
     public func createPost(token: String, request: CreatePostRequest) async throws -> FeedPost {
         let dto = try await sender.send(
             path: ClosetSocialEndpoint.posts,

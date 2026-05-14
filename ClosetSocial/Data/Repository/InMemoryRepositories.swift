@@ -260,6 +260,10 @@ public struct InMemoryTimelineRepository: TimelineRepository {
         await backend.currentTimeline()
     }
 
+    public func fetchDiscovery(token: String) async throws -> [FeedPost] {
+        await backend.currentTimeline()
+    }
+
     public func createPost(token: String, request: CreatePostRequest) async throws -> FeedPost {
         await backend.createPost(request)
     }

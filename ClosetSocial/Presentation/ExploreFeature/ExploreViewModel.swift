@@ -61,7 +61,7 @@ public final class ExploreViewModel {
             state = .loading
         }
         do {
-            let items = try await editorialRepository.fetchTimeline(token: token)
+            let items = try await editorialRepository.fetchDiscovery(token: token)
             state = items.isEmpty ? .empty : .content(items)
         } catch is CancellationError {
             state = previousState

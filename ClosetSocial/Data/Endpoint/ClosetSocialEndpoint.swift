@@ -4,6 +4,7 @@ enum ClosetSocialEndpoint {
     static let login = "auth/login"
     static let register = "auth/register"
     static let timeline = "api/timeline"
+    static let discover = "api/discover"
     static let closet = "api/closet"
     static let outfits = "api/outfits"
     static let posts = "api/posts"

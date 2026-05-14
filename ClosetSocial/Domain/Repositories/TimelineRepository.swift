@@ -2,6 +2,7 @@ import Foundation
 
 public protocol TimelineRepository: Sendable {
     func fetchTimeline(token: String) async throws -> [FeedPost]
+    func fetchDiscovery(token: String) async throws -> [FeedPost]
     func createPost(token: String, request: CreatePostRequest) async throws -> FeedPost
     func likePost(token: String, postID: UUID) async throws
     func unlikePost(token: String, postID: UUID) async throws

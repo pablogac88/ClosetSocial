@@ -30,8 +30,8 @@ public struct TimelineView: View {
             case .empty:
                 EmptyStateView(
                     icon: "sparkles",
-                    title: "Tu inspiración, aún por llegar",
-                    message: "Empieza añadiendo prendas a tu armario. La comunidad se irá animando.",
+                    title: "Tu feed está vacío",
+                    message: "Sigue a personas desde Explore para ver su contenido aquí. También puedes añadir prendas y outfits propios.",
                     action: onAddGarmentTap.map { .init(label: "Añadir prenda", handler: $0) }
                 )
             case let .error(message):
