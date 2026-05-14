@@ -257,105 +257,155 @@ private struct FeedPostCard: View {
     let onAuthorTap: () -> Void
     let onLikeTap: () -> Void
     let onCommentTap: () -> Void
-    var onOutfitTap: (() -> Void)?  = nil
+    var onOutfitTap: (() -> Void)? = nil
     var onGarmentTap: (() -> Void)? = nil
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Button(action: onAuthorTap) {
-                HStack(spacing: 12) {
-                    AvatarBubble(displayName: post.author.displayName)
+        VStack(alignment: .leading, spacing: 0) {
+            // Author
+            authorRow
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
+                .padding(.bottom, post.caption.isEmpty ? 12 : 10)
 
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(post.author.displayName).font(DSFont.headline)
-                        Text("@\(post.author.username) · \(post.kind.title)")
+            // Caption
+            if !post.caption.isEmpty {
+                Text(post.caption)
+                    .font(DSFont.body)
+                    .foregroundStyle(Color(red: 0.18, green: 0.15, blue: 0.13))
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, hasMedia ? 12 : 0)
+            }
+
+            // Media — edge-to-edge
+            mediaSection
+
+            // Actions
+            actionsRow
+                .padding(.horizontal, 16)
+                .padding(.top, 14)
+                .padding(.bottom, 14)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Color.white)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .shadow(color: .black.opacity(0.05), radius: 12, x: 0, y: 3)
+    }
+
+    // MARK: Author row
+
+    private var authorRow: some View {
+        Button(action: onAuthorTap) {
+            HStack(spacing: 12) {
+                AvatarBubble(displayName: post.author.displayName)
+
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(post.author.displayName)
+                        .font(DSFont.headline)
+                        .foregroundStyle(Color(red: 0.12, green: 0.09, blue: 0.07))
+
+                    HStack(spacing: 4) {
+                        Text("@\(post.author.username)")
                             .font(DSFont.footnote)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color(red: 0.58, green: 0.52, blue: 0.48))
+
+                        Text("·")
+                            .font(DSFont.footnote)
+                            .foregroundStyle(Color(red: 0.74, green: 0.68, blue: 0.64))
+
+                        Text(post.createdAt.formatted(date: .abbreviated, time: .omitted))
+                            .font(DSFont.footnote)
+                            .foregroundStyle(Color(red: 0.74, green: 0.68, blue: 0.64))
+
+                        if !post.isReal {
+                            Image(systemName: "sparkles")
+                                .font(.system(size: 9, weight: .medium))
+                                .foregroundStyle(Color(red: 0.76, green: 0.70, blue: 0.64))
+                        }
                     }
-                    Spacer()
+                }
+
+                Spacer()
+            }
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: Media
+
+    private var hasMedia: Bool { post.outfit != nil || post.garment != nil }
+
+    @ViewBuilder
+    private var mediaSection: some View {
+        if let outfit = post.outfit {
+            let canvas = OutfitCanvasView(
+                layout: outfit.layout,
+                garments: outfit.garments,
+                cornerRadius: 0,
+                backgroundColor: Color(red: 0.975, green: 0.970, blue: 0.962)
+            )
+            .aspectRatio(3 / 4, contentMode: .fit)
+
+            if let onOutfitTap {
+                Button(action: onOutfitTap) { canvas }
+                    .buttonStyle(.plain)
+            } else {
+                canvas
+            }
+        } else if let garment = post.garment {
+            let image = GarmentImage(url: garment.imageURL)
+                .aspectRatio(1, contentMode: .fit)
+
+            if let onGarmentTap {
+                Button(action: onGarmentTap) { image }
+                    .buttonStyle(.plain)
+            } else {
+                image
+            }
+        }
+    }
+
+    // MARK: Actions
+
+    private var actionsRow: some View {
+        HStack(spacing: 20) {
+            Button(action: onLikeTap) {
+                HStack(spacing: 6) {
+                    Image(systemName: post.isLikedByCurrentUser ? "heart.fill" : "heart")
+                        .font(.system(size: 15, weight: .medium))
+                        .symbolEffect(.bounce, value: post.isLikedByCurrentUser)
+                        .foregroundStyle(
+                            post.isLikedByCurrentUser
+                                ? Color(red: 0.85, green: 0.20, blue: 0.20)
+                                : Color.secondary
+                        )
+                    Text("\(post.likesCount)")
+                        .font(DSFont.footnote)
+                        .foregroundStyle(
+                            post.isLikedByCurrentUser
+                                ? Color(red: 0.85, green: 0.20, blue: 0.20)
+                                : Color.secondary
+                        )
                 }
             }
             .buttonStyle(.plain)
+            .disabled(!post.isReal)
 
-            Text(post.caption)
-                .font(DSFont.body)
-                .foregroundStyle(DSColor.secondaryText)
-
-            if let outfit = post.outfit {
-                let pillLabel = "Outfit: \(outfit.title ?? outfit.garments.map(\.name).joined(separator: " · "))"
-                if let onOutfitTap {
-                    Button(action: onOutfitTap) {
-                        HStack(spacing: 6) {
-                            Text(pillLabel)
-                            Image(systemName: "arrow.up.right")
-                                .font(.system(size: 10, weight: .semibold))
-                        }
-                        .font(DSFont.footnoteBold)
-                        .foregroundStyle(DSColor.highlight)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 10)
-                        .background(DSColor.pillBackground, in: Capsule())
-                    }
-                    .buttonStyle(.plain)
-                } else {
-                    Text(pillLabel)
-                        .font(DSFont.footnoteBold)
-                        .foregroundStyle(DSColor.highlight)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 10)
-                        .background(DSColor.pillBackground, in: Capsule())
-                }
-            } else if let garment = post.garment {
-                let garmentLabel = "Prenda: \(garment.name)"
-                if let onGarmentTap {
-                    Button(action: onGarmentTap) {
-                        HStack(spacing: 6) {
-                            Text(garmentLabel)
-                            Image(systemName: "arrow.up.right")
-                                .font(.system(size: 10, weight: .semibold))
-                        }
-                        .font(DSFont.footnoteBold)
-                        .foregroundStyle(DSColor.highlight)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 10)
-                        .background(DSColor.pillBackground, in: Capsule())
-                    }
-                    .buttonStyle(.plain)
-                } else {
-                    Text(garmentLabel)
-                        .font(DSFont.footnoteBold)
-                        .foregroundStyle(DSColor.highlight)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 10)
-                        .background(DSColor.pillBackground, in: Capsule())
+            Button(action: onCommentTap) {
+                HStack(spacing: 6) {
+                    Image(systemName: "bubble.right")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(Color.secondary)
+                    Text("\(post.commentsCount)")
+                        .font(DSFont.footnote)
+                        .foregroundStyle(Color.secondary)
                 }
             }
+            .buttonStyle(.plain)
+            .disabled(!post.isReal)
 
-            HStack(spacing: 20) {
-                Button(action: onLikeTap) {
-                    Label("\(post.likesCount)", systemImage: post.isLikedByCurrentUser ? "heart.fill" : "heart")
-                        .font(DSFont.footnote)
-                        .foregroundStyle(post.isLikedByCurrentUser ? .red : .secondary)
-                }
-                .buttonStyle(.plain)
-                .disabled(!post.isReal)
-
-                Button(action: onCommentTap) {
-                    Label("\(post.commentsCount)", systemImage: "bubble.right")
-                        .font(DSFont.footnote)
-                        .foregroundStyle(.secondary)
-                }
-                .buttonStyle(.plain)
-                .disabled(!post.isReal)
-            }
-
-            Text(post.createdAt.formatted(date: .abbreviated, time: .shortened))
-                .font(DSFont.caption)
-                .foregroundStyle(.secondary)
+            Spacer()
         }
-        .padding(18)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.white, in: RoundedRectangle(cornerRadius: 26, style: .continuous))
     }
 }
 
