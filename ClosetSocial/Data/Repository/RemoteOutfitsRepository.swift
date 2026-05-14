@@ -27,4 +27,12 @@ public struct RemoteOutfitsRepository: OutfitsRepository {
         )
         return dto.toDomain()
     }
+
+    public func deleteOutfit(token: String, id: UUID) async throws {
+        try await sender.sendVoid(
+            path: ClosetSocialEndpoint.outfit(id: id),
+            method: .delete,
+            token: token
+        )
+    }
 }

@@ -144,6 +144,28 @@ public actor InMemoryClosetSocialBackend {
         return garment
     }
 
+    func deleteGarment(id: UUID) throws {
+        guard !outfits.contains(where: { outfit in
+            outfit.garments.contains(where: { $0.id == id })
+        }) else {
+            throw DomainError.transport(.server(
+                message: "Esta prenda pertenece a un outfit. Elimínala primero del outfit antes de borrarla del armario."
+            ))
+        }
+
+        closet.removeAll { $0.id == id }
+        timeline.removeAll { post in
+            post.id == id || post.garment?.id == id
+        }
+    }
+
+    func deleteOutfit(id: UUID) {
+        outfits.removeAll { $0.id == id }
+        timeline.removeAll { post in
+            post.id == id || post.outfit?.id == id
+        }
+    }
+
     func fetchComments(postID: UUID) -> [Comment] {
         comments[postID] ?? []
     }
@@ -230,6 +252,10 @@ public struct InMemoryClosetRepository: ClosetRepository {
     public func createGarment(token: String, garment: NewGarment) async throws -> Garment {
         await backend.addGarment(garment)
     }
+
+    public func deleteGarment(token: String, id: UUID) async throws {
+        try await backend.deleteGarment(id: id)
+    }
 }
 
 public struct InMemoryOutfitsRepository: OutfitsRepository {
@@ -245,6 +271,10 @@ public struct InMemoryOutfitsRepository: OutfitsRepository {
 
     public func createOutfit(token: String, request: CreateOutfitRequest) async throws -> Outfit {
         await backend.createOutfit(request)
+    }
+
+    public func deleteOutfit(token: String, id: UUID) async throws {
+        await backend.deleteOutfit(id: id)
     }
 }
 

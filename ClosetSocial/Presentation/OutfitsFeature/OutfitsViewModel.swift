@@ -13,27 +13,32 @@ public enum OutfitsState: Sendable {
 @Observable
 public final class OutfitsViewModel {
     public typealias TokenProvider = @MainActor () -> String?
+    public typealias OnOutfitDeleted = @MainActor () -> Void
 
     public private(set) var state: OutfitsState = .idle
     public private(set) var availableGarments: [Garment] = []
     public private(set) var isSaving = false
+    public private(set) var deletingOutfitIDs: Set<UUID> = []
     public var saveError: String?
 
     private let repository: any OutfitsRepository
     private let closetRepository: any ClosetRepository
     private let timelineRepository: any TimelineRepository
     private let tokenProvider: TokenProvider
+    private let onOutfitDeleted: OnOutfitDeleted?
 
     public init(
         repository: any OutfitsRepository,
         closetRepository: any ClosetRepository,
         timelineRepository: any TimelineRepository,
-        tokenProvider: @escaping TokenProvider
+        tokenProvider: @escaping TokenProvider,
+        onOutfitDeleted: (OnOutfitDeleted)? = nil
     ) {
         self.repository = repository
         self.closetRepository = closetRepository
         self.timelineRepository = timelineRepository
         self.tokenProvider = tokenProvider
+        self.onOutfitDeleted = onOutfitDeleted
     }
 
     public func load() async {
@@ -99,5 +104,27 @@ public final class OutfitsViewModel {
         } catch {
             saveError = error.userMessage
         }
+    }
+
+    public func delete(_ outfit: Outfit) async throws {
+        guard let token = tokenProvider() else {
+            throw DomainError.unauthenticated
+        }
+        guard deletingOutfitIDs.insert(outfit.id).inserted else { return }
+        defer { deletingOutfitIDs.remove(outfit.id) }
+
+        try await repository.deleteOutfit(token: token, id: outfit.id)
+        removeOutfit(id: outfit.id)
+        onOutfitDeleted?()
+    }
+
+    public func isDeleting(_ outfit: Outfit) -> Bool {
+        deletingOutfitIDs.contains(outfit.id)
+    }
+
+    private func removeOutfit(id: UUID) {
+        guard case let .content(items) = state else { return }
+        let updated = items.filter { $0.id != id }
+        state = updated.isEmpty ? .empty : .content(updated)
     }
 }

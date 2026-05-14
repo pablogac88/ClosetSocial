@@ -9,6 +9,8 @@ enum ClosetSocialEndpoint {
     static let posts = "api/posts"
     static let profile = "api/profile"
 
+    static func garment(id: UUID) -> String { "api/garments/\(id)" }
+    static func outfit(id: UUID) -> String { "api/outfits/\(id)" }
     static func postLike(id: UUID) -> String { "api/posts/\(id)/like" }
     static func postComments(id: UUID) -> String { "api/posts/\(id)/comments" }
     static func userProfile(id: UUID) -> String { "api/users/\(id)/profile" }

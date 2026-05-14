@@ -3,12 +3,21 @@ import SwiftUI
 public struct GarmentDetailView: View {
     let garment: Garment
     let relatedOutfits: [Outfit]
+    var onDelete: (() async throws -> Void)? = nil
 
     @State private var selectedOutfit: Outfit?
+    @State private var isShowingDeleteConfirmation = false
+    @State private var deleteErrorMessage: String?
+    @Environment(\.dismiss) private var dismiss
 
-    public init(garment: Garment, relatedOutfits: [Outfit] = []) {
+    public init(
+        garment: Garment,
+        relatedOutfits: [Outfit] = [],
+        onDelete: (() async throws -> Void)? = nil
+    ) {
         self.garment       = garment
         self.relatedOutfits = relatedOutfits
+        self.onDelete = onDelete
     }
 
     public var body: some View {
@@ -30,11 +39,37 @@ public struct GarmentDetailView: View {
                     .font(.system(.subheadline, design: .rounded, weight: .medium))
                     .foregroundStyle(Color(red: 0.30, green: 0.26, blue: 0.22).opacity(0.7))
             }
+            if onDelete != nil {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(role: .destructive) {
+                        isShowingDeleteConfirmation = true
+                    } label: {
+                        Image(systemName: "trash")
+                    }
+                }
+            }
         }
         .sheet(item: $selectedOutfit) { outfit in
             NavigationStack {
                 OutfitDetailView(context: .myOutfit(outfit))
             }
+        }
+        .confirmationDialog(
+            "Eliminar prenda",
+            isPresented: $isShowingDeleteConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Eliminar", role: .destructive) {
+                Task { await deleteGarment() }
+            }
+            Button("Cancelar", role: .cancel) {}
+        } message: {
+            Text("Se eliminará \"\(garment.name)\" de tu armario.")
+        }
+        .alert("No hemos podido borrar la prenda", isPresented: deleteErrorIsPresented) {
+            Button("Aceptar", role: .cancel) { deleteErrorMessage = nil }
+        } message: {
+            Text(deleteErrorMessage ?? "")
         }
     }
 
@@ -107,6 +142,27 @@ public struct GarmentDetailView: View {
             }
         }
         .padding(.top, 36)
+    }
+}
+
+private extension GarmentDetailView {
+    var deleteErrorIsPresented: Binding<Bool> {
+        Binding(
+            get: { deleteErrorMessage != nil },
+            set: { isPresented in
+                if !isPresented { deleteErrorMessage = nil }
+            }
+        )
+    }
+
+    func deleteGarment() async {
+        guard let onDelete else { return }
+        do {
+            try await onDelete()
+            dismiss()
+        } catch {
+            deleteErrorMessage = error.userMessage
+        }
     }
 }
 

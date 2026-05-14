@@ -26,16 +26,22 @@ struct MainTabView: View {
             outfitsRepository: dependencies.outfitsRepository,
             tokenProvider: tokenProvider
         )
-        let outfits = OutfitsViewModel(
-            repository: dependencies.outfitsRepository,
-            closetRepository: dependencies.closetRepository,
-            timelineRepository: dependencies.timelineRepository,
-            tokenProvider: tokenProvider
-        )
         let profile = ProfileViewModel(
             repository: dependencies.profileRepository,
             tokenProvider: tokenProvider,
             onLogout: { [session] in session.signOut() }
+        )
+        let outfits = OutfitsViewModel(
+            repository: dependencies.outfitsRepository,
+            closetRepository: dependencies.closetRepository,
+            timelineRepository: dependencies.timelineRepository,
+            tokenProvider: tokenProvider,
+            onOutfitDeleted: {
+                Task {
+                    await timeline.load()
+                    await profile.load()
+                }
+            }
         )
         let closet = ClosetViewModel(
             repository: dependencies.closetRepository,
@@ -44,6 +50,11 @@ struct MainTabView: View {
         ) { result in
             timeline.replace(with: result.updatedTimeline)
             profile.replace(with: result.updatedProfile)
+        } onGarmentDeleted: {
+            Task {
+                await timeline.load()
+                await profile.load()
+            }
         }
 
         self._timelineViewModel = State(initialValue: timeline)

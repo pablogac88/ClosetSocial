@@ -19,4 +19,5 @@ public struct NewGarment: Codable, Sendable, Equatable {
 public protocol ClosetRepository: Sendable {
     func fetchCloset(token: String) async throws -> [Garment]
     func createGarment(token: String, garment: NewGarment) async throws -> Garment
+    func deleteGarment(token: String, id: UUID) async throws
 }

@@ -5,6 +5,8 @@ public struct OutfitsView: View {
     @State private var isPresentingCreateSheet = false
     @State private var composerVM: OutfitComposerViewModel?
     @State private var selectedOutfit: Outfit?
+    @State private var outfitPendingDeletion: Outfit?
+    @State private var deleteErrorMessage: String?
 
     public init(viewModel: OutfitsViewModel) {
         self.viewModel = viewModel
@@ -59,7 +61,28 @@ public struct OutfitsView: View {
             }
         }
         .navigationDestination(item: $selectedOutfit) { outfit in
-            OutfitDetailView(context: .myOutfit(outfit))
+            OutfitDetailView(context: .myOutfit(outfit), onDelete: {
+                try await viewModel.delete(outfit)
+            })
+        }
+        .confirmationDialog(
+            "Eliminar outfit",
+            isPresented: isShowingDeleteConfirmation,
+            titleVisibility: .visible
+        ) {
+            if let outfit = outfitPendingDeletion {
+                Button("Eliminar", role: .destructive) {
+                    Task { await delete(outfit) }
+                }
+            }
+            Button("Cancelar", role: .cancel) {}
+        } message: {
+            Text("Se eliminará este outfit y sus prendas seguirán en el armario.")
+        }
+        .alert("No hemos podido borrar el outfit", isPresented: deleteErrorIsPresented) {
+            Button("Aceptar", role: .cancel) { deleteErrorMessage = nil }
+        } message: {
+            Text(deleteErrorMessage ?? "")
         }
         .task { await viewModel.load() }
     }
@@ -97,6 +120,15 @@ public struct OutfitsView: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.vertical, 6)
+                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                    Button {
+                        outfitPendingDeletion = outfit
+                    } label: {
+                        Label("Eliminar", systemImage: "trash")
+                    }
+                    .tint(.red)
+                    .disabled(viewModel.isDeleting(outfit))
+                }
                 .listRowBackground(
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
                         .fill(Color.white)
@@ -107,6 +139,35 @@ public struct OutfitsView: View {
         .scrollContentBackground(.hidden)
         .background(Color.clear)
         .refreshable { await viewModel.load() }
+    }
+
+    private var isShowingDeleteConfirmation: Binding<Bool> {
+        Binding(
+            get: { outfitPendingDeletion != nil },
+            set: { isPresented in
+                if !isPresented { outfitPendingDeletion = nil }
+            }
+        )
+    }
+
+    private var deleteErrorIsPresented: Binding<Bool> {
+        Binding(
+            get: { deleteErrorMessage != nil },
+            set: { isPresented in
+                if !isPresented { deleteErrorMessage = nil }
+            }
+        )
+    }
+
+    private func delete(_ outfit: Outfit) async {
+        do {
+            try await viewModel.delete(outfit)
+            if selectedOutfit?.id == outfit.id {
+                selectedOutfit = nil
+            }
+        } catch {
+            deleteErrorMessage = error.userMessage
+        }
     }
 }
 

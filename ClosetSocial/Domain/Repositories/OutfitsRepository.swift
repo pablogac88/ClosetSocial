@@ -3,6 +3,7 @@ import Foundation
 public protocol OutfitsRepository: Sendable {
     func fetchOutfits(token: String) async throws -> [Outfit]
     func createOutfit(token: String, request: CreateOutfitRequest) async throws -> Outfit
+    func deleteOutfit(token: String, id: UUID) async throws
 }
 
 public struct CreateOutfitRequest: Sendable {

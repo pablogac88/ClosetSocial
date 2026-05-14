@@ -96,7 +96,10 @@ struct RemoteRequestSender: Sendable {
             }
             return .unauthenticated
         case 409:
-            return .emailAlreadyExists
+            if let reason, reason.lowercased().contains("email") {
+                return .emailAlreadyExists
+            }
+            return .transport(.server(message: reason ?? "HTTP \(status)"))
         default:
             return .transport(.server(message: reason ?? "HTTP \(status)"))
         }

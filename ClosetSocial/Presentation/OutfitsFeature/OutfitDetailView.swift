@@ -25,9 +25,12 @@ public struct OutfitDetailView: View {
     let context: OutfitDetailContext
     var onLikeTap: (() -> Void)?    = nil
     var onCommentTap: (() -> Void)? = nil
+    var onDelete: (() async throws -> Void)? = nil
 
     @Environment(\.dismiss) private var dismiss
     @State private var selectedGarment: Garment?
+    @State private var isShowingDeleteConfirmation = false
+    @State private var deleteErrorMessage: String?
 
     private var outfit: Outfit? { context.outfit }
     private var post: FeedPost? { context.post }
@@ -35,11 +38,13 @@ public struct OutfitDetailView: View {
     public init(
         context: OutfitDetailContext,
         onLikeTap: (() -> Void)? = nil,
-        onCommentTap: (() -> Void)? = nil
+        onCommentTap: (() -> Void)? = nil,
+        onDelete: (() async throws -> Void)? = nil
     ) {
         self.context      = context
         self.onLikeTap    = onLikeTap
         self.onCommentTap = onCommentTap
+        self.onDelete = onDelete
     }
 
     public var body: some View {
@@ -70,6 +75,32 @@ public struct OutfitDetailView: View {
                     .font(.system(.subheadline, design: .rounded, weight: .medium))
                     .foregroundStyle(Color(red: 0.30, green: 0.26, blue: 0.22).opacity(0.7))
             }
+            if canDelete {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(role: .destructive) {
+                        isShowingDeleteConfirmation = true
+                    } label: {
+                        Image(systemName: "trash")
+                    }
+                }
+            }
+        }
+        .confirmationDialog(
+            "Eliminar outfit",
+            isPresented: $isShowingDeleteConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Eliminar", role: .destructive) {
+                Task { await deleteOutfit() }
+            }
+            Button("Cancelar", role: .cancel) {}
+        } message: {
+            Text("Se eliminará este outfit y sus relaciones internas.")
+        }
+        .alert("No hemos podido borrar el outfit", isPresented: deleteErrorIsPresented) {
+            Button("Aceptar", role: .cancel) { deleteErrorMessage = nil }
+        } message: {
+            Text(deleteErrorMessage ?? "")
         }
     }
 
@@ -220,6 +251,32 @@ public struct OutfitDetailView: View {
         .padding(.horizontal, 24)
         .padding(.top, 28)
         .padding(.bottom, 40)
+    }
+}
+
+private extension OutfitDetailView {
+    var canDelete: Bool {
+        if case .myOutfit = context { return onDelete != nil }
+        return false
+    }
+
+    var deleteErrorIsPresented: Binding<Bool> {
+        Binding(
+            get: { deleteErrorMessage != nil },
+            set: { isPresented in
+                if !isPresented { deleteErrorMessage = nil }
+            }
+        )
+    }
+
+    func deleteOutfit() async {
+        guard let onDelete else { return }
+        do {
+            try await onDelete()
+            dismiss()
+        } catch {
+            deleteErrorMessage = error.userMessage
+        }
     }
 }
 
