@@ -19,6 +19,7 @@
 		E9A4D1092FB5805D0008B99E /* RemoteSearchRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A4D10D2FB5805D0008B99E /* RemoteSearchRepository.swift */; };
 		E9A2C94B2FB4805D0008B99E /* AddGarmentSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C93A2FB4805D0008B99E /* AddGarmentSheet.swift */; };
 		E9A2C94C2FB4805D0008B99E /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9372FB4805D0008B99E /* LoginView.swift */; };
+		CC070A012FB4805D0008B99E /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC070A002FB4805D0008B99E /* WelcomeView.swift */; };
 		E9A2C94D2FB4805D0008B99E /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9422FB4805D0008B99E /* ProfileView.swift */; };
 		E9A2C94E2FB4805D0008B99E /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9382FB4805D0008B99E /* LoginViewModel.swift */; };
 		E9A2C94F2FB4805D0008B99E /* ClosetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C93D2FB4805D0008B99E /* ClosetViewModel.swift */; };
@@ -92,6 +93,7 @@
 		9A1B2C3D4E5F6A7B8C9D0101 /* ClosetSocialApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClosetSocialApp.swift; sourceTree = "<group>"; };
 		E9A2C9372FB4805D0008B99E /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		E9A2C9382FB4805D0008B99E /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
+		CC070A002FB4805D0008B99E /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		E9A2C93A2FB4805D0008B99E /* AddGarmentSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGarmentSheet.swift; sourceTree = "<group>"; };
 		E9A2C93B2FB4805D0008B99E /* AddGarmentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGarmentViewModel.swift; sourceTree = "<group>"; };
 		E9A2C93C2FB4805D0008B99E /* ClosetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClosetView.swift; sourceTree = "<group>"; };
@@ -237,6 +239,7 @@
 			children = (
 				E9A2C9372FB4805D0008B99E /* LoginView.swift */,
 				E9A2C9382FB4805D0008B99E /* LoginViewModel.swift */,
+				CC070A002FB4805D0008B99E /* WelcomeView.swift */,
 			);
 			path = AuthFeature;
 			sourceTree = "<group>";
@@ -533,6 +536,7 @@
 				E9A4D1092FB5805D0008B99E /* RemoteSearchRepository.swift in Sources */,
 				E9A2C94B2FB4805D0008B99E /* AddGarmentSheet.swift in Sources */,
 				E9A2C94C2FB4805D0008B99E /* LoginView.swift in Sources */,
+				CC070A012FB4805D0008B99E /* WelcomeView.swift in Sources */,
 				E9A2C94D2FB4805D0008B99E /* ProfileView.swift in Sources */,
 				E9A2C94E2FB4805D0008B99E /* LoginViewModel.swift in Sources */,
 				E9A2C94F2FB4805D0008B99E /* ClosetViewModel.swift in Sources */,

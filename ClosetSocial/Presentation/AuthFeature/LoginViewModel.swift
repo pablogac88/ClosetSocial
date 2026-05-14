@@ -33,11 +33,13 @@ public final class LoginViewModel {
 
     public init(
         useCase: any AuthenticateUserUseCase,
+        initialMode: AuthMode = .login,
         prefilledEmail: String = "",
         prefilledPassword: String = "",
         onAuthenticated: @escaping OnAuthenticated
     ) {
         self.useCase = useCase
+        self.mode = initialMode
         self.email = prefilledEmail
         self.password = prefilledPassword
         self.onAuthenticated = onAuthenticated
