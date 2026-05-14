@@ -9,6 +9,7 @@ public struct AppDependencies: Sendable {
     public let closetRepository: any ClosetRepository
     public let outfitsRepository: any OutfitsRepository
     public let profileRepository: any ProfileRepository
+    public let notificationRepository: any NotificationRepository
     public let authenticateUseCase: any AuthenticateUserUseCase
     public let addGarmentUseCase: any AddGarmentUseCase
 
@@ -18,7 +19,8 @@ public struct AppDependencies: Sendable {
         searchRepository: any SearchRepository,
         closetRepository: any ClosetRepository,
         outfitsRepository: any OutfitsRepository,
-        profileRepository: any ProfileRepository
+        profileRepository: any ProfileRepository,
+        notificationRepository: any NotificationRepository
     ) {
         self.authRepository = authRepository
         self.timelineRepository = timelineRepository
@@ -26,6 +28,7 @@ public struct AppDependencies: Sendable {
         self.closetRepository = closetRepository
         self.outfitsRepository = outfitsRepository
         self.profileRepository = profileRepository
+        self.notificationRepository = notificationRepository
 
         self.authenticateUseCase = DefaultAuthenticateUserUseCase(repository: authRepository)
         self.addGarmentUseCase = DefaultAddGarmentUseCase(
@@ -45,7 +48,8 @@ public struct AppDependencies: Sendable {
             searchRepository: repos.search,
             closetRepository: repos.closet,
             outfitsRepository: repos.outfits,
-            profileRepository: repos.profile
+            profileRepository: repos.profile,
+            notificationRepository: repos.notifications
         )
     }
 
@@ -58,7 +62,8 @@ public struct AppDependencies: Sendable {
             searchRepository: InMemorySearchRepository(backend: backend),
             closetRepository: InMemoryClosetRepository(backend: backend),
             outfitsRepository: InMemoryOutfitsRepository(backend: backend),
-            profileRepository: InMemoryProfileRepository(backend: backend)
+            profileRepository: InMemoryProfileRepository(backend: backend),
+            notificationRepository: InMemoryNotificationRepository()
         )
     }
 }

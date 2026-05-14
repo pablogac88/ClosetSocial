@@ -356,6 +356,13 @@ public struct InMemoryOutfitsRepository: OutfitsRepository {
     }
 }
 
+public struct InMemoryNotificationRepository: NotificationRepository {
+    public init() { }
+    public func fetchNotifications(token: String) async throws -> [AppNotification] { [] }
+    public func markRead(id: UUID, token: String) async throws { }
+    public func markAllRead(token: String) async throws { }
+}
+
 public struct InMemoryProfileRepository: ProfileRepository {
     private let backend: InMemoryClosetSocialBackend
 

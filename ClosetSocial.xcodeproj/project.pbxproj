@@ -22,6 +22,12 @@
 		CC070A012FB4805D0008B99E /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC070A002FB4805D0008B99E /* WelcomeView.swift */; };
 		AABB0101000000000000B99E /* FollowListSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABB0100000000000000B99E /* FollowListSheet.swift */; };
 		BBCC0101000000000000B99E /* EditProfileSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBCC0100000000000000B99E /* EditProfileSheet.swift */; };
+		CCDD0101000000000000B99E /* AppNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDD0100000000000000B99E /* AppNotification.swift */; };
+		CCDD0103000000000000B99E /* NotificationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDD0102000000000000B99E /* NotificationRepository.swift */; };
+		CCDD0105000000000000B99E /* NotificationDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDD0104000000000000B99E /* NotificationDTO.swift */; };
+		CCDD0107000000000000B99E /* RemoteNotificationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDD0106000000000000B99E /* RemoteNotificationRepository.swift */; };
+		CCDD0109000000000000B99E /* NotificationsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDD0108000000000000B99E /* NotificationsViewModel.swift */; };
+		CCDD010B000000000000B99E /* NotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDD010A000000000000B99E /* NotificationsView.swift */; };
 		E9A2C94D2FB4805D0008B99E /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9422FB4805D0008B99E /* ProfileView.swift */; };
 		E9A2C94E2FB4805D0008B99E /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9382FB4805D0008B99E /* LoginViewModel.swift */; };
 		E9A2C94F2FB4805D0008B99E /* ClosetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C93D2FB4805D0008B99E /* ClosetViewModel.swift */; };
@@ -98,6 +104,12 @@
 		CC070A002FB4805D0008B99E /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
 		AABB0100000000000000B99E /* FollowListSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowListSheet.swift; sourceTree = "<group>"; };
 		BBCC0100000000000000B99E /* EditProfileSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileSheet.swift; sourceTree = "<group>"; };
+		CCDD0100000000000000B99E /* AppNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppNotification.swift; sourceTree = "<group>"; };
+		CCDD0102000000000000B99E /* NotificationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationRepository.swift; sourceTree = "<group>"; };
+		CCDD0104000000000000B99E /* NotificationDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationDTO.swift; sourceTree = "<group>"; };
+		CCDD0106000000000000B99E /* RemoteNotificationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteNotificationRepository.swift; sourceTree = "<group>"; };
+		CCDD0108000000000000B99E /* NotificationsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsViewModel.swift; sourceTree = "<group>"; };
+		CCDD010A000000000000B99E /* NotificationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsView.swift; sourceTree = "<group>"; };
 		E9A2C93A2FB4805D0008B99E /* AddGarmentSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGarmentSheet.swift; sourceTree = "<group>"; };
 		E9A2C93B2FB4805D0008B99E /* AddGarmentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGarmentViewModel.swift; sourceTree = "<group>"; };
 		E9A2C93C2FB4805D0008B99E /* ClosetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClosetView.swift; sourceTree = "<group>"; };
@@ -225,6 +237,7 @@
 				E9A2C9412FB4805D0008B99E /* OutfitsFeature */,
 				E9A2C9442FB4805D0008B99E /* ProfileFeature */,
 				E9A2C9472FB4805D0008B99E /* TimelineFeature */,
+				CCDD010C000000000000B99E /* NotificationsFeature */,
 			);
 			path = Presentation;
 			sourceTree = "<group>";
@@ -294,6 +307,15 @@
 			path = TimelineFeature;
 			sourceTree = "<group>";
 		};
+		CCDD010C000000000000B99E /* NotificationsFeature */ = {
+			isa = PBXGroup;
+			children = (
+				CCDD0108000000000000B99E /* NotificationsViewModel.swift */,
+				CCDD010A000000000000B99E /* NotificationsView.swift */,
+			);
+			path = NotificationsFeature;
+			sourceTree = "<group>";
+		};
 		E9A2C9582FB480670008B99E /* AppShell */ = {
 			isa = PBXGroup;
 			children = (
@@ -316,6 +338,7 @@
 				E9A2C95D2FB480670008B99E /* ServerErrorDTO.swift */,
 				E9A2C95E2FB480670008B99E /* UserDTO.swift */,
 				E9A2C95F2FB480670008B99E /* UserProfileDTO.swift */,
+				CCDD0104000000000000B99E /* NotificationDTO.swift */,
 			);
 			path = DTO;
 			sourceTree = "<group>";
@@ -345,6 +368,7 @@
 				E9A2C9682FB480670008B99E /* RemoteClosetRepository.swift */,
 				E9A2C9692FB480670008B99E /* RemoteOutfitsRepository.swift */,
 				E9A2C96A2FB480670008B99E /* RemoteProfileRepository.swift */,
+				CCDD0106000000000000B99E /* RemoteNotificationRepository.swift */,
 				E9A4D10D2FB5805D0008B99E /* RemoteSearchRepository.swift */,
 				E9A2C96B2FB480670008B99E /* RemoteTimelineRepository.swift */,
 			);
@@ -401,6 +425,7 @@
 				E9A4D10A2FB5805D0008B99E /* SearchResults.swift */,
 				E9A2C97C2FB480670008B99E /* User.swift */,
 				E9A2C97D2FB480670008B99E /* UserProfile.swift */,
+				CCDD0100000000000000B99E /* AppNotification.swift */,
 			);
 			path = Entities;
 			sourceTree = "<group>";
@@ -420,6 +445,7 @@
 				E9A2C9822FB480670008B99E /* ClosetRepository.swift */,
 				E9A2C9832FB480670008B99E /* OutfitsRepository.swift */,
 				E9A2C9842FB480670008B99E /* ProfileRepository.swift */,
+				CCDD0102000000000000B99E /* NotificationRepository.swift */,
 				E9A4D10B2FB5805D0008B99E /* SearchRepository.swift */,
 				E9A2C9852FB480670008B99E /* TimelineRepository.swift */,
 			);
@@ -545,6 +571,12 @@
 				CC070A012FB4805D0008B99E /* WelcomeView.swift in Sources */,
 				AABB0101000000000000B99E /* FollowListSheet.swift in Sources */,
 				BBCC0101000000000000B99E /* EditProfileSheet.swift in Sources */,
+				CCDD0101000000000000B99E /* AppNotification.swift in Sources */,
+				CCDD0103000000000000B99E /* NotificationRepository.swift in Sources */,
+				CCDD0105000000000000B99E /* NotificationDTO.swift in Sources */,
+				CCDD0107000000000000B99E /* RemoteNotificationRepository.swift in Sources */,
+				CCDD0109000000000000B99E /* NotificationsViewModel.swift in Sources */,
+				CCDD010B000000000000B99E /* NotificationsView.swift in Sources */,
 				E9A2C94D2FB4805D0008B99E /* ProfileView.swift in Sources */,
 				E9A2C94E2FB4805D0008B99E /* LoginViewModel.swift in Sources */,
 				E9A2C94F2FB4805D0008B99E /* ClosetViewModel.swift in Sources */,

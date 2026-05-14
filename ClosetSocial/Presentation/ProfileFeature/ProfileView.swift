@@ -6,6 +6,7 @@ public struct ProfileView: View {
 
     @State private var followListTarget: FollowListKind?
     @State private var isEditingProfile = false
+    @State private var isShowingNotifications = false
 
     public init(
         viewModel: ProfileViewModel,
@@ -44,18 +45,39 @@ public struct ProfileView: View {
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button(role: .destructive) {
-                        viewModel.logout()
+                HStack(spacing: 4) {
+                    Button {
+                        isShowingNotifications = true
                     } label: {
-                        Label("Cerrar sesión", systemImage: "rectangle.portrait.and.arrow.right")
+                        ZStack(alignment: .topTrailing) {
+                            Image(systemName: "bell")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundStyle(Color(red: 0.28, green: 0.24, blue: 0.22))
+                            if viewModel.notificationsViewModel.unreadCount > 0 {
+                                Circle()
+                                    .fill(Color(red: 0.82, green: 0.25, blue: 0.28))
+                                    .frame(width: 8, height: 8)
+                                    .offset(x: 4, y: -4)
+                            }
+                        }
                     }
-                } label: {
-                    Image(systemName: "ellipsis")
+
+                    Menu {
+                        Button(role: .destructive) {
+                            viewModel.logout()
+                        } label: {
+                            Label("Cerrar sesión", systemImage: "rectangle.portrait.and.arrow.right")
+                        }
+                    } label: {
+                        Image(systemName: "ellipsis")
+                    }
                 }
             }
         }
-        .task { await viewModel.load() }
+        .task {
+            await viewModel.load()
+            await viewModel.notificationsViewModel.load()
+        }
         .refreshable { await viewModel.load() }
         .sheet(isPresented: $isEditingProfile) {
             if case let .content(profile) = viewModel.state {
@@ -73,6 +95,9 @@ public struct ProfileView: View {
                     }
                 )
             }
+        }
+        .navigationDestination(isPresented: $isShowingNotifications) {
+            NotificationsView(viewModel: viewModel.notificationsViewModel)
         }
         .sheet(item: $followListTarget) { kind in
             if case let .content(profile) = viewModel.state {

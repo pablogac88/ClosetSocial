@@ -43,6 +43,7 @@ public final class ProfileViewModel {
     public private(set) var garmentsState: ProfileTabState<[Garment]> = .idle
 
     public let repository: any ProfileRepository
+    public let notificationsViewModel: NotificationsViewModel
     private let timelineRepository: any TimelineRepository
     private let closetRepository: any ClosetRepository
     private let outfitsRepository: any OutfitsRepository
@@ -55,6 +56,7 @@ public final class ProfileViewModel {
         timelineRepository: any TimelineRepository,
         closetRepository: any ClosetRepository,
         outfitsRepository: any OutfitsRepository,
+        notificationRepository: any NotificationRepository,
         tokenProvider: @escaping TokenProvider,
         onLogout: @escaping OnLogout
     ) {
@@ -64,6 +66,10 @@ public final class ProfileViewModel {
         self.outfitsRepository = outfitsRepository
         self.tokenProvider = tokenProvider
         self.onLogout = onLogout
+        self.notificationsViewModel = NotificationsViewModel(
+            repository: notificationRepository,
+            tokenProvider: tokenProvider
+        )
     }
 
     public func load() async {

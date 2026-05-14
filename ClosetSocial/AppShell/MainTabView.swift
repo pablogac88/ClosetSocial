@@ -32,6 +32,7 @@ struct MainTabView: View {
             timelineRepository: dependencies.timelineRepository,
             closetRepository: dependencies.closetRepository,
             outfitsRepository: dependencies.outfitsRepository,
+            notificationRepository: dependencies.notificationRepository,
             tokenProvider: tokenProvider,
             onLogout: { [session] in session.signOut() }
         )
