@@ -121,7 +121,7 @@ public struct ClosetView: View {
         }
         .scrollContentBackground(.hidden)
         .background(Color.clear)
-        .refreshable { await viewModel.load() }
+        .refreshable { await viewModel.refresh() }
     }
 
     private var deleteErrorIsPresented: Binding<Bool> {

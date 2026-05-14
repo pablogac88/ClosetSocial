@@ -39,18 +39,31 @@ public final class ClosetViewModel {
         self.onGarmentDeleted = onGarmentDeleted
     }
 
-    public func load() async {
+    public func load(showLoadingState: Bool = true) async {
+        let previousState = state
         guard let token = tokenProvider() else {
             state = .error(DomainError.unauthenticated.userMessage)
             return
         }
-        state = .loading
+        if showLoadingState {
+            state = .loading
+        }
         do {
             let garments = try await repository.fetchCloset(token: token)
             state = garments.isEmpty ? .empty : .content(garments)
+        } catch is CancellationError {
+            state = previousState
         } catch {
-            state = .error(error.userMessage)
+            if case .content = previousState {
+                state = previousState
+            } else {
+                state = .error(error.userMessage)
+            }
         }
+    }
+
+    public func refresh() async {
+        await load(showLoadingState: false)
     }
 
     public func makeAddGarmentViewModel() -> AddGarmentViewModel {
