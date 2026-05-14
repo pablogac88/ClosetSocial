@@ -3,6 +3,7 @@ import SwiftUI
 public struct OutfitsView: View {
     @Bindable private var viewModel: OutfitsViewModel
     @State private var isPresentingCreateSheet = false
+    @State private var composerVM: OutfitComposerViewModel?
 
     public init(viewModel: OutfitsViewModel) {
         self.viewModel = viewModel
@@ -32,15 +33,29 @@ public struct OutfitsView: View {
         .navigationTitle("Outfits")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    isPresentingCreateSheet = true
+                Menu {
+                    Button {
+                        composerVM = viewModel.makeComposerViewModel()
+                    } label: {
+                        Label("Crear visual", systemImage: "sparkles")
+                    }
+                    Button {
+                        isPresentingCreateSheet = true
+                    } label: {
+                        Label("Crear rápido", systemImage: "square.and.pencil")
+                    }
                 } label: {
-                    Label("Crear outfit", systemImage: "sparkles")
+                    Image(systemName: "plus")
                 }
             }
         }
         .sheet(isPresented: $isPresentingCreateSheet) {
             CreateOutfitSheet(viewModel: viewModel)
+        }
+        .fullScreenCover(item: $composerVM) { vm in
+            NavigationStack {
+                OutfitComposerView(viewModel: vm)
+            }
         }
         .task { await viewModel.load() }
     }

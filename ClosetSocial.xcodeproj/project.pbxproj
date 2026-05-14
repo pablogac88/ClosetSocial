@@ -19,6 +19,10 @@
 		E9A2C9502FB4805D0008B99E /* ClosetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C93C2FB4805D0008B99E /* ClosetView.swift */; };
 		E9A2C9512FB4805D0008B99E /* AddGarmentViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C93B2FB4805D0008B99E /* AddGarmentViewModel.swift */; };
 		E9A2C9522FB4805D0008B99E /* OutfitsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9402FB4805D0008B99E /* OutfitsViewModel.swift */; };
+		CC010A012FB4805D0008B99E /* OutfitComposerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC010A002FB4805D0008B99E /* OutfitComposerViewModel.swift */; };
+		CC010A032FB4805D0008B99E /* OutfitComposerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC010A022FB4805D0008B99E /* OutfitComposerView.swift */; };
+		CC010A052FB4805D0008B99E /* OutfitComposerLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC010A042FB4805D0008B99E /* OutfitComposerLayout.swift */; };
+		CC010A072FB4805D0008B99E /* OutfitLayoutEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC010A062FB4805D0008B99E /* OutfitLayoutEngine.swift */; };
 		E9A2C9532FB4805D0008B99E /* ProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9432FB4805D0008B99E /* ProfileViewModel.swift */; };
 		B2DDBECA59E842DEA690EF25 /* PublicProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A453CDCEAD4A699261ACB2 /* PublicProfileView.swift */; };
 		C08D49740DBE4DD58ABBB424 /* PublicProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D1C07AC72A74D2F9DE23626 /* PublicProfileViewModel.swift */; };
@@ -51,6 +55,7 @@
 		E9A2C9AB2FB480670008B99E /* AuthenticateUserUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9882FB480670008B99E /* AuthenticateUserUseCase.swift */; };
 		E9A2C9AC2FB480670008B99E /* DomainError.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C97F2FB480670008B99E /* DomainError.swift */; };
 		E9A2C9AD2FB480670008B99E /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9742FB480670008B99E /* Colors.swift */; };
+		CC003A012FB4805D0008B99E /* HapticEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC003A002FB4805D0008B99E /* HapticEngine.swift */; };
 		E9A2C9AE2FB480670008B99E /* GarmentDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C95B2FB480670008B99E /* GarmentDTO.swift */; };
 		E9A2C9AF2FB480670008B99E /* TimelineRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9852FB480670008B99E /* TimelineRepository.swift */; };
 		E9A2C9B02FB480670008B99E /* BackgroundGradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9702FB480670008B99E /* BackgroundGradient.swift */; };
@@ -64,6 +69,7 @@
 		E9A2C9B82FB480670008B99E /* AuthRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9812FB480670008B99E /* AuthRepository.swift */; };
 		E9A2C9B92FB480670008B99E /* HTTPError.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C98C2FB480670008B99E /* HTTPError.swift */; };
 		E9A2C9BA2FB480670008B99E /* AvatarBubble.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C96F2FB480670008B99E /* AvatarBubble.swift */; };
+		CC002A012FB4805D0008B99E /* GarmentImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC002A002FB4805D0008B99E /* GarmentImage.swift */; };
 		E9A2C9BB2FB480670008B99E /* RemoteRequestSender.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9622FB480670008B99E /* RemoteRequestSender.swift */; };
 		E9A2C9BC2FB480670008B99E /* RemoteClosetRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9682FB480670008B99E /* RemoteClosetRepository.swift */; };
 		E9A2C9BD2FB480670008B99E /* HTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C98B2FB480670008B99E /* HTTPClient.swift */; };
@@ -82,6 +88,8 @@
 		E9A2C93D2FB4805D0008B99E /* ClosetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClosetViewModel.swift; sourceTree = "<group>"; };
 		E9A2C93F2FB4805D0008B99E /* OutfitsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutfitsView.swift; sourceTree = "<group>"; };
 		E9A2C9402FB4805D0008B99E /* OutfitsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutfitsViewModel.swift; sourceTree = "<group>"; };
+		CC010A002FB4805D0008B99E /* OutfitComposerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutfitComposerViewModel.swift; sourceTree = "<group>"; };
+		CC010A022FB4805D0008B99E /* OutfitComposerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutfitComposerView.swift; sourceTree = "<group>"; };
 		E9A2C9422FB4805D0008B99E /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		E9A2C9432FB4805D0008B99E /* ProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewModel.swift; sourceTree = "<group>"; };
 		E9A453CDCEAD4A699261ACB2 /* PublicProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PublicProfileView.swift; sourceTree = "<group>"; };
@@ -110,16 +118,20 @@
 		E9A2C96B2FB480670008B99E /* RemoteTimelineRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteTimelineRepository.swift; sourceTree = "<group>"; };
 		E9A2C96D2FB480670008B99E /* DataLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataLayer.swift; sourceTree = "<group>"; };
 		E9A2C96F2FB480670008B99E /* AvatarBubble.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvatarBubble.swift; sourceTree = "<group>"; };
+		CC002A002FB4805D0008B99E /* GarmentImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GarmentImage.swift; sourceTree = "<group>"; };
 		E9A2C9702FB480670008B99E /* BackgroundGradient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundGradient.swift; sourceTree = "<group>"; };
 		E9A2C9712FB480670008B99E /* MetricCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetricCard.swift; sourceTree = "<group>"; };
 		E9A2C9722FB480670008B99E /* PrimaryButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryButton.swift; sourceTree = "<group>"; };
 		E9A2C9742FB480670008B99E /* Colors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
+		CC003A002FB4805D0008B99E /* HapticEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticEngine.swift; sourceTree = "<group>"; };
 		E9A2C9752FB480670008B99E /* DomainError+UI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DomainError+UI.swift"; sourceTree = "<group>"; };
 		E9A2C9762FB480670008B99E /* Typography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Typography.swift; sourceTree = "<group>"; };
 		E9A2C9782FB480670008B99E /* AuthSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthSession.swift; sourceTree = "<group>"; };
 		E9A2C9792FB480670008B99E /* FeedPost.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedPost.swift; sourceTree = "<group>"; };
 		E9A2C97A2FB480670008B99E /* Garment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Garment.swift; sourceTree = "<group>"; };
 		E9A2C97B2FB480670008B99E /* Outfit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Outfit.swift; sourceTree = "<group>"; };
+		CC010A042FB4805D0008B99E /* OutfitComposerLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutfitComposerLayout.swift; sourceTree = "<group>"; };
+		CC010A062FB4805D0008B99E /* OutfitLayoutEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutfitLayoutEngine.swift; sourceTree = "<group>"; };
 		E9A2C97C2FB480670008B99E /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
 		E9A2C97D2FB480670008B99E /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
 		E9A2C97F2FB480670008B99E /* DomainError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainError.swift; sourceTree = "<group>"; };
@@ -215,6 +227,8 @@
 			children = (
 				E9A2C93F2FB4805D0008B99E /* OutfitsView.swift */,
 				E9A2C9402FB4805D0008B99E /* OutfitsViewModel.swift */,
+				CC010A022FB4805D0008B99E /* OutfitComposerView.swift */,
+				CC010A002FB4805D0008B99E /* OutfitComposerViewModel.swift */,
 			);
 			path = OutfitsFeature;
 			sourceTree = "<group>";
@@ -311,6 +325,7 @@
 			children = (
 				E9A2C96F2FB480670008B99E /* AvatarBubble.swift */,
 				E9A2C9702FB480670008B99E /* BackgroundGradient.swift */,
+				CC002A002FB4805D0008B99E /* GarmentImage.swift */,
 				E9A2C9712FB480670008B99E /* MetricCard.swift */,
 				E9A2C9722FB480670008B99E /* PrimaryButton.swift */,
 			);
@@ -323,6 +338,7 @@
 				E9A2C9732FB480670008B99E /* Components */,
 				E9A2C9742FB480670008B99E /* Colors.swift */,
 				E9A2C9752FB480670008B99E /* DomainError+UI.swift */,
+				CC003A002FB4805D0008B99E /* HapticEngine.swift */,
 				E9A2C9762FB480670008B99E /* Typography.swift */,
 			);
 			path = DesignSystem;
@@ -335,6 +351,8 @@
 				E9A2C9792FB480670008B99E /* FeedPost.swift */,
 				E9A2C97A2FB480670008B99E /* Garment.swift */,
 				E9A2C97B2FB480670008B99E /* Outfit.swift */,
+				CC010A042FB4805D0008B99E /* OutfitComposerLayout.swift */,
+				CC010A062FB4805D0008B99E /* OutfitLayoutEngine.swift */,
 				E9A2C97C2FB480670008B99E /* User.swift */,
 				E9A2C97D2FB480670008B99E /* UserProfile.swift */,
 			);
@@ -477,6 +495,10 @@
 				E9A2C9502FB4805D0008B99E /* ClosetView.swift in Sources */,
 				E9A2C9512FB4805D0008B99E /* AddGarmentViewModel.swift in Sources */,
 				E9A2C9522FB4805D0008B99E /* OutfitsViewModel.swift in Sources */,
+				CC010A012FB4805D0008B99E /* OutfitComposerViewModel.swift in Sources */,
+				CC010A032FB4805D0008B99E /* OutfitComposerView.swift in Sources */,
+				CC010A052FB4805D0008B99E /* OutfitComposerLayout.swift in Sources */,
+				CC010A072FB4805D0008B99E /* OutfitLayoutEngine.swift in Sources */,
 				E9A2C9532FB4805D0008B99E /* ProfileViewModel.swift in Sources */,
 				B2DDBECA59E842DEA690EF25 /* PublicProfileView.swift in Sources */,
 				C08D49740DBE4DD58ABBB424 /* PublicProfileViewModel.swift in Sources */,
@@ -490,6 +512,7 @@
 				E9A2C9982FB480670008B99E /* DomainMappers.swift in Sources */,
 				E9A2C9992FB480670008B99E /* InMemoryRepositories.swift in Sources */,
 				E9A2C99A2FB480670008B99E /* DomainError+UI.swift in Sources */,
+				CC003A012FB4805D0008B99E /* HapticEngine.swift in Sources */,
 				E9A2C99B2FB480670008B99E /* MainTabView.swift in Sources */,
 				E9A2C99C2FB480670008B99E /* RemoteOutfitsRepository.swift in Sources */,
 				E9A2C99D2FB480670008B99E /* HTTPMethod.swift in Sources */,
@@ -522,6 +545,7 @@
 				E9A2C9B82FB480670008B99E /* AuthRepository.swift in Sources */,
 				E9A2C9B92FB480670008B99E /* HTTPError.swift in Sources */,
 				E9A2C9BA2FB480670008B99E /* AvatarBubble.swift in Sources */,
+				CC002A012FB4805D0008B99E /* GarmentImage.swift in Sources */,
 				E9A2C9BB2FB480670008B99E /* RemoteRequestSender.swift in Sources */,
 				E9A2C9BC2FB480670008B99E /* RemoteClosetRepository.swift in Sources */,
 				E9A2C9BD2FB480670008B99E /* HTTPClient.swift in Sources */,

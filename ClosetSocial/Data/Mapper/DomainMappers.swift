@@ -65,8 +65,14 @@ extension OutfitDTO {
             title: title?.trimmedToNil,
             note: note?.trimmedToNil,
             garments: resolvedGarments,
+            layout: decodedLayout,
             createdAt: createdAt
         )
+    }
+
+    private var decodedLayout: OutfitComposerLayout? {
+        guard let json = layoutJSON, let data = json.data(using: .utf8) else { return nil }
+        return try? JSONDecoder().decode(OutfitComposerLayout.self, from: data)
     }
 
     private var resolvedGarments: [Garment] {

@@ -52,6 +52,24 @@ public final class OutfitsViewModel {
         availableGarments = (try? await closetRepository.fetchCloset(token: token)) ?? []
     }
 
+    // MARK: Composer factory
+
+    public func makeComposerViewModel() -> OutfitComposerViewModel {
+        OutfitComposerViewModel(
+            closetRepository: closetRepository,
+            outfitsRepository: repository,
+            tokenProvider: tokenProvider,
+            onOutfitSaved: { [weak self] outfit in self?.appendOutfit(outfit) }
+        )
+    }
+
+    public func appendOutfit(_ outfit: Outfit) {
+        switch state {
+        case let .content(items): state = .content([outfit] + items)
+        default:                  state = .content([outfit])
+        }
+    }
+
     public func create(title: String?, note: String?, garments: [Garment]) async {
         guard let token = tokenProvider() else {
             saveError = DomainError.unauthenticated.userMessage
