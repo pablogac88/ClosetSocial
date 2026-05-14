@@ -350,7 +350,9 @@ public struct InMemoryProfileRepository: ProfileRepository {
             user: session.user,
             closetCount: closet.count,
             outfitCount: outfits.count,
-            postsCount: postsCount
+            postsCount: postsCount,
+            followerCount: 0,
+            followingCount: 0
         )
     }
 
@@ -372,6 +374,8 @@ public struct InMemoryProfileRepository: ProfileRepository {
         )
     }
 
+    public func fetchFollowers(userID: UUID, token: String) async throws -> [User] { [] }
+    public func fetchFollowing(userID: UUID, token: String) async throws -> [User] { [] }
     public func follow(userID: UUID, token: String) async throws {}
     public func unfollow(userID: UUID, token: String) async throws {}
 }

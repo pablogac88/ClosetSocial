@@ -18,15 +18,21 @@ public final class PublicProfileViewModel {
     public private(set) var followError: String?
 
     private let userID: UUID
-    private let repository: any ProfileRepository
+    public let currentUserID: UUID?
+    public let repository: any ProfileRepository
     private let tokenProvider: TokenProvider
+
+    public var isOwnProfile: Bool { userID == currentUserID }
+    public var currentToken: String? { tokenProvider() }
 
     public init(
         userID: UUID,
+        currentUserID: UUID? = nil,
         repository: any ProfileRepository,
         tokenProvider: @escaping TokenProvider
     ) {
         self.userID = userID
+        self.currentUserID = currentUserID
         self.repository = repository
         self.tokenProvider = tokenProvider
     }

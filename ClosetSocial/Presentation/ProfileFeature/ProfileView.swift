@@ -2,9 +2,16 @@ import SwiftUI
 
 public struct ProfileView: View {
     @Bindable private var viewModel: ProfileViewModel
+    private let makePublicProfileViewModel: (UUID) -> PublicProfileViewModel
 
-    public init(viewModel: ProfileViewModel) {
+    @State private var followListTarget: FollowListKind?
+
+    public init(
+        viewModel: ProfileViewModel,
+        makePublicProfileViewModel: @escaping (UUID) -> PublicProfileViewModel
+    ) {
         self.viewModel = viewModel
+        self.makePublicProfileViewModel = makePublicProfileViewModel
     }
 
     public var body: some View {
@@ -22,7 +29,7 @@ public struct ProfileView: View {
                 )
             }
         }
-        .navigationTitle("Perfil")
+        .navigationTitle("")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
@@ -38,6 +45,17 @@ public struct ProfileView: View {
         }
         .task { await viewModel.load() }
         .refreshable { await viewModel.load() }
+        .sheet(item: $followListTarget) { kind in
+            if case let .content(profile) = viewModel.state {
+                FollowListSheet(
+                    userID: profile.user.id,
+                    kind: kind,
+                    currentUserID: profile.user.id,
+                    repository: viewModel.repository,
+                    tokenProvider: { [viewModel] in viewModel.currentToken }
+                )
+            }
+        }
     }
 
     // MARK: Body
@@ -87,11 +105,19 @@ public struct ProfileView: View {
             }
 
             HStack(spacing: 0) {
-                ProfileStat(value: profile.postsCount,   label: "Posts")
-                Divider().frame(height: 28)
                 ProfileStat(value: profile.closetCount,  label: "Prendas")
                 Divider().frame(height: 28)
                 ProfileStat(value: profile.outfitCount,  label: "Outfits")
+                Divider().frame(height: 28)
+                Button { followListTarget = .followers } label: {
+                    ProfileStat(value: profile.followerCount, label: "Seguidores")
+                }
+                .buttonStyle(.plain)
+                Divider().frame(height: 28)
+                Button { followListTarget = .following } label: {
+                    ProfileStat(value: profile.followingCount, label: "Siguiendo")
+                }
+                .buttonStyle(.plain)
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 14)

@@ -27,6 +27,26 @@ public struct RemoteProfileRepository: ProfileRepository {
         return dto.toDomain()
     }
 
+    public func fetchFollowers(userID: UUID, token: String) async throws -> [User] {
+        let dtos = try await sender.send(
+            path: ClosetSocialEndpoint.userFollowers(id: userID),
+            method: .get,
+            token: token,
+            as: [UserDTO].self
+        )
+        return dtos.map { $0.toDomain() }
+    }
+
+    public func fetchFollowing(userID: UUID, token: String) async throws -> [User] {
+        let dtos = try await sender.send(
+            path: ClosetSocialEndpoint.userFollowing(id: userID),
+            method: .get,
+            token: token,
+            as: [UserDTO].self
+        )
+        return dtos.map { $0.toDomain() }
+    }
+
     public func follow(userID: UUID, token: String) async throws {
         try await sender.sendVoid(
             path: ClosetSocialEndpoint.followUser(id: userID),

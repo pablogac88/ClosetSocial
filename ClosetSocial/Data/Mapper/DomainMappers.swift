@@ -100,7 +100,9 @@ extension UserProfileDTO {
             user: user.toDomain(),
             closetCount: closetCount,
             outfitCount: outfitCount,
-            postsCount: postsCount
+            postsCount: postsCount,
+            followerCount: followerCount,
+            followingCount: followingCount
         )
     }
 }

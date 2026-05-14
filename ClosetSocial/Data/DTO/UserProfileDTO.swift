@@ -5,6 +5,8 @@ struct UserProfileDTO: Codable, Sendable, Equatable {
     let closetCount: Int
     let outfitCount: Int
     let postsCount: Int
+    let followerCount: Int
+    let followingCount: Int
 }
 
 struct PublicUserProfileDTO: Codable, Sendable, Equatable {

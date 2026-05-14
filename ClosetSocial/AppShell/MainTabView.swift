@@ -80,6 +80,7 @@ struct MainTabView: View {
     private func makePublicProfileViewModel(for userID: UUID) -> PublicProfileViewModel {
         PublicProfileViewModel(
             userID: userID,
+            currentUserID: session.currentUser?.id,
             repository: dependencies.profileRepository,
             tokenProvider: tokenProvider
         )
@@ -131,7 +132,10 @@ struct MainTabView: View {
             .tabItem { Label("Outfits", systemImage: "square.grid.2x2") }
 
             NavigationStack {
-                ProfileView(viewModel: profileViewModel)
+                ProfileView(
+                    viewModel: profileViewModel,
+                    makePublicProfileViewModel: makePublicProfileViewModel(for:)
+                )
             }
             .tag(4)
             .tabItem { Label("Perfil", systemImage: "person.crop.circle") }

@@ -26,8 +26,8 @@ public struct ExploreView: View {
             .padding(.top, 20)
             .padding(.bottom, 28)
         }
-        .navigationTitle("Explore")
-        .navigationBarTitleDisplayMode(.large)
+        .navigationTitle("")
+        .navigationBarTitleDisplayMode(.inline)
         .background(Color(red: 0.973, green: 0.962, blue: 0.949).ignoresSafeArea())
         .navigationDestination(item: $selectedOutfit) { outfit in
             OutfitDetailView(context: .myOutfit(outfit))
@@ -235,22 +235,15 @@ public struct ExploreView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("Explora contenido real de la comunidad y cambia a búsqueda directa cuando escribes.")
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Descubre")
+                .font(.system(size: 28, weight: .bold, design: .rounded))
+                .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
+            Text(viewModel.shouldUseBackendSearch
+                 ? "Resultados para tu búsqueda"
+                 : "Contenido real de la comunidad")
                 .font(DSFont.body)
-                .foregroundStyle(Color(red: 0.42, green: 0.36, blue: 0.31))
-
-            HStack(spacing: 10) {
-                if viewModel.shouldUseBackendSearch {
-                    ExploreMetricPill(title: "Usuarios", value: "\(viewModel.searchUsers.count)")
-                    ExploreMetricPill(title: "Prendas", value: "\(viewModel.searchGarments.count)")
-                    ExploreMetricPill(title: "Outfits", value: "\(viewModel.searchOutfits.count)")
-                } else {
-                    ExploreMetricPill(title: "Looks", value: "\(viewModel.outfitPosts.count)")
-                    ExploreMetricPill(title: "Prendas", value: "\(viewModel.garmentPosts.count)")
-                    ExploreMetricPill(title: "Personas", value: "\(viewModel.people.count)")
-                }
-            }
+                .foregroundStyle(Color(red: 0.52, green: 0.46, blue: 0.41))
         }
         .padding(.horizontal, 20)
     }
@@ -316,29 +309,6 @@ private struct ExploreSection<Content: View>: View {
 
             content
         }
-    }
-}
-
-private struct ExploreMetricPill: View {
-    let title: String
-    let value: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(value)
-                .font(.system(size: 18, weight: .bold, design: .rounded))
-                .foregroundStyle(Color(red: 0.18, green: 0.15, blue: 0.13))
-            Text(title)
-                .font(DSFont.caption)
-                .foregroundStyle(Color(red: 0.49, green: 0.42, blue: 0.37))
-        }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-        .background(Color.white.opacity(0.78), in: Capsule())
-        .overlay(
-            Capsule()
-                .stroke(Color.white.opacity(0.7), lineWidth: 1)
-        )
     }
 }
 

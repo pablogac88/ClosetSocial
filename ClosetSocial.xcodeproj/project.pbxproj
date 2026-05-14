@@ -20,6 +20,7 @@
 		E9A2C94B2FB4805D0008B99E /* AddGarmentSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C93A2FB4805D0008B99E /* AddGarmentSheet.swift */; };
 		E9A2C94C2FB4805D0008B99E /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9372FB4805D0008B99E /* LoginView.swift */; };
 		CC070A012FB4805D0008B99E /* WelcomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC070A002FB4805D0008B99E /* WelcomeView.swift */; };
+		AABB0101000000000000B99E /* FollowListSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABB0100000000000000B99E /* FollowListSheet.swift */; };
 		E9A2C94D2FB4805D0008B99E /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9422FB4805D0008B99E /* ProfileView.swift */; };
 		E9A2C94E2FB4805D0008B99E /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9382FB4805D0008B99E /* LoginViewModel.swift */; };
 		E9A2C94F2FB4805D0008B99E /* ClosetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C93D2FB4805D0008B99E /* ClosetViewModel.swift */; };
@@ -94,6 +95,7 @@
 		E9A2C9372FB4805D0008B99E /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		E9A2C9382FB4805D0008B99E /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
 		CC070A002FB4805D0008B99E /* WelcomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WelcomeView.swift; sourceTree = "<group>"; };
+		AABB0100000000000000B99E /* FollowListSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowListSheet.swift; sourceTree = "<group>"; };
 		E9A2C93A2FB4805D0008B99E /* AddGarmentSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGarmentSheet.swift; sourceTree = "<group>"; };
 		E9A2C93B2FB4805D0008B99E /* AddGarmentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGarmentViewModel.swift; sourceTree = "<group>"; };
 		E9A2C93C2FB4805D0008B99E /* ClosetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClosetView.swift; sourceTree = "<group>"; };
@@ -275,6 +277,7 @@
 				E9A2C9432FB4805D0008B99E /* ProfileViewModel.swift */,
 				E9A453CDCEAD4A699261ACB2 /* PublicProfileView.swift */,
 				6D1C07AC72A74D2F9DE23626 /* PublicProfileViewModel.swift */,
+				AABB0100000000000000B99E /* FollowListSheet.swift */,
 			);
 			path = ProfileFeature;
 			sourceTree = "<group>";
@@ -537,6 +540,7 @@
 				E9A2C94B2FB4805D0008B99E /* AddGarmentSheet.swift in Sources */,
 				E9A2C94C2FB4805D0008B99E /* LoginView.swift in Sources */,
 				CC070A012FB4805D0008B99E /* WelcomeView.swift in Sources */,
+				AABB0101000000000000B99E /* FollowListSheet.swift in Sources */,
 				E9A2C94D2FB4805D0008B99E /* ProfileView.swift in Sources */,
 				E9A2C94E2FB4805D0008B99E /* LoginViewModel.swift in Sources */,
 				E9A2C94F2FB4805D0008B99E /* ClosetViewModel.swift in Sources */,

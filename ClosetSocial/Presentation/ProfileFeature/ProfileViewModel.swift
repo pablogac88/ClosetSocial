@@ -40,7 +40,7 @@ public final class ProfileViewModel {
     public private(set) var outfitsState: ProfileTabState<[Outfit]> = .idle
     public private(set) var garmentsState: ProfileTabState<[Garment]> = .idle
 
-    private let repository: any ProfileRepository
+    public let repository: any ProfileRepository
     private let timelineRepository: any TimelineRepository
     private let closetRepository: any ClosetRepository
     private let outfitsRepository: any OutfitsRepository
@@ -92,6 +92,8 @@ public final class ProfileViewModel {
         state = .content(profile)
         invalidateTabs()
     }
+
+    public var currentToken: String? { tokenProvider() }
 
     public func logout() {
         onLogout()

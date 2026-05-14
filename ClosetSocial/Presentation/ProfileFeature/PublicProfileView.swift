@@ -3,6 +3,8 @@ import SwiftUI
 public struct PublicProfileView: View {
     @State private var viewModel: PublicProfileViewModel
 
+    @State private var followListTarget: FollowListKind?
+
     public init(viewModel: PublicProfileViewModel) {
         self._viewModel = State(initialValue: viewModel)
     }
@@ -30,6 +32,17 @@ public struct PublicProfileView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task { await viewModel.load() }
         .refreshable { await viewModel.load() }
+        .sheet(item: $followListTarget) { kind in
+            if case let .content(profile) = viewModel.state {
+                FollowListSheet(
+                    userID: profile.user.id,
+                    kind: kind,
+                    currentUserID: viewModel.currentUserID,
+                    repository: viewModel.repository,
+                    tokenProvider: { [viewModel] in viewModel.currentToken }
+                )
+            }
+        }
     }
 
     @ViewBuilder
@@ -61,17 +74,27 @@ public struct PublicProfileView: View {
                 }
             }
 
-            followButton(profile)
+            if !viewModel.isOwnProfile {
+                followButton(profile)
+            }
         }
         .padding(.top, 20)
 
         // Stats
         HStack(spacing: 0) {
-            PublicStat(value: profile.postsCount,    label: "Posts")
+            PublicStat(value: profile.closetCount,   label: "Prendas")
             Divider().frame(height: 28)
-            PublicStat(value: profile.followerCount, label: "Seguidores")
+            PublicStat(value: profile.outfitCount,   label: "Outfits")
             Divider().frame(height: 28)
-            PublicStat(value: profile.followingCount, label: "Siguiendo")
+            Button { followListTarget = .followers } label: {
+                PublicStat(value: profile.followerCount, label: "Seguidores")
+            }
+            .buttonStyle(.plain)
+            Divider().frame(height: 28)
+            Button { followListTarget = .following } label: {
+                PublicStat(value: profile.followingCount, label: "Siguiendo")
+            }
+            .buttonStyle(.plain)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 14)
