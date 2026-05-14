@@ -63,6 +63,25 @@ public actor InMemoryClosetSocialBackend {
     func currentOutfits() -> [Outfit] { outfits }
     func currentTimeline() -> [FeedPost] { timeline }
 
+    func updateProfile(displayName: String, bio: String?, avatarURL: String?) -> UserProfile {
+        let updatedUser = User(
+            id: session.user.id,
+            username: session.user.username,
+            displayName: displayName,
+            avatarURL: avatarURL.flatMap(URL.init(string:)),
+            bio: bio
+        )
+        session = AuthSession(token: session.token, user: updatedUser)
+        return UserProfile(
+            user: updatedUser,
+            closetCount: closet.count,
+            outfitCount: outfits.count,
+            postsCount: timeline.filter { $0.author.id == updatedUser.id && $0.isReal }.count,
+            followerCount: 0,
+            followingCount: 0
+        )
+    }
+
     func search(query: String) -> SearchResults {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
@@ -382,4 +401,12 @@ public struct InMemoryProfileRepository: ProfileRepository {
     public func fetchFollowing(userID: UUID, token: String) async throws -> [User] { [] }
     public func follow(userID: UUID, token: String) async throws {}
     public func unfollow(userID: UUID, token: String) async throws {}
+    public func updateProfile(
+        displayName: String,
+        bio: String?,
+        avatarURL: String?,
+        token: String
+    ) async throws -> UserProfile {
+        await backend.updateProfile(displayName: displayName, bio: bio, avatarURL: avatarURL)
+    }
 }

@@ -7,4 +7,10 @@ public protocol ProfileRepository: Sendable {
     func fetchFollowing(userID: UUID, token: String) async throws -> [User]
     func follow(userID: UUID, token: String) async throws
     func unfollow(userID: UUID, token: String) async throws
+    func updateProfile(
+        displayName: String,
+        bio: String?,
+        avatarURL: String?,
+        token: String
+    ) async throws -> UserProfile
 }

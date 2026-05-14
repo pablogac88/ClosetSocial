@@ -36,6 +36,8 @@ public final class ProfileViewModel {
 
     public private(set) var state: ProfileState = .idle
     public private(set) var selectedTab: ProfileTab = .posts
+    public private(set) var isUpdating = false
+    public private(set) var updateError: String?
     public private(set) var postsState: ProfileTabState<[FeedPost]> = .idle
     public private(set) var outfitsState: ProfileTabState<[Outfit]> = .idle
     public private(set) var garmentsState: ProfileTabState<[Garment]> = .idle
@@ -94,6 +96,46 @@ public final class ProfileViewModel {
     }
 
     public var currentToken: String? { tokenProvider() }
+
+    public func updateProfile(displayName: String, bio: String?, avatarURL: String?) async -> Bool {
+        guard let token = tokenProvider(),
+              case let .content(current) = state else { return false }
+        updateError = nil
+        isUpdating = true
+        defer { isUpdating = false }
+
+        let optimistic = UserProfile(
+            user: User(
+                id: current.user.id,
+                username: current.user.username,
+                displayName: displayName,
+                avatarURL: avatarURL.flatMap(URL.init(string:)),
+                bio: bio,
+                role: current.user.role
+            ),
+            closetCount: current.closetCount,
+            outfitCount: current.outfitCount,
+            postsCount: current.postsCount,
+            followerCount: current.followerCount,
+            followingCount: current.followingCount
+        )
+        state = .content(optimistic)
+
+        do {
+            let updated = try await repository.updateProfile(
+                displayName: displayName,
+                bio: bio,
+                avatarURL: avatarURL,
+                token: token
+            )
+            state = .content(updated)
+            return true
+        } catch {
+            state = .content(current)
+            updateError = error.userMessage
+            return false
+        }
+    }
 
     public func logout() {
         onLogout()

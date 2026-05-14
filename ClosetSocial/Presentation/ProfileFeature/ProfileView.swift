@@ -5,6 +5,7 @@ public struct ProfileView: View {
     private let makePublicProfileViewModel: (UUID) -> PublicProfileViewModel
 
     @State private var followListTarget: FollowListKind?
+    @State private var isEditingProfile = false
 
     public init(
         viewModel: ProfileViewModel,
@@ -31,6 +32,17 @@ public struct ProfileView: View {
         }
         .navigationTitle("")
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                if case .content = viewModel.state {
+                    Button {
+                        isEditingProfile = true
+                    } label: {
+                        Image(systemName: "pencil")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundStyle(Color(red: 0.28, green: 0.24, blue: 0.22))
+                    }
+                }
+            }
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Button(role: .destructive) {
@@ -45,6 +57,23 @@ public struct ProfileView: View {
         }
         .task { await viewModel.load() }
         .refreshable { await viewModel.load() }
+        .sheet(isPresented: $isEditingProfile) {
+            if case let .content(profile) = viewModel.state {
+                EditProfileSheet(
+                    initialDisplayName: profile.user.displayName,
+                    initialBio: profile.user.bio ?? "",
+                    initialAvatarURL: profile.user.avatarURL?.absoluteString ?? "",
+                    onSave: { displayName, bio, avatarURL in
+                        let saved = await viewModel.updateProfile(
+                            displayName: displayName,
+                            bio: bio.isEmpty ? nil : bio,
+                            avatarURL: avatarURL.isEmpty ? nil : avatarURL
+                        )
+                        return saved
+                    }
+                )
+            }
+        }
         .sheet(item: $followListTarget) { kind in
             if case let .content(profile) = viewModel.state {
                 FollowListSheet(

@@ -47,6 +47,22 @@ public struct RemoteProfileRepository: ProfileRepository {
         return dtos.map { $0.toDomain() }
     }
 
+    public func updateProfile(
+        displayName: String,
+        bio: String?,
+        avatarURL: String?,
+        token: String
+    ) async throws -> UserProfile {
+        let dto = try await sender.send(
+            path: ClosetSocialEndpoint.profile,
+            method: .patch,
+            body: UpdateProfileRequestDTO(displayName: displayName, bio: bio, avatarURL: avatarURL),
+            token: token,
+            as: UserProfileDTO.self
+        )
+        return dto.toDomain()
+    }
+
     public func follow(userID: UUID, token: String) async throws {
         try await sender.sendVoid(
             path: ClosetSocialEndpoint.followUser(id: userID),

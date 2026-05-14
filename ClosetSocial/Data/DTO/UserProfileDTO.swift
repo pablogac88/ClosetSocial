@@ -9,6 +9,12 @@ struct UserProfileDTO: Codable, Sendable, Equatable {
     let followingCount: Int
 }
 
+struct UpdateProfileRequestDTO: Encodable, Sendable {
+    let displayName: String
+    let bio: String?
+    let avatarURL: String?
+}
+
 struct PublicUserProfileDTO: Codable, Sendable, Equatable {
     let user: UserDTO
     let closetCount: Int
