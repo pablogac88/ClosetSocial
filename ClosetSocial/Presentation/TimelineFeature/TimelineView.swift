@@ -297,7 +297,7 @@ private struct FeedPostCard: View {
     private var authorRow: some View {
         Button(action: onAuthorTap) {
             HStack(spacing: 12) {
-                AvatarBubble(displayName: post.author.displayName)
+                AvatarBubble(displayName: post.author.displayName, avatarURL: post.author.avatarURL)
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(post.author.displayName)

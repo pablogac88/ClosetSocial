@@ -6,8 +6,8 @@ struct ClosetSocialApp: App {
     private let dependencies: AppDependencies
 
     init() {
-        // Backend en local. Cambia esta URL cuando despliegues.
-        let baseURL = URL(string: "http://127.0.0.1:8080")!
+        let rawURL = Bundle.main.infoDictionary?["BASE_URL"] as? String ?? "http://127.0.0.1:8080"
+        let baseURL = URL(string: rawURL)!
         self.dependencies = AppDependencies.live(baseURL: baseURL)
     }
 

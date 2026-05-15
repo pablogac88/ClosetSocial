@@ -36,6 +36,7 @@ public struct ClosetView: View {
                 )
             }
         }
+        .background(Color(red: 0.975, green: 0.970, blue: 0.962).ignoresSafeArea())
         .navigationTitle("Armario")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {

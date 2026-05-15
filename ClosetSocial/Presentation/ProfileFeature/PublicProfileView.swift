@@ -51,6 +51,7 @@ public struct PublicProfileView: View {
         VStack(spacing: 12) {
             AvatarBubble(
                 displayName: profile.user.displayName,
+                avatarURL: profile.user.avatarURL,
                 size: 88,
                 fillColor: Color(red: 0.91, green: 0.87, blue: 0.82),
                 textColor: Color(red: 0.44, green: 0.38, blue: 0.32)

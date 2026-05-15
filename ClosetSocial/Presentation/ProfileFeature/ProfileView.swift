@@ -75,8 +75,9 @@ public struct ProfileView: View {
             }
         }
         .task {
-            await viewModel.load()
-            await viewModel.notificationsViewModel.load()
+            async let profile: Void = viewModel.load()
+            async let notifications: Void = viewModel.notificationsViewModel.load()
+            _ = await (profile, notifications)
         }
         .refreshable { await viewModel.load() }
         .sheet(isPresented: $isEditingProfile) {
@@ -135,6 +136,7 @@ public struct ProfileView: View {
         VStack(spacing: 20) {
             AvatarBubble(
                 displayName: profile.user.displayName,
+                avatarURL: profile.user.avatarURL,
                 size: 96,
                 fillColor: Color(red: 0.91, green: 0.87, blue: 0.82),
                 textColor: Color(red: 0.44, green: 0.38, blue: 0.32)

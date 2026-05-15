@@ -44,7 +44,7 @@ public struct EditProfileSheet: View {
                         .padding(.bottom, 24)
 
                     if let error = errorMessage {
-                        errorBanner(error)
+                        AppErrorBanner(error)
                             .padding(.bottom, 16)
                             .transition(.move(edge: .top).combined(with: .opacity))
                     }
@@ -137,7 +137,7 @@ public struct EditProfileSheet: View {
             }
             .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 4)
 
-            ProfileInputField(
+            AppInputField(
                 label: "URL de avatar",
                 text: $avatarURL,
                 keyboardType: .URL,
@@ -160,7 +160,7 @@ public struct EditProfileSheet: View {
 
     private var fieldsSection: some View {
         VStack(spacing: 14) {
-            ProfileInputField(
+            AppInputField(
                 label: "Nombre",
                 text: $displayName,
                 isFocused: focusedField == .displayName,
@@ -232,27 +232,6 @@ public struct EditProfileSheet: View {
         }
     }
 
-    // MARK: Error
-
-    private func errorBanner(_ message: String) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: "exclamationmark.circle.fill")
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(Color(red: 0.72, green: 0.18, blue: 0.18))
-
-            Text(message)
-                .font(.system(.footnote, design: .rounded, weight: .medium))
-                .foregroundStyle(Color(red: 0.55, green: 0.12, blue: 0.12))
-                .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 14)
-        .background(
-            Color(red: 1.0, green: 0.93, blue: 0.93),
-            in: RoundedRectangle(cornerRadius: 16, style: .continuous)
-        )
-    }
-
     // MARK: Save
 
     private func saveProfile() async {
@@ -276,60 +255,4 @@ public struct EditProfileSheet: View {
 
 private enum EditField {
     case avatarURL, displayName, bio
-}
-
-// MARK: - Input field
-
-private struct ProfileInputField: View {
-    let label: String
-    @Binding var text: String
-    var keyboardType: UIKeyboardType = .default
-    var autocapitalization: TextInputAutocapitalization = .sentences
-    var isFocused: Bool = false
-    var submitLabel: SubmitLabel = .next
-    var onSubmit: () -> Void = {}
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(label)
-                .font(.system(.caption, design: .rounded, weight: .semibold))
-                .foregroundStyle(
-                    isFocused
-                        ? Color(red: 0.25, green: 0.30, blue: 0.58)
-                        : Color(red: 0.62, green: 0.56, blue: 0.52)
-                )
-                .animation(.easeInOut(duration: 0.15), value: isFocused)
-
-            TextField("", text: $text)
-                .textInputAutocapitalization(autocapitalization)
-                .autocorrectionDisabled()
-                .keyboardType(keyboardType)
-                .font(.system(.body, design: .rounded, weight: .regular))
-                .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
-                .submitLabel(submitLabel)
-                .onSubmit(onSubmit)
-                .frame(height: 28)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 14)
-                .background(Color.white, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(
-                            isFocused
-                                ? Color(red: 0.25, green: 0.30, blue: 0.58).opacity(0.5)
-                                : Color.clear,
-                            lineWidth: 1.5
-                        )
-                )
-                .shadow(
-                    color: isFocused
-                        ? Color(red: 0.25, green: 0.30, blue: 0.58).opacity(0.10)
-                        : Color.black.opacity(0.04),
-                    radius: isFocused ? 8 : 4,
-                    x: 0,
-                    y: 2
-                )
-                .animation(.easeInOut(duration: 0.15), value: isFocused)
-        }
-    }
 }

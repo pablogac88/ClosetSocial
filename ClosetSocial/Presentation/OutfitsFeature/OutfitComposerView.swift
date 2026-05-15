@@ -28,7 +28,7 @@ public struct OutfitComposerView: View {
                     .foregroundStyle(DSColor.primaryText.opacity(0.55))
             }
             ToolbarItem(placement: .principal) {
-                Text("Composer")
+                Text("Compositor")
                     .font(.system(.subheadline, design: .rounded, weight: .medium))
                     .foregroundStyle(DSColor.primaryText.opacity(0.45))
             }
@@ -449,7 +449,7 @@ private struct SaveOutfitSheet: View {
                         preview
                         garmentHint
                         fields
-                        if let error = viewModel.saveError { errorBanner(error) }
+                        if let error = viewModel.saveError { AppErrorBanner(error) }
                         actions
                     }
                     .padding(.horizontal, 24).padding(.bottom, 32)
@@ -506,19 +506,6 @@ private struct SaveOutfitSheet: View {
         }
     }
 
-    private func errorBanner(_ message: String) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: "exclamationmark.circle").font(.system(size: 15, weight: .medium))
-            Text(message).font(.system(.footnote, design: .rounded, weight: .medium))
-        }
-        .foregroundStyle(Color(red: 0.80, green: 0.22, blue: 0.18))
-        .padding(.horizontal, 16).padding(.vertical, 12)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(red: 0.80, green: 0.22, blue: 0.18).opacity(0.08),
-                    in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .transition(.move(edge: .top).combined(with: .opacity))
-    }
-
     private var actions: some View {
         VStack(spacing: 14) {
             ComposerSaveButton(isLoading: viewModel.isSaving, isEnabled: canSave) {
@@ -568,7 +555,7 @@ private struct PublishOutfitSheet: View {
                         preview
                         garmentHint
                         fields
-                        if let error = viewModel.publishError { errorBanner(error) }
+                        if let error = viewModel.publishError { AppErrorBanner(error) }
                         actions
                     }
                     .padding(.horizontal, 24).padding(.bottom, 32)
@@ -618,26 +605,13 @@ private struct PublishOutfitSheet: View {
 
     private var fields: some View {
         VStack(spacing: 14) {
-            SheetInputCard(label: "Caption *", placeholder: "Describe tu look…",
+            SheetInputCard(label: "Descripción", placeholder: "Describe tu look…",
                            text: $caption, axis: .vertical, lineLimit: 2...4)
                 .focused($captionFocused)
             SheetInputCard(label: "Título del outfit", placeholder: "Nombre del look (opcional)", text: $title)
             SheetInputCard(label: "Nota", placeholder: "Para qué ocasión, inspiración…",
                            text: $note, axis: .vertical, lineLimit: 2...4)
         }
-    }
-
-    private func errorBanner(_ message: String) -> some View {
-        HStack(spacing: 10) {
-            Image(systemName: "exclamationmark.circle").font(.system(size: 15, weight: .medium))
-            Text(message).font(.system(.footnote, design: .rounded, weight: .medium))
-        }
-        .foregroundStyle(Color(red: 0.80, green: 0.22, blue: 0.18))
-        .padding(.horizontal, 16).padding(.vertical, 12)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(red: 0.80, green: 0.22, blue: 0.18).opacity(0.08),
-                    in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .transition(.move(edge: .top).combined(with: .opacity))
     }
 
     private var actions: some View {

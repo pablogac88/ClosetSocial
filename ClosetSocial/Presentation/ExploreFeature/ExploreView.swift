@@ -430,6 +430,7 @@ private struct ExploreEditorialGarmentCard: View {
                     HStack(spacing: 8) {
                         AvatarBubble(
                             displayName: post.author.displayName,
+                            avatarURL: post.author.avatarURL,
                             size: 28,
                             fillColor: Color(red: 0.93, green: 0.88, blue: 0.83),
                             textColor: Color(red: 0.46, green: 0.39, blue: 0.34)
@@ -480,6 +481,7 @@ private struct ExploreEditorialPersonCard: View {
                 HStack(alignment: .top) {
                     AvatarBubble(
                         displayName: person.user.displayName,
+                        avatarURL: person.user.avatarURL,
                         size: 54,
                         fillColor: Color(red: 0.93, green: 0.88, blue: 0.83),
                         textColor: Color(red: 0.46, green: 0.39, blue: 0.34)
@@ -543,6 +545,7 @@ private struct ExploreSearchUserCard: View {
             VStack(alignment: .leading, spacing: 14) {
                 AvatarBubble(
                     displayName: user.displayName,
+                    avatarURL: user.avatarURL,
                     size: 58,
                     fillColor: Color(red: 0.93, green: 0.88, blue: 0.83),
                     textColor: Color(red: 0.46, green: 0.39, blue: 0.34)

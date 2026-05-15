@@ -1,0 +1,4 @@
+// Release — sustituir por la URL de producción antes de publicar
+// Note: xcconfig treats // as a comment, so URLs use the SLASH variable trick
+SLASH = /
+BASE_URL = https:$(SLASH)$(SLASH)REPLACE_WITH_PRODUCTION_URL

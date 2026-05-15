@@ -2,7 +2,6 @@ import SwiftUI
 
 public struct NotificationsView: View {
     @Bindable private var viewModel: NotificationsViewModel
-    @Environment(\.dismiss) private var dismiss
 
     public init(viewModel: NotificationsViewModel) {
         self.viewModel = viewModel
@@ -90,6 +89,7 @@ private struct NotificationRow: View {
             ZStack(alignment: .topTrailing) {
                 AvatarBubble(
                     displayName: notification.actor.displayName,
+                    avatarURL: notification.actor.avatarURL,
                     size: 46,
                     fillColor: Color(red: 0.91, green: 0.87, blue: 0.82),
                     textColor: Color(red: 0.44, green: 0.38, blue: 0.32)

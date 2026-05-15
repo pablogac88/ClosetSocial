@@ -95,7 +95,7 @@ public struct OutfitDetailView: View {
             }
             Button("Cancelar", role: .cancel) {}
         } message: {
-            Text("Se eliminará este outfit y sus relaciones internas.")
+            Text("Se eliminará este look. Las prendas seguirán en tu armario.")
         }
         .alert("No hemos podido borrar el outfit", isPresented: deleteErrorIsPresented) {
             Button("Aceptar", role: .cancel) { deleteErrorMessage = nil }
@@ -184,6 +184,7 @@ public struct OutfitDetailView: View {
         HStack(spacing: 12) {
             AvatarBubble(
                 displayName: post.author.displayName,
+                avatarURL: post.author.avatarURL,
                 size: 40,
                 fillColor: Color(red: 0.91, green: 0.87, blue: 0.82),
                 textColor: Color(red: 0.44, green: 0.38, blue: 0.32)

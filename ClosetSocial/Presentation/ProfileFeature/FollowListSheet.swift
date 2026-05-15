@@ -55,13 +55,12 @@ public struct FollowListSheet: View {
                         description: Text(error)
                     )
                 } else if users.isEmpty {
-                    ContentUnavailableView(
-                        kind == .followers ? "Sin seguidores aún" : "No sigue a nadie aún",
-                        systemImage: "person.2",
-                        description: Text(kind == .followers
+                    EmptyStateView(
+                        icon: "person.2",
+                        title: kind == .followers ? "Sin seguidores aún" : "No sigue a nadie aún",
+                        message: kind == .followers
                             ? "Cuando alguien siga este perfil aparecerá aquí."
                             : "Cuando este perfil siga a alguien aparecerá aquí."
-                        )
                     )
                 } else {
                     List(users) { user in
@@ -123,6 +122,7 @@ private struct UserRow: View {
         HStack(spacing: 14) {
             AvatarBubble(
                 displayName: user.displayName,
+                avatarURL: user.avatarURL,
                 size: 46,
                 fillColor: Color(red: 0.91, green: 0.87, blue: 0.82),
                 textColor: Color(red: 0.44, green: 0.38, blue: 0.32)

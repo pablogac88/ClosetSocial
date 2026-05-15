@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 public struct LoginView: View {
     @Bindable private var viewModel: LoginViewModel
@@ -136,10 +135,11 @@ public struct LoginView: View {
     private var fieldsSection: some View {
         VStack(spacing: 14) {
             if viewModel.mode == .register {
-                AuthInputField(
+                AppInputField(
                     label: "Usuario",
                     text: $viewModel.username,
                     contentType: .username,
+                    autocapitalization: .never,
                     isFocused: focusedField == .username,
                     submitLabel: .next,
                     onSubmit: { focusedField = .displayName }
@@ -147,7 +147,7 @@ public struct LoginView: View {
                 .focused($focusedField, equals: .username)
                 .transition(.move(edge: .top).combined(with: .opacity))
 
-                AuthInputField(
+                AppInputField(
                     label: "Nombre visible",
                     text: $viewModel.displayName,
                     contentType: .name,
@@ -159,18 +159,19 @@ public struct LoginView: View {
                 .transition(.move(edge: .top).combined(with: .opacity))
             }
 
-            AuthInputField(
+            AppInputField(
                 label: "Email",
                 text: $viewModel.email,
                 contentType: .emailAddress,
                 keyboardType: .emailAddress,
+                autocapitalization: .never,
                 isFocused: focusedField == .email,
                 submitLabel: .next,
                 onSubmit: { focusedField = .password }
             )
             .focused($focusedField, equals: .email)
 
-            AuthInputField(
+            AppInputField(
                 label: "Contraseña",
                 text: $viewModel.password,
                 contentType: .password,
@@ -239,66 +240,4 @@ public struct LoginView: View {
 
 private enum AuthField {
     case username, displayName, email, password
-}
-
-// MARK: - Auth input field
-
-private struct AuthInputField: View {
-    let label: String
-    @Binding var text: String
-    var contentType: UITextContentType?
-    var keyboardType: UIKeyboardType = .default
-    var isSecure: Bool = false
-    var isFocused: Bool = false
-    var submitLabel: SubmitLabel = .next
-    var onSubmit: () -> Void = {}
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(label)
-                .font(.system(.caption, design: .rounded, weight: .semibold))
-                .foregroundStyle(
-                    isFocused
-                        ? DSColor.highlight
-                        : Color(red: 0.62, green: 0.56, blue: 0.52)
-                )
-                .animation(.easeInOut(duration: 0.15), value: isFocused)
-
-            Group {
-                if isSecure {
-                    SecureField("", text: $text)
-                } else {
-                    TextField("", text: $text)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .keyboardType(keyboardType)
-                }
-            }
-            .textContentType(contentType)
-            .font(.system(.body, design: .rounded, weight: .regular))
-            .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
-            .submitLabel(submitLabel)
-            .onSubmit(onSubmit)
-            .frame(height: 28)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 14)
-            .background(Color.white, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                    .stroke(
-                        isFocused ? DSColor.highlight.opacity(0.5) : Color.clear,
-                        lineWidth: 1.5
-                    )
-            )
-            .shadow(
-                color: isFocused
-                    ? DSColor.highlight.opacity(0.12)
-                    : Color.black.opacity(0.04),
-                radius: isFocused ? 8 : 4,
-                x: 0,
-                y: 2
-            )
-            .animation(.easeInOut(duration: 0.15), value: isFocused)
-        }
-    }
 }
