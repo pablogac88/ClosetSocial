@@ -182,6 +182,8 @@ private struct CreateOutfitSheet: View {
     @State private var title = ""
     @State private var note = ""
     @State private var selectedIDs: Set<UUID> = []
+    @State private var isLoadingGarments = true
+    @FocusState private var focusedField: CreateOutfitField?
 
     private var selectedGarments: [Garment] {
         viewModel.availableGarments.filter { selectedIDs.contains($0.id) }
@@ -194,24 +196,174 @@ private struct CreateOutfitSheet: View {
     }
 
     var body: some View {
-        NavigationStack {
-            Form {
-                Section("Outfit") {
-                    TextField("Título", text: $title)
-                    TextField("Nota (opcional)", text: $note, axis: .vertical)
-                }
+        ZStack(alignment: .top) {
+            Color(red: 0.975, green: 0.970, blue: 0.962).ignoresSafeArea()
 
-                Section("Prendas") {
-                    if viewModel.availableGarments.isEmpty {
-                        Text("No tienes prendas en tu armario.")
-                            .foregroundStyle(.secondary)
-                            .font(DSFont.footnote)
-                    } else {
-                        ForEach(viewModel.availableGarments) { garment in
-                            GarmentPickerRow(
-                                garment: garment,
-                                isSelected: selectedIDs.contains(garment.id)
-                            ) {
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 0) {
+                    Spacer(minLength: 64)
+
+                    fieldsSection
+                        .padding(.bottom, 24)
+
+                    garmentsSection
+                        .padding(.bottom, 24)
+
+                    if let error = viewModel.saveError {
+                        AppErrorBanner(error)
+                            .padding(.bottom, 16)
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                    }
+
+                    PrimaryButton(
+                        title: "Guardar look",
+                        isLoading: viewModel.isSaving,
+                        isEnabled: canSave
+                    ) {
+                        Task {
+                            await viewModel.create(
+                                title: title.trimmedToNil,
+                                note: note.trimmedToNil,
+                                garments: selectedGarments
+                            )
+                            if viewModel.saveError == nil {
+                                dismiss()
+                            }
+                        }
+                    }
+                    .padding(.bottom, 12)
+
+                    Button("Cancelar") { dismiss() }
+                        .font(.system(.subheadline, design: .rounded, weight: .medium))
+                        .foregroundStyle(Color(red: 0.58, green: 0.52, blue: 0.48))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 44)
+                        .disabled(viewModel.isSaving)
+
+                    Spacer(minLength: 32)
+                }
+                .padding(.horizontal, 24)
+                .animation(.easeInOut(duration: 0.2), value: viewModel.saveError != nil)
+            }
+            .scrollDismissesKeyboard(.interactively)
+
+            headerBar
+        }
+        .presentationCornerRadius(32)
+        .task {
+            await viewModel.loadAvailableGarments()
+            isLoadingGarments = false
+        }
+    }
+
+    // MARK: Header
+
+    private var headerBar: some View {
+        HStack {
+            Text("Crear look")
+                .font(.system(.headline, design: .rounded, weight: .semibold))
+                .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
+
+            Spacer()
+
+            Button { dismiss() } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(Color(red: 0.44, green: 0.38, blue: 0.34))
+                    .frame(width: 32, height: 32)
+                    .background(Color.white.opacity(0.85), in: Circle())
+                    .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 1)
+            }
+            .buttonStyle(.plain)
+            .disabled(viewModel.isSaving)
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 20)
+        .padding(.bottom, 16)
+        .background(
+            LinearGradient(
+                stops: [
+                    .init(color: Color(red: 0.975, green: 0.970, blue: 0.962), location: 0.65),
+                    .init(color: Color(red: 0.975, green: 0.970, blue: 0.962).opacity(0), location: 1),
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+        )
+    }
+
+    // MARK: Fields
+
+    private var fieldsSection: some View {
+        VStack(spacing: 14) {
+            AppInputField(
+                label: "Título",
+                text: $title,
+                isFocused: focusedField == .title,
+                submitLabel: .next,
+                onSubmit: { focusedField = .note }
+            )
+            .focused($focusedField, equals: .title)
+
+            AppInputField(
+                label: "Nota (opcional)",
+                text: $note,
+                isFocused: focusedField == .note,
+                submitLabel: .done,
+                onSubmit: { focusedField = nil }
+            )
+            .focused($focusedField, equals: .note)
+        }
+    }
+
+    // MARK: Garments
+
+    private var garmentsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Prendas")
+                    .font(.system(.caption, design: .rounded, weight: .semibold))
+                    .foregroundStyle(Color(red: 0.62, green: 0.56, blue: 0.52))
+                    .padding(.leading, 4)
+
+                Spacer()
+
+                if !selectedIDs.isEmpty {
+                    Text("\(selectedIDs.count) seleccionada\(selectedIDs.count == 1 ? "" : "s")")
+                        .font(.system(.caption, design: .rounded, weight: .medium))
+                        .foregroundStyle(DSColor.highlight)
+                        .transition(.opacity.combined(with: .scale(scale: 0.85, anchor: .trailing)))
+                }
+            }
+            .animation(.easeInOut(duration: 0.15), value: selectedIDs.isEmpty)
+
+            if isLoadingGarments {
+                HStack(spacing: 10) {
+                    ProgressView().scaleEffect(0.8)
+                    Text("Cargando armario…")
+                        .font(.system(.footnote, design: .rounded))
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 80)
+                .background(Color.white, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            } else if viewModel.availableGarments.isEmpty {
+                EmptyStateView(
+                    icon: "hanger",
+                    title: "Sin prendas aún",
+                    message: "Añade prendas al armario para poder crear un look."
+                )
+                .frame(height: 200)
+                .background(Color.white, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            } else {
+                VStack(spacing: 0) {
+                    ForEach(Array(viewModel.availableGarments.enumerated()), id: \.element.id) { index, garment in
+                        WarmGarmentPickerRow(
+                            garment: garment,
+                            isSelected: selectedIDs.contains(garment.id)
+                        ) {
+                            withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) {
                                 if selectedIDs.contains(garment.id) {
                                     selectedIDs.remove(garment.id)
                                 } else {
@@ -219,67 +371,73 @@ private struct CreateOutfitSheet: View {
                                 }
                             }
                         }
-                    }
-                }
 
-                if let error = viewModel.saveError {
-                    Section {
-                        Text(error)
-                            .font(DSFont.footnote)
-                            .foregroundStyle(.red)
-                    }
-                }
-            }
-            .navigationTitle("Crear outfit")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancelar") { dismiss() }
-                        .disabled(viewModel.isSaving)
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    if viewModel.isSaving {
-                        ProgressView()
-                    } else {
-                        Button("Guardar") {
-                            Task {
-                                await viewModel.create(
-                                    title: title.trimmedToNil,
-                                    note: note.trimmedToNil,
-                                    garments: selectedGarments
-                                )
-                                if viewModel.saveError == nil {
-                                    dismiss()
-                                }
-                            }
+                        if index < viewModel.availableGarments.count - 1 {
+                            Divider().padding(.leading, 78)
                         }
-                        .disabled(!canSave)
                     }
                 }
+                .background(Color.white, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                .shadow(color: .black.opacity(0.04), radius: 8, x: 0, y: 2)
             }
-            .task { await viewModel.loadAvailableGarments() }
         }
     }
 }
 
-private struct GarmentPickerRow: View {
+// MARK: - Focus
+
+private enum CreateOutfitField {
+    case title, note
+}
+
+// MARK: - Warm garment picker row
+
+private struct WarmGarmentPickerRow: View {
     let garment: Garment
     let isSelected: Bool
     let onTap: () -> Void
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 12) {
-                VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 14) {
+                GarmentImage(url: garment.imageURL)
+                    .frame(width: 48, height: 48)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 3) {
                     Text(garment.name)
-                        .foregroundStyle(.primary)
+                        .font(.system(.subheadline, design: .rounded, weight: isSelected ? .semibold : .regular))
+                        .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
                     Text(garment.type.rawValue)
-                        .font(DSFont.footnote)
-                        .foregroundStyle(.secondary)
+                        .font(.system(.caption, design: .rounded, weight: .regular))
+                        .foregroundStyle(Color(red: 0.58, green: 0.52, blue: 0.48))
                 }
+
                 Spacer()
-                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .foregroundStyle(isSelected ? DSColor.highlightSoft : .secondary)
+
+                ZStack {
+                    Circle()
+                        .stroke(
+                            isSelected ? DSColor.highlight : Color(red: 0.82, green: 0.78, blue: 0.74),
+                            lineWidth: 1.5
+                        )
+                        .frame(width: 24, height: 24)
+
+                    if isSelected {
+                        Circle()
+                            .fill(DSColor.highlight)
+                            .frame(width: 24, height: 24)
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(.white)
+                    }
+                }
+                .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isSelected)
             }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(isSelected ? DSColor.highlight.opacity(0.04) : Color.clear)
+            .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
     }
