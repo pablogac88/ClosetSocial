@@ -28,7 +28,7 @@ public struct ExploreView: View {
         }
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
-        .background(Color(red: 0.973, green: 0.962, blue: 0.949).ignoresSafeArea())
+        .background(DSColor.background.ignoresSafeArea())
         .navigationDestination(item: $selectedOutfit) { outfit in
             OutfitDetailView(context: .myOutfit(outfit))
         }
@@ -238,7 +238,7 @@ public struct ExploreView: View {
         VStack(alignment: .leading, spacing: 4) {
             Text("Descubre")
                 .font(.system(size: 28, weight: .bold, design: .rounded))
-                .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
+                .foregroundStyle(DSColor.primaryText)
             Text(viewModel.shouldUseBackendSearch
                  ? "Resultados para tu búsqueda"
                  : "Contenido real de la comunidad")
@@ -257,13 +257,13 @@ private struct ExploreSearchBar: View {
         HStack(spacing: 12) {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(Color(red: 0.56, green: 0.48, blue: 0.41))
+                .foregroundStyle(DSColor.secondaryText)
 
             TextField("Busca usuarios, prendas o outfits", text: $text)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .font(DSFont.body)
-                .foregroundStyle(Color(red: 0.18, green: 0.15, blue: 0.13))
+                .foregroundStyle(DSColor.primaryText)
 
             if !text.isEmpty {
                 Button {
@@ -280,11 +280,11 @@ private struct ExploreSearchBar: View {
         .padding(.vertical, 14)
         .background(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(Color(red: 0.96, green: 0.92, blue: 0.88))
+                .fill(DSColor.background)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(Color.white.opacity(0.75), lineWidth: 1)
+                .stroke(DSColor.surface.opacity(0.75), lineWidth: 1)
         )
         .padding(.horizontal, 20)
     }
@@ -303,7 +303,7 @@ private struct ExploreSection<Content: View>: View {
                     .foregroundStyle(Color(red: 0.15, green: 0.12, blue: 0.10))
                 Text(subtitle)
                     .font(DSFont.footnote)
-                    .foregroundStyle(Color(red: 0.47, green: 0.40, blue: 0.35))
+                    .foregroundStyle(DSColor.secondaryText)
             }
             .padding(.horizontal, 20)
 
@@ -335,11 +335,11 @@ private struct ExploreHintCard: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(Color.white.opacity(0.82))
+                .fill(DSColor.surface.opacity(0.82))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(Color.white.opacity(0.8), lineWidth: 1)
+                .stroke(DSColor.surface.opacity(0.8), lineWidth: 1)
         )
     }
 }
@@ -357,7 +357,7 @@ private struct ExploreLookCard: View {
                     layout: outfit?.layout,
                     garments: outfit?.garments ?? [],
                     cornerRadius: 24,
-                    backgroundColor: Color(red: 0.98, green: 0.96, blue: 0.93)
+                    backgroundColor: DSColor.background
                 )
                 .aspectRatio(3 / 4, contentMode: .fit)
                 .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
@@ -375,7 +375,7 @@ private struct ExploreLookCard: View {
                     if !post.caption.isEmpty {
                         Text(post.caption)
                             .font(DSFont.footnote)
-                            .foregroundStyle(Color(red: 0.33, green: 0.28, blue: 0.25))
+                            .foregroundStyle(DSColor.primaryText)
                             .lineLimit(2)
                     }
                 }
@@ -384,11 +384,11 @@ private struct ExploreLookCard: View {
             .frame(width: 248, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .fill(Color.white)
+                    .fill(DSColor.surface)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .stroke(Color.white.opacity(0.8), lineWidth: 1)
+                    .stroke(DSColor.surface.opacity(0.8), lineWidth: 1)
             )
             .shadow(color: Color.black.opacity(0.05), radius: 18, x: 0, y: 8)
         }
@@ -432,12 +432,12 @@ private struct ExploreEditorialGarmentCard: View {
                             displayName: post.author.displayName,
                             avatarURL: post.author.avatarURL,
                             size: 28,
-                            fillColor: Color(red: 0.93, green: 0.88, blue: 0.83),
+                            fillColor: DSColor.imagePlaceholder,
                             textColor: Color(red: 0.46, green: 0.39, blue: 0.34)
                         )
                         Text(post.author.displayName)
                             .font(DSFont.caption)
-                            .foregroundStyle(Color(red: 0.33, green: 0.28, blue: 0.25))
+                            .foregroundStyle(DSColor.primaryText)
                             .lineLimit(1)
                     }
                 }
@@ -446,11 +446,11 @@ private struct ExploreEditorialGarmentCard: View {
             .frame(width: 204, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 26, style: .continuous)
-                    .fill(Color.white)
+                    .fill(DSColor.surface)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 26, style: .continuous)
-                    .stroke(Color.white.opacity(0.8), lineWidth: 1)
+                    .stroke(DSColor.surface.opacity(0.8), lineWidth: 1)
             )
             .shadow(color: Color.black.opacity(0.05), radius: 16, x: 0, y: 8)
         }
@@ -483,7 +483,7 @@ private struct ExploreEditorialPersonCard: View {
                         displayName: person.user.displayName,
                         avatarURL: person.user.avatarURL,
                         size: 54,
-                        fillColor: Color(red: 0.93, green: 0.88, blue: 0.83),
+                        fillColor: DSColor.imagePlaceholder,
                         textColor: Color(red: 0.46, green: 0.39, blue: 0.34)
                     )
                     Spacer()
@@ -504,13 +504,13 @@ private struct ExploreEditorialPersonCard: View {
                 if let bio = person.user.bio, !bio.isEmpty {
                     Text(bio)
                         .font(DSFont.footnote)
-                        .foregroundStyle(Color(red: 0.35, green: 0.30, blue: 0.26))
+                        .foregroundStyle(DSColor.secondaryText)
                         .lineLimit(2)
                 } else if let spotlightCaption = person.spotlightCaption {
                     Text("“\(spotlightCaption)”")
                         .font(DSFont.footnote)
                         .italic()
-                        .foregroundStyle(Color(red: 0.35, green: 0.30, blue: 0.26))
+                        .foregroundStyle(DSColor.secondaryText)
                         .lineLimit(2)
                 }
 
@@ -524,11 +524,11 @@ private struct ExploreEditorialPersonCard: View {
             .frame(width: 224, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .fill(Color.white)
+                    .fill(DSColor.surface)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .stroke(Color.white.opacity(0.8), lineWidth: 1)
+                    .stroke(DSColor.surface.opacity(0.8), lineWidth: 1)
             )
             .shadow(color: Color.black.opacity(0.05), radius: 18, x: 0, y: 8)
         }
@@ -547,7 +547,7 @@ private struct ExploreSearchUserCard: View {
                     displayName: user.displayName,
                     avatarURL: user.avatarURL,
                     size: 58,
-                    fillColor: Color(red: 0.93, green: 0.88, blue: 0.83),
+                    fillColor: DSColor.imagePlaceholder,
                     textColor: Color(red: 0.46, green: 0.39, blue: 0.34)
                 )
 
@@ -563,7 +563,7 @@ private struct ExploreSearchUserCard: View {
                 if let bio = user.bio, !bio.isEmpty {
                     Text(bio)
                         .font(DSFont.footnote)
-                        .foregroundStyle(Color(red: 0.35, green: 0.30, blue: 0.26))
+                        .foregroundStyle(DSColor.secondaryText)
                         .lineLimit(3)
                 }
             }
@@ -571,11 +571,11 @@ private struct ExploreSearchUserCard: View {
             .frame(width: 220, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .fill(Color.white)
+                    .fill(DSColor.surface)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .stroke(Color.white.opacity(0.8), lineWidth: 1)
+                    .stroke(DSColor.surface.opacity(0.8), lineWidth: 1)
             )
             .shadow(color: Color.black.opacity(0.05), radius: 18, x: 0, y: 8)
         }
@@ -610,11 +610,11 @@ private struct ExploreSearchGarmentCard: View {
             .frame(width: 204, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 26, style: .continuous)
-                    .fill(Color.white)
+                    .fill(DSColor.surface)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 26, style: .continuous)
-                    .stroke(Color.white.opacity(0.8), lineWidth: 1)
+                    .stroke(DSColor.surface.opacity(0.8), lineWidth: 1)
             )
             .shadow(color: Color.black.opacity(0.05), radius: 16, x: 0, y: 8)
         }
@@ -642,7 +642,7 @@ private struct ExploreSearchOutfitCard: View {
                     layout: outfit.layout,
                     garments: outfit.garments,
                     cornerRadius: 24,
-                    backgroundColor: Color(red: 0.98, green: 0.96, blue: 0.93)
+                    backgroundColor: DSColor.background
                 )
                 .aspectRatio(3 / 4, contentMode: .fit)
                 .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
@@ -656,12 +656,12 @@ private struct ExploreSearchOutfitCard: View {
                     if let note = outfit.note, !note.isEmpty {
                         Text(note)
                             .font(DSFont.footnote)
-                            .foregroundStyle(Color(red: 0.33, green: 0.28, blue: 0.25))
+                            .foregroundStyle(DSColor.primaryText)
                             .lineLimit(2)
                     } else {
                         Text(outfit.garments.map(\.name).joined(separator: " · "))
                             .font(DSFont.footnote)
-                            .foregroundStyle(Color(red: 0.33, green: 0.28, blue: 0.25))
+                            .foregroundStyle(DSColor.primaryText)
                             .lineLimit(2)
                     }
                 }
@@ -670,11 +670,11 @@ private struct ExploreSearchOutfitCard: View {
             .frame(width: 248, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .fill(Color.white)
+                    .fill(DSColor.surface)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .stroke(Color.white.opacity(0.8), lineWidth: 1)
+                    .stroke(DSColor.surface.opacity(0.8), lineWidth: 1)
             )
             .shadow(color: Color.black.opacity(0.05), radius: 18, x: 0, y: 8)
         }

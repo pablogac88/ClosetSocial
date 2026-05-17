@@ -53,23 +53,23 @@ public struct PublicProfileView: View {
                 displayName: profile.user.displayName,
                 avatarURL: profile.user.avatarURL,
                 size: 88,
-                fillColor: Color(red: 0.91, green: 0.87, blue: 0.82),
-                textColor: Color(red: 0.44, green: 0.38, blue: 0.32)
+                fillColor: DSColor.warmFill,
+                textColor: DSColor.secondaryText
             )
 
             VStack(spacing: 5) {
                 Text(profile.user.displayName)
                     .font(.system(size: 22, weight: .semibold, design: .rounded))
-                    .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
+                    .foregroundStyle(DSColor.primaryText)
 
                 Text("@\(profile.user.username)")
                     .font(.system(.subheadline, design: .rounded, weight: .regular))
-                    .foregroundStyle(Color(red: 0.56, green: 0.50, blue: 0.46))
+                    .foregroundStyle(DSColor.secondaryText)
 
                 if let bio = profile.user.bio, !bio.isEmpty {
                     Text(bio)
                         .font(.system(.body, design: .rounded, weight: .regular))
-                        .foregroundStyle(Color(red: 0.40, green: 0.35, blue: 0.31))
+                        .foregroundStyle(DSColor.secondaryText)
                         .multilineTextAlignment(.center)
                         .padding(.top, 2)
                 }
@@ -99,13 +99,13 @@ public struct PublicProfileView: View {
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 14)
-        .background(Color.white.opacity(0.65), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+        .background(DSColor.surface.opacity(0.65), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
 
         // Follow error
         if let error = viewModel.followError {
             Text(error)
                 .font(.system(.footnote, design: .rounded, weight: .medium))
-                .foregroundStyle(Color(red: 0.72, green: 0.18, blue: 0.18))
+                .foregroundStyle(DSColor.destructive)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, 4)
         }
@@ -131,7 +131,7 @@ public struct PublicProfileView: View {
             Group {
                 if viewModel.isFollowLoading {
                     ProgressView()
-                        .tint(profile.isFollowing ? Color(red: 0.40, green: 0.35, blue: 0.31) : .white)
+                        .tint(profile.isFollowing ? DSColor.secondaryText : .white)
                 } else {
                     Text(profile.isFollowing ? "Siguiendo" : "Seguir")
                         .font(.system(.subheadline, design: .rounded, weight: .semibold))
@@ -146,14 +146,14 @@ public struct PublicProfileView: View {
             )
             .foregroundStyle(
                 profile.isFollowing
-                    ? Color(red: 0.14, green: 0.11, blue: 0.09)
+                    ? DSColor.primaryText
                     : Color.white
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .stroke(
                         profile.isFollowing
-                            ? Color(red: 0.80, green: 0.76, blue: 0.72)
+                            ? DSColor.border
                             : Color.clear,
                         lineWidth: 1
                     )
@@ -175,10 +175,10 @@ private struct PublicStat: View {
         VStack(spacing: 3) {
             Text("\(value)")
                 .font(.system(size: 18, weight: .bold, design: .rounded))
-                .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
+                .foregroundStyle(DSColor.primaryText)
             Text(label)
                 .font(.system(.caption, design: .rounded, weight: .regular))
-                .foregroundStyle(Color(red: 0.58, green: 0.52, blue: 0.48))
+                .foregroundStyle(DSColor.secondaryText)
         }
         .frame(maxWidth: .infinity)
     }
@@ -226,6 +226,6 @@ private struct PublicPostRow: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.white, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .background(DSColor.surface, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 }

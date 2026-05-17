@@ -36,7 +36,7 @@ public struct ClosetView: View {
                 )
             }
         }
-        .background(Color(red: 0.975, green: 0.970, blue: 0.962).ignoresSafeArea())
+        .background(DSColor.background.ignoresSafeArea())
         .navigationTitle("Armario")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -116,7 +116,7 @@ public struct ClosetView: View {
                 }
                 .listRowBackground(
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(Color.white)
+                        .fill(DSColor.surface)
                         .padding(.vertical, 4)
                 )
             }

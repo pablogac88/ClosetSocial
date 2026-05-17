@@ -1,10 +1,13 @@
 import SwiftUI
+import PhotosUI
 
 public struct EditProfileSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     public typealias OnSave = (String, String, String) async -> Bool
 
+    private let uploadRepository: any UploadRepository
+    private let tokenProvider: @MainActor () -> String?
     private let onSave: OnSave
 
     @State private var displayName: String
@@ -14,23 +17,32 @@ public struct EditProfileSheet: View {
     @State private var errorMessage: String?
     @FocusState private var focusedField: EditField?
 
+    @State private var pickerItem: PhotosPickerItem?
+    @State private var pickedAvatarData: Data?
+    @State private var isUploadingAvatar = false
+    @State private var uploadError: String?
+
     private let bioLimit = 160
 
     public init(
         initialDisplayName: String,
         initialBio: String,
         initialAvatarURL: String,
+        uploadRepository: any UploadRepository,
+        tokenProvider: @escaping @MainActor () -> String?,
         onSave: @escaping OnSave
     ) {
         self._displayName = State(initialValue: initialDisplayName)
         self._bio = State(initialValue: initialBio)
         self._avatarURL = State(initialValue: initialAvatarURL)
+        self.uploadRepository = uploadRepository
+        self.tokenProvider = tokenProvider
         self.onSave = onSave
     }
 
     public var body: some View {
         ZStack(alignment: .top) {
-            Color(red: 0.975, green: 0.970, blue: 0.962)
+            DSColor.background
                 .ignoresSafeArea()
 
             ScrollView(showsIndicators: false) {
@@ -43,6 +55,12 @@ public struct EditProfileSheet: View {
                     fieldsSection
                         .padding(.bottom, 24)
 
+                    if let error = uploadError {
+                        AppErrorBanner(error)
+                            .padding(.bottom, 12)
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                    }
+
                     if let error = errorMessage {
                         AppErrorBanner(error)
                             .padding(.bottom, 16)
@@ -53,6 +71,7 @@ public struct EditProfileSheet: View {
                         title: "Guardar cambios",
                         isLoading: isSaving,
                         isEnabled: !displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                            && !isUploadingAvatar
                     ) {
                         Task { await saveProfile() }
                     }
@@ -60,19 +79,31 @@ public struct EditProfileSheet: View {
 
                     Button("Cancelar") { dismiss() }
                         .font(.system(.subheadline, design: .rounded, weight: .medium))
-                        .foregroundStyle(Color(red: 0.58, green: 0.52, blue: 0.48))
+                        .foregroundStyle(DSColor.secondaryText)
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
-                        .disabled(isSaving)
+                        .disabled(isSaving || isUploadingAvatar)
 
                     Spacer(minLength: 32)
                 }
                 .padding(.horizontal, 24)
                 .animation(.easeInOut(duration: 0.2), value: errorMessage)
+                .animation(.easeInOut(duration: 0.2), value: uploadError)
             }
             .scrollDismissesKeyboard(.interactively)
 
             headerBar
+        }
+        .onChange(of: pickerItem) { _, newItem in
+            guard let newItem else { return }
+            Task {
+                if let data = try? await newItem.loadTransferable(type: Data.self) {
+                    await uploadAvatar(data)
+                } else {
+                    uploadError = "No se pudo cargar la imagen seleccionada."
+                }
+                pickerItem = nil
+            }
         }
     }
 
@@ -82,20 +113,20 @@ public struct EditProfileSheet: View {
         HStack {
             Text("Editar perfil")
                 .font(.system(.headline, design: .rounded, weight: .semibold))
-                .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
+                .foregroundStyle(DSColor.primaryText)
 
             Spacer()
 
             Button { dismiss() } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Color(red: 0.44, green: 0.38, blue: 0.34))
+                    .foregroundStyle(DSColor.secondaryText)
                     .frame(width: 32, height: 32)
-                    .background(Color.white.opacity(0.85), in: Circle())
+                    .background(DSColor.surface.opacity(0.85), in: Circle())
                     .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 1)
             }
             .buttonStyle(.plain)
-            .disabled(isSaving)
+            .disabled(isSaving || isUploadingAvatar)
         }
         .padding(.horizontal, 24)
         .padding(.top, 20)
@@ -103,8 +134,8 @@ public struct EditProfileSheet: View {
         .background(
             LinearGradient(
                 stops: [
-                    .init(color: Color(red: 0.975, green: 0.970, blue: 0.962), location: 0.65),
-                    .init(color: Color(red: 0.975, green: 0.970, blue: 0.962).opacity(0), location: 1),
+                    .init(color: DSColor.background, location: 0.65),
+                    .init(color: DSColor.background.opacity(0), location: 1),
                 ],
                 startPoint: .top,
                 endPoint: .bottom
@@ -116,44 +147,69 @@ public struct EditProfileSheet: View {
     // MARK: Avatar section
 
     private var avatarSection: some View {
-        VStack(spacing: 16) {
+        let isUploading = isUploadingAvatar
+        let pickedData = pickedAvatarData
+        let currentAvatarURL = avatarURL
+        let name = displayName
+
+        return VStack(spacing: 16) {
             ZStack {
                 Circle()
-                    .fill(Color(red: 0.91, green: 0.87, blue: 0.82))
+                    .fill(DSColor.warmFill)
                     .frame(width: 100, height: 100)
 
-                if let url = avatarPreviewURL {
-                    GarmentImage(url: url)
+                Group {
+                    if let data = pickedData, let uiImage = UIImage(data: data) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 100, height: 100)
+                            .clipShape(Circle())
+                            .transition(.opacity.animation(.easeIn(duration: 0.22)))
+                    } else if let url = URL(string: currentAvatarURL), !currentAvatarURL.isEmpty {
+                        GarmentImage(url: url)
+                            .frame(width: 100, height: 100)
+                            .clipShape(Circle())
+                    } else {
+                        AvatarBubble(
+                            displayName: name.isEmpty ? "?" : name,
+                            size: 100,
+                            fillColor: DSColor.warmFill,
+                            textColor: DSColor.secondaryText
+                        )
+                    }
+                }
+
+                if isUploading {
+                    Circle()
+                        .fill(Color.black.opacity(0.35))
                         .frame(width: 100, height: 100)
-                        .clipShape(Circle())
+                    ProgressView().tint(.white)
                 } else {
-                    AvatarBubble(
-                        displayName: displayName.isEmpty ? "?" : displayName,
-                        size: 100,
-                        fillColor: Color(red: 0.91, green: 0.87, blue: 0.82),
-                        textColor: Color(red: 0.44, green: 0.38, blue: 0.32)
-                    )
+                    Circle()
+                        .fill(Color.black.opacity(0.18))
+                        .frame(width: 100, height: 100)
+                    Image(systemName: "camera.fill")
+                        .font(.system(size: 22, weight: .medium))
+                        .foregroundStyle(.white)
                 }
             }
             .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 4)
-
-            AppInputField(
-                label: "URL de avatar",
-                text: $avatarURL,
-                keyboardType: .URL,
-                autocapitalization: .never,
-                isFocused: focusedField == .avatarURL,
-                submitLabel: .next,
-                onSubmit: { focusedField = .displayName }
-            )
-            .focused($focusedField, equals: .avatarURL)
+            .contentShape(Circle())
+            .overlay {
+                PhotosPicker(
+                    selection: $pickerItem,
+                    matching: .images,
+                    photoLibrary: .shared()
+                ) {
+                    Color.clear
+                        .frame(width: 100, height: 100)
+                        .clipShape(Circle())
+                }
+                .buttonStyle(.plain)
+                .disabled(isUploading)
+            }
         }
-    }
-
-    private var avatarPreviewURL: URL? {
-        let trimmed = avatarURL.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return nil }
-        return URL(string: trimmed)
     }
 
     // MARK: Fields
@@ -179,33 +235,33 @@ public struct EditProfileSheet: View {
                 .font(.system(.caption, design: .rounded, weight: .semibold))
                 .foregroundStyle(
                     focusedField == .bio
-                        ? Color(red: 0.25, green: 0.30, blue: 0.58)
-                        : Color(red: 0.62, green: 0.56, blue: 0.52)
+                        ? DSColor.highlight
+                        : DSColor.tertiaryText
                 )
                 .animation(.easeInOut(duration: 0.15), value: focusedField == .bio)
 
             ZStack(alignment: .bottomTrailing) {
                 TextEditor(text: $bio)
                     .font(.system(.body, design: .rounded, weight: .regular))
-                    .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
+                    .foregroundStyle(DSColor.primaryText)
                     .scrollContentBackground(.hidden)
                     .frame(minHeight: 90, maxHeight: 130)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 10)
                     .padding(.bottom, 22)
-                    .background(Color.white, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .background(DSColor.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                     .overlay(
                         RoundedRectangle(cornerRadius: 16, style: .continuous)
                             .stroke(
                                 focusedField == .bio
-                                    ? Color(red: 0.25, green: 0.30, blue: 0.58).opacity(0.5)
+                                    ? DSColor.highlight.opacity(0.5)
                                     : Color.clear,
                                 lineWidth: 1.5
                             )
                     )
                     .shadow(
                         color: focusedField == .bio
-                            ? Color(red: 0.25, green: 0.30, blue: 0.58).opacity(0.10)
+                            ? DSColor.highlight.opacity(0.10)
                             : Color.black.opacity(0.04),
                         radius: focusedField == .bio ? 8 : 4,
                         x: 0,
@@ -222,14 +278,45 @@ public struct EditProfileSheet: View {
                     .font(.system(.caption2, design: .rounded, weight: .medium))
                     .foregroundStyle(
                         bio.count >= bioLimit
-                            ? Color(red: 0.72, green: 0.18, blue: 0.18)
-                            : Color(red: 0.72, green: 0.66, blue: 0.60)
+                            ? DSColor.destructive
+                            : DSColor.tertiaryText
                     )
                     .padding(.trailing, 14)
                     .padding(.bottom, 8)
                     .animation(.none, value: bio.count)
             }
         }
+    }
+
+    // MARK: Upload avatar
+
+    private func uploadAvatar(_ data: Data) async {
+        guard let token = tokenProvider() else {
+            uploadError = DomainError.unauthenticated.userMessage
+            return
+        }
+        isUploadingAvatar = true
+        uploadError = nil
+        defer { isUploadingAvatar = false }
+
+        let mimeType = mimeType(for: data)
+        do {
+            let url = try await uploadRepository.uploadImage(data, mimeType: mimeType, token: token)
+            pickedAvatarData = data
+            avatarURL = url.absoluteString
+        } catch {
+            uploadError = error.userMessage
+        }
+    }
+
+    private func mimeType(for data: Data) -> String {
+        let bytes = Array(data.prefix(4))
+        if bytes.starts(with: [0xFF, 0xD8, 0xFF]) { return "image/jpeg" }
+        if bytes.starts(with: [0x89, 0x50, 0x4E, 0x47]) { return "image/png" }
+        if bytes.count >= 4, bytes[0] == 0x52, bytes[1] == 0x49, bytes[2] == 0x46, bytes[3] == 0x46 {
+            return "image/webp"
+        }
+        return "image/jpeg"
     }
 
     // MARK: Save
@@ -254,5 +341,5 @@ public struct EditProfileSheet: View {
 // MARK: - Focus fields
 
 private enum EditField {
-    case avatarURL, displayName, bio
+    case displayName, bio
 }

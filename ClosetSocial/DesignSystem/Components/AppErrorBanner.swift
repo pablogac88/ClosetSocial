@@ -11,17 +11,17 @@ public struct AppErrorBanner: View {
         HStack(spacing: 10) {
             Image(systemName: "exclamationmark.circle.fill")
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(Color(red: 0.72, green: 0.18, blue: 0.18))
+                .foregroundStyle(DSColor.destructive)
 
             Text(message)
                 .font(.system(.footnote, design: .rounded, weight: .medium))
-                .foregroundStyle(Color(red: 0.55, green: 0.12, blue: 0.12))
+                .foregroundStyle(DSColor.destructive)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
         .background(
-            Color(red: 1.0, green: 0.93, blue: 0.93),
+            DSColor.destructive.opacity(0.10),
             in: RoundedRectangle(cornerRadius: 16, style: .continuous)
         )
     }

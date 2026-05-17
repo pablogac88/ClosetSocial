@@ -35,23 +35,23 @@ public struct EmptyStateView: View {
             VStack(spacing: 24) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 24, style: .continuous)
-                        .fill(Color(red: 0.93, green: 0.90, blue: 0.86).opacity(0.8))
+                        .fill(DSColor.warmFill.opacity(0.8))
                         .frame(width: 84, height: 84)
 
                     Image(systemName: icon)
                         .font(.system(size: 32, weight: .medium))
-                        .foregroundStyle(Color(red: 0.44, green: 0.38, blue: 0.32))
+                        .foregroundStyle(DSColor.secondaryText)
                 }
 
                 VStack(spacing: 10) {
                     Text(title)
                         .font(.system(size: 22, weight: .semibold, design: .rounded))
-                        .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
+                        .foregroundStyle(DSColor.primaryText)
                         .multilineTextAlignment(.center)
 
                     Text(message)
                         .font(DSFont.body)
-                        .foregroundStyle(Color(red: 0.48, green: 0.43, blue: 0.39))
+                        .foregroundStyle(DSColor.secondaryText)
                         .multilineTextAlignment(.center)
                         .lineSpacing(3)
                 }

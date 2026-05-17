@@ -29,7 +29,7 @@ public struct PrimaryButton: View {
             .frame(maxWidth: .infinity)
             .frame(height: 56)
             .background(
-                Color(red: 0.10, green: 0.08, blue: 0.07),
+                DSColor.primaryText,
                 in: RoundedRectangle(cornerRadius: 20, style: .continuous)
             )
             .foregroundStyle(.white)

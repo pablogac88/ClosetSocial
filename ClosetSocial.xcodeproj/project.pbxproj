@@ -26,6 +26,9 @@
 		CCDD0103000000000000B99E /* NotificationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDD0102000000000000B99E /* NotificationRepository.swift */; };
 		CCDD0105000000000000B99E /* NotificationDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDD0104000000000000B99E /* NotificationDTO.swift */; };
 		CCDD0107000000000000B99E /* RemoteNotificationRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDD0106000000000000B99E /* RemoteNotificationRepository.swift */; };
+		FF030A012000000000000001 /* UploadRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF030A002000000000000001 /* UploadRepository.swift */; };
+		FF030A012000000000000002 /* RemoteUploadRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF030A002000000000000002 /* RemoteUploadRepository.swift */; };
+		FF030A012000000000000003 /* UploadResponseDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF030A002000000000000003 /* UploadResponseDTO.swift */; };
 		CCDD0109000000000000B99E /* NotificationsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDD0108000000000000B99E /* NotificationsViewModel.swift */; };
 		CCDD010B000000000000B99E /* NotificationsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCDD010A000000000000B99E /* NotificationsView.swift */; };
 		E9A2C94D2FB4805D0008B99E /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9A2C9422FB4805D0008B99E /* ProfileView.swift */; };
@@ -113,6 +116,9 @@
 		CCDD0102000000000000B99E /* NotificationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationRepository.swift; sourceTree = "<group>"; };
 		CCDD0104000000000000B99E /* NotificationDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationDTO.swift; sourceTree = "<group>"; };
 		CCDD0106000000000000B99E /* RemoteNotificationRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteNotificationRepository.swift; sourceTree = "<group>"; };
+		FF030A002000000000000001 /* UploadRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadRepository.swift; sourceTree = "<group>"; };
+		FF030A002000000000000002 /* RemoteUploadRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteUploadRepository.swift; sourceTree = "<group>"; };
+		FF030A002000000000000003 /* UploadResponseDTO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadResponseDTO.swift; sourceTree = "<group>"; };
 		CCDD0108000000000000B99E /* NotificationsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsViewModel.swift; sourceTree = "<group>"; };
 		CCDD010A000000000000B99E /* NotificationsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsView.swift; sourceTree = "<group>"; };
 		E9A2C93A2FB4805D0008B99E /* AddGarmentSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGarmentSheet.swift; sourceTree = "<group>"; };
@@ -357,6 +363,7 @@
 				E9A2C95E2FB480670008B99E /* UserDTO.swift */,
 				E9A2C95F2FB480670008B99E /* UserProfileDTO.swift */,
 				CCDD0104000000000000B99E /* NotificationDTO.swift */,
+				FF030A002000000000000003 /* UploadResponseDTO.swift */,
 			);
 			path = DTO;
 			sourceTree = "<group>";
@@ -389,6 +396,7 @@
 				CCDD0106000000000000B99E /* RemoteNotificationRepository.swift */,
 				E9A4D10D2FB5805D0008B99E /* RemoteSearchRepository.swift */,
 				E9A2C96B2FB480670008B99E /* RemoteTimelineRepository.swift */,
+				FF030A002000000000000002 /* RemoteUploadRepository.swift */,
 			);
 			path = Repository;
 			sourceTree = "<group>";
@@ -468,6 +476,7 @@
 				CCDD0102000000000000B99E /* NotificationRepository.swift */,
 				E9A4D10B2FB5805D0008B99E /* SearchRepository.swift */,
 				E9A2C9852FB480670008B99E /* TimelineRepository.swift */,
+				FF030A002000000000000001 /* UploadRepository.swift */,
 			);
 			path = Repositories;
 			sourceTree = "<group>";
@@ -595,6 +604,9 @@
 				CCDD0103000000000000B99E /* NotificationRepository.swift in Sources */,
 				CCDD0105000000000000B99E /* NotificationDTO.swift in Sources */,
 				CCDD0107000000000000B99E /* RemoteNotificationRepository.swift in Sources */,
+				FF030A012000000000000001 /* UploadRepository.swift in Sources */,
+				FF030A012000000000000002 /* RemoteUploadRepository.swift in Sources */,
+				FF030A012000000000000003 /* UploadResponseDTO.swift in Sources */,
 				CCDD0109000000000000B99E /* NotificationsViewModel.swift in Sources */,
 				CCDD010B000000000000B99E /* NotificationsView.swift in Sources */,
 				E9A2C94D2FB4805D0008B99E /* ProfileView.swift in Sources */,

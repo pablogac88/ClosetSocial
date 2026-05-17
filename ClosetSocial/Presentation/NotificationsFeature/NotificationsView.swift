@@ -9,7 +9,7 @@ public struct NotificationsView: View {
 
     public var body: some View {
         ZStack(alignment: .top) {
-            Color(red: 0.975, green: 0.970, blue: 0.962)
+            DSColor.background
                 .ignoresSafeArea()
 
             Group {
@@ -34,7 +34,7 @@ public struct NotificationsView: View {
                     } label: {
                         Text("Todo leído")
                             .font(.system(.subheadline, design: .rounded, weight: .medium))
-                            .foregroundStyle(Color(red: 0.25, green: 0.30, blue: 0.58))
+                            .foregroundStyle(DSColor.highlight)
                     }
                 }
             }
@@ -52,7 +52,7 @@ public struct NotificationsView: View {
                         .padding(.leading, 76)
                 }
             }
-            .background(Color.white, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .background(DSColor.surface, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
             .padding(.horizontal, 16)
             .padding(.top, 16)
             .padding(.bottom, 32)
@@ -65,13 +65,13 @@ public struct NotificationsView: View {
         VStack(spacing: 14) {
             Image(systemName: "bell")
                 .font(.system(size: 44, weight: .light))
-                .foregroundStyle(Color(red: 0.72, green: 0.66, blue: 0.60))
+                .foregroundStyle(DSColor.tertiaryText)
             Text("Sin actividad todavía")
                 .font(.system(.headline, design: .rounded, weight: .semibold))
-                .foregroundStyle(Color(red: 0.28, green: 0.24, blue: 0.22))
+                .foregroundStyle(DSColor.primaryText)
             Text("Aquí verás cuando alguien te siga, comente o dé like a tus publicaciones.")
                 .font(.system(.subheadline, design: .rounded, weight: .regular))
-                .foregroundStyle(Color(red: 0.58, green: 0.52, blue: 0.48))
+                .foregroundStyle(DSColor.secondaryText)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
         }
@@ -91,13 +91,13 @@ private struct NotificationRow: View {
                     displayName: notification.actor.displayName,
                     avatarURL: notification.actor.avatarURL,
                     size: 46,
-                    fillColor: Color(red: 0.91, green: 0.87, blue: 0.82),
-                    textColor: Color(red: 0.44, green: 0.38, blue: 0.32)
+                    fillColor: DSColor.warmFill,
+                    textColor: DSColor.secondaryText
                 )
 
                 if !notification.isRead {
                     Circle()
-                        .fill(Color(red: 0.25, green: 0.30, blue: 0.58))
+                        .fill(DSColor.highlight)
                         .frame(width: 10, height: 10)
                         .offset(x: 2, y: -2)
                 }
@@ -106,12 +106,12 @@ private struct NotificationRow: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(notification.humanText)
                     .font(.system(.subheadline, design: .rounded, weight: notification.isRead ? .regular : .semibold))
-                    .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
+                    .foregroundStyle(DSColor.primaryText)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Text(notification.createdAt.relativeFormatted)
                     .font(.system(.caption, design: .rounded, weight: .regular))
-                    .foregroundStyle(Color(red: 0.68, green: 0.62, blue: 0.56))
+                    .foregroundStyle(DSColor.tertiaryText)
             }
 
             Spacer()
@@ -123,7 +123,7 @@ private struct NotificationRow: View {
         .background(
             notification.isRead
                 ? Color.clear
-                : Color(red: 0.25, green: 0.30, blue: 0.58).opacity(0.04)
+                : DSColor.highlight.opacity(0.04)
         )
     }
 
@@ -132,13 +132,13 @@ private struct NotificationRow: View {
             switch notification.type {
             case .follow:
                 Image(systemName: "person.fill.badge.plus")
-                    .foregroundStyle(Color(red: 0.25, green: 0.30, blue: 0.58))
+                    .foregroundStyle(DSColor.highlight)
             case .like:
                 Image(systemName: "heart.fill")
-                    .foregroundStyle(Color(red: 0.82, green: 0.25, blue: 0.28))
+                    .foregroundStyle(DSColor.destructive)
             case .comment:
                 Image(systemName: "bubble.right.fill")
-                    .foregroundStyle(Color(red: 0.25, green: 0.58, blue: 0.42))
+                    .foregroundStyle(DSColor.success)
             }
         }
         .font(.system(size: 16))

@@ -31,13 +31,13 @@ public struct GarmentDetailView: View {
                 Color.clear.frame(height: 40)
             }
         }
-        .background(Color(red: 0.975, green: 0.970, blue: 0.962).ignoresSafeArea())
+        .background(DSColor.background.ignoresSafeArea())
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text(garment.type.rawValue)
                     .font(.system(.subheadline, design: .rounded, weight: .medium))
-                    .foregroundStyle(Color(red: 0.30, green: 0.26, blue: 0.22).opacity(0.7))
+                    .foregroundStyle(DSColor.primaryText.opacity(0.7))
             }
             if onDelete != nil {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -95,7 +95,7 @@ public struct GarmentDetailView: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(garment.name)
                     .font(.system(size: 26, weight: .semibold, design: .rounded))
-                    .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
+                    .foregroundStyle(DSColor.primaryText)
 
                 if let brand = garment.brand, !brand.isEmpty {
                     Text(brand)
@@ -113,7 +113,7 @@ public struct GarmentDetailView: View {
 
             Text(garment.createdAt.formatted(date: .abbreviated, time: .omitted))
                 .font(.system(.caption, design: .rounded, weight: .regular))
-                .foregroundStyle(Color(red: 0.64, green: 0.59, blue: 0.54))
+                .foregroundStyle(DSColor.tertiaryText)
         }
         .padding(.horizontal, 24)
         .padding(.top, 28)
@@ -126,7 +126,7 @@ public struct GarmentDetailView: View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Looks con esta prenda")
                 .font(.system(.footnote, design: .rounded, weight: .semibold))
-                .foregroundStyle(Color(red: 0.60, green: 0.55, blue: 0.51))
+                .foregroundStyle(DSColor.secondaryText)
                 .padding(.horizontal, 24)
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -206,7 +206,7 @@ private struct LookbookCard: View {
                 if let title = outfit.title {
                     Text(title)
                         .font(.system(.caption, design: .rounded, weight: .medium))
-                        .foregroundStyle(Color(red: 0.28, green: 0.24, blue: 0.22))
+                        .foregroundStyle(DSColor.primaryText)
                         .lineLimit(1)
                         .frame(width: 160, alignment: .leading)
                 }

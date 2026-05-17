@@ -1,13 +1,15 @@
 import SwiftUI
+import PhotosUI
 
 struct AddGarmentSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Bindable var viewModel: AddGarmentViewModel
     @FocusState private var focusedField: GarmentField?
+    @State private var pickerItem: PhotosPickerItem?
 
     var body: some View {
         ZStack(alignment: .top) {
-            Color(red: 0.975, green: 0.970, blue: 0.962)
+            DSColor.background
                 .ignoresSafeArea()
 
             ScrollView(showsIndicators: false) {
@@ -22,6 +24,12 @@ struct AddGarmentSheet: View {
 
                     typeSection
                         .padding(.bottom, 24)
+
+                    if let error = viewModel.uploadError {
+                        AppErrorBanner(error)
+                            .padding(.bottom, 12)
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                    }
 
                     if let error = viewModel.errorMessage {
                         AppErrorBanner(error)
@@ -44,19 +52,31 @@ struct AddGarmentSheet: View {
 
                     Button("Cancelar") { dismiss() }
                         .font(.system(.subheadline, design: .rounded, weight: .medium))
-                        .foregroundStyle(Color(red: 0.58, green: 0.52, blue: 0.48))
+                        .foregroundStyle(DSColor.secondaryText)
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
-                        .disabled(viewModel.isSaving)
+                        .disabled(viewModel.isSaving || viewModel.isUploading)
 
                     Spacer(minLength: 32)
                 }
                 .padding(.horizontal, 24)
                 .animation(.easeInOut(duration: 0.2), value: viewModel.errorMessage)
+                .animation(.easeInOut(duration: 0.2), value: viewModel.uploadError)
             }
             .scrollDismissesKeyboard(.interactively)
 
             headerBar
+        }
+        .onChange(of: pickerItem) { _, newItem in
+            guard let newItem else { return }
+            Task {
+                if let data = try? await newItem.loadTransferable(type: Data.self) {
+                    await viewModel.handleImagePicked(data)
+                } else {
+                    viewModel.uploadError = "No se pudo cargar la imagen seleccionada."
+                }
+                pickerItem = nil
+            }
         }
     }
 
@@ -66,20 +86,20 @@ struct AddGarmentSheet: View {
         HStack {
             Text("Nueva prenda")
                 .font(.system(.headline, design: .rounded, weight: .semibold))
-                .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
+                .foregroundStyle(DSColor.primaryText)
 
             Spacer()
 
             Button { dismiss() } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Color(red: 0.44, green: 0.38, blue: 0.34))
+                    .foregroundStyle(DSColor.secondaryText)
                     .frame(width: 32, height: 32)
-                    .background(Color.white.opacity(0.85), in: Circle())
+                    .background(DSColor.surface.opacity(0.85), in: Circle())
                     .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 1)
             }
             .buttonStyle(.plain)
-            .disabled(viewModel.isSaving)
+            .disabled(viewModel.isSaving || viewModel.isUploading)
         }
         .padding(.horizontal, 24)
         .padding(.top, 20)
@@ -87,8 +107,8 @@ struct AddGarmentSheet: View {
         .background(
             LinearGradient(
                 stops: [
-                    .init(color: Color(red: 0.975, green: 0.970, blue: 0.962), location: 0.65),
-                    .init(color: Color(red: 0.975, green: 0.970, blue: 0.962).opacity(0), location: 1),
+                    .init(color: DSColor.background, location: 0.65),
+                    .init(color: DSColor.background.opacity(0), location: 1),
                 ],
                 startPoint: .top,
                 endPoint: .bottom
@@ -100,46 +120,73 @@ struct AddGarmentSheet: View {
     // MARK: Image section
 
     private var imageSection: some View {
-        VStack(spacing: 12) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 24, style: .continuous)
-                    .fill(Color(red: 0.945, green: 0.938, blue: 0.922))
+        let isUploading = viewModel.isUploading
+        let pickedData = viewModel.pickedImageData
+        let uploadedURL = viewModel.uploadedImageURL
+        let hasImage = uploadedURL != nil
 
-                if let url = previewURL {
+        return ZStack {
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .fill(DSColor.imagePlaceholder)
+
+            Group {
+                if isUploading {
+                    VStack(spacing: 12) {
+                        ProgressView().scaleEffect(1.2)
+                        Text("Subiendo imagen…")
+                            .font(.system(.caption, design: .rounded, weight: .medium))
+                            .foregroundStyle(DSColor.secondaryText)
+                    }
+                } else if let data = pickedData, let uiImage = UIImage(data: data) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                        .transition(.opacity.animation(.easeIn(duration: 0.22)))
+                } else if let url = uploadedURL {
                     GarmentImage(url: url)
                         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
                 } else {
                     VStack(spacing: 10) {
-                        Image(systemName: "photo")
+                        Image(systemName: "photo.badge.plus")
                             .font(.system(size: 34, weight: .light))
-                            .foregroundStyle(Color(red: 0.68, green: 0.62, blue: 0.56))
-
-                        Text("Vista previa")
+                            .foregroundStyle(DSColor.tertiaryText)
+                        Text("Añadir foto")
                             .font(.system(.caption, design: .rounded, weight: .medium))
-                            .foregroundStyle(Color(red: 0.72, green: 0.66, blue: 0.60))
+                            .foregroundStyle(DSColor.tertiaryText)
                     }
                 }
             }
-            .frame(maxWidth: .infinity)
-            .frame(height: 220)
-
-            AppInputField(
-                label: "URL de imagen",
-                text: $viewModel.imageURL,
-                keyboardType: .URL,
-                autocapitalization: .never,
-                isFocused: focusedField == .imageURL,
-                submitLabel: .next,
-                onSubmit: { focusedField = .name }
-            )
-            .focused($focusedField, equals: .imageURL)
         }
-    }
-
-    private var previewURL: URL? {
-        let trimmed = viewModel.imageURL.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return nil }
-        return URL(string: trimmed)
+        .frame(maxWidth: .infinity)
+        .frame(height: 220)
+        .overlay(alignment: .bottomTrailing) {
+            HStack(spacing: 5) {
+                Image(systemName: "camera.fill")
+                    .font(.system(size: 11, weight: .semibold))
+                Text(hasImage ? "Cambiar" : "Foto")
+                    .font(.system(.caption2, design: .rounded, weight: .semibold))
+            }
+            .foregroundStyle(DSColor.secondaryText)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(DSColor.surface.opacity(0.88), in: Capsule())
+            .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: 1)
+            .opacity(isUploading ? 0 : 1)
+            .padding(12)
+        }
+        .contentShape(Rectangle())
+        .overlay {
+            PhotosPicker(
+                selection: $pickerItem,
+                matching: .images,
+                photoLibrary: .shared()
+            ) {
+                Color.clear
+            }
+            .buttonStyle(.plain)
+            .disabled(isUploading)
+        }
     }
 
     // MARK: Fields
@@ -181,7 +228,7 @@ struct AddGarmentSheet: View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Tipo de prenda")
                 .font(.system(.caption, design: .rounded, weight: .semibold))
-                .foregroundStyle(Color(red: 0.62, green: 0.56, blue: 0.52))
+                .foregroundStyle(DSColor.tertiaryText)
                 .padding(.leading, 4)
 
             LazyVGrid(
@@ -199,13 +246,12 @@ struct AddGarmentSheet: View {
             }
         }
     }
-
 }
 
 // MARK: - Focus fields
 
 private enum GarmentField {
-    case imageURL, name, brand, color
+    case name, brand, color
 }
 
 // MARK: - Type chip
@@ -222,7 +268,7 @@ private struct TypeChip: View {
                 .foregroundStyle(
                     isSelected
                         ? Color.white
-                        : Color(red: 0.36, green: 0.31, blue: 0.28)
+                        : DSColor.secondaryText
                 )
                 .lineLimit(1)
                 .minimumScaleFactor(0.82)
@@ -232,7 +278,7 @@ private struct TypeChip: View {
                 .background(
                     isSelected
                         ? Color(red: 0.10, green: 0.08, blue: 0.07)
-                        : Color.white,
+                        : DSColor.surface,
                     in: RoundedRectangle(cornerRadius: 14, style: .continuous)
                 )
                 .shadow(

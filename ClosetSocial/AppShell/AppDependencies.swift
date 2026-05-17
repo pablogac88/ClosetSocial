@@ -10,6 +10,7 @@ public struct AppDependencies: Sendable {
     public let outfitsRepository: any OutfitsRepository
     public let profileRepository: any ProfileRepository
     public let notificationRepository: any NotificationRepository
+    public let uploadRepository: any UploadRepository
     public let authenticateUseCase: any AuthenticateUserUseCase
     public let addGarmentUseCase: any AddGarmentUseCase
 
@@ -20,7 +21,8 @@ public struct AppDependencies: Sendable {
         closetRepository: any ClosetRepository,
         outfitsRepository: any OutfitsRepository,
         profileRepository: any ProfileRepository,
-        notificationRepository: any NotificationRepository
+        notificationRepository: any NotificationRepository,
+        uploadRepository: any UploadRepository
     ) {
         self.authRepository = authRepository
         self.timelineRepository = timelineRepository
@@ -29,6 +31,7 @@ public struct AppDependencies: Sendable {
         self.outfitsRepository = outfitsRepository
         self.profileRepository = profileRepository
         self.notificationRepository = notificationRepository
+        self.uploadRepository = uploadRepository
 
         self.authenticateUseCase = DefaultAuthenticateUserUseCase(repository: authRepository)
         self.addGarmentUseCase = DefaultAddGarmentUseCase(
@@ -41,7 +44,7 @@ public struct AppDependencies: Sendable {
     /// Atajo para el caso típico: backend HTTP en una URL conocida.
     public static func live(baseURL: URL) -> AppDependencies {
         let client = URLSessionHTTPClient(baseURL: baseURL)
-        let repos = RemoteRepositories(client: client)
+        let repos = RemoteRepositories(client: client, baseURL: baseURL)
         return AppDependencies(
             authRepository: repos.auth,
             timelineRepository: repos.timeline,
@@ -49,7 +52,8 @@ public struct AppDependencies: Sendable {
             closetRepository: repos.closet,
             outfitsRepository: repos.outfits,
             profileRepository: repos.profile,
-            notificationRepository: repos.notifications
+            notificationRepository: repos.notifications,
+            uploadRepository: repos.upload
         )
     }
 
@@ -63,7 +67,8 @@ public struct AppDependencies: Sendable {
             closetRepository: InMemoryClosetRepository(backend: backend),
             outfitsRepository: InMemoryOutfitsRepository(backend: backend),
             profileRepository: InMemoryProfileRepository(backend: backend),
-            notificationRepository: InMemoryNotificationRepository()
+            notificationRepository: InMemoryNotificationRepository(),
+            uploadRepository: InMemoryUploadRepository()
         )
     }
 }

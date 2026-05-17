@@ -51,7 +51,7 @@ public struct LoginView: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .background(
-            Color(red: 0.975, green: 0.970, blue: 0.962)
+            DSColor.background
                 .ignoresSafeArea()
         )
         .overlay(alignment: .topLeading) {
@@ -59,9 +59,9 @@ public struct LoginView: View {
                 Button(action: onBack) {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(Color(red: 0.40, green: 0.35, blue: 0.31))
+                        .foregroundStyle(DSColor.secondaryText)
                         .frame(width: 40, height: 40)
-                        .background(Color.white.opacity(0.85), in: Circle())
+                        .background(DSColor.surface.opacity(0.85), in: Circle())
                         .shadow(color: .black.opacity(0.06), radius: 6, x: 0, y: 2)
                 }
                 .padding(.leading, 20)
@@ -80,7 +80,7 @@ public struct LoginView: View {
 
             Text("Viste tu historia.")
                 .font(.system(.title3, design: .rounded, weight: .regular))
-                .foregroundStyle(Color(red: 0.56, green: 0.50, blue: 0.46))
+                .foregroundStyle(DSColor.secondaryText)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -99,8 +99,8 @@ public struct LoginView: View {
                             .font(.system(.subheadline, design: .rounded, weight: viewModel.mode == mode ? .semibold : .regular))
                             .foregroundStyle(
                                 viewModel.mode == mode
-                                    ? Color(red: 0.14, green: 0.11, blue: 0.09)
-                                    : Color(red: 0.60, green: 0.54, blue: 0.50)
+                                    ? DSColor.primaryText
+                                    : DSColor.tertiaryText
                             )
                             .animation(.none, value: viewModel.mode)
 
@@ -126,7 +126,7 @@ public struct LoginView: View {
         .overlay(alignment: .bottom) {
             Rectangle()
                 .frame(height: 0.5)
-                .foregroundStyle(Color(red: 0.85, green: 0.82, blue: 0.78))
+                .foregroundStyle(DSColor.warmFill)
         }
     }
 
@@ -195,11 +195,11 @@ public struct LoginView: View {
         HStack(spacing: 10) {
             Image(systemName: "exclamationmark.circle.fill")
                 .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(Color(red: 0.72, green: 0.18, blue: 0.18))
+                .foregroundStyle(DSColor.destructive)
 
             Text(message)
                 .font(.system(.footnote, design: .rounded, weight: .medium))
-                .foregroundStyle(Color(red: 0.55, green: 0.12, blue: 0.12))
+                .foregroundStyle(DSColor.destructive)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .padding(.horizontal, 16)
@@ -220,7 +220,7 @@ public struct LoginView: View {
                 Text("Demo")
                     .font(.system(.caption, design: .rounded, weight: .semibold))
             }
-            .foregroundStyle(Color(red: 0.60, green: 0.54, blue: 0.50))
+            .foregroundStyle(DSColor.tertiaryText)
 
             Text("pablo@closetsocial.app  ·  password123")
                 .font(.system(.caption, design: .rounded, weight: .regular))
@@ -230,7 +230,7 @@ public struct LoginView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
         .background(
-            Color.white.opacity(0.55),
+            DSColor.surface.opacity(0.55),
             in: RoundedRectangle(cornerRadius: 14, style: .continuous)
         )
     }

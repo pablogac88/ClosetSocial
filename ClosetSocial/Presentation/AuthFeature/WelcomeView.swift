@@ -30,7 +30,7 @@ public struct WelcomeView: View {
             Color(red: 0.955, green: 0.948, blue: 0.930)
 
             // Garment silhouettes — back row
-            garment(w: 52, h: 132, color: Color(red: 0.34, green: 0.30, blue: 0.26))
+            garment(w: 52, h: 132, color: DSColor.secondaryText)
                 .rotationEffect(.degrees(5.5))
                 .offset(x: 116, y: -28)
 
@@ -43,12 +43,12 @@ public struct WelcomeView: View {
                 .rotationEffect(.degrees(-3.5))
                 .offset(x: 62, y: -22)
 
-            garment(w: 60, h: 148, color: Color(red: 0.88, green: 0.83, blue: 0.76))
+            garment(w: 60, h: 148, color: DSColor.border)
                 .rotationEffect(.degrees(-2.5))
                 .offset(x: -58, y: -24)
 
             // Center garment — front, tallest
-            garment(w: 65, h: 155, color: Color(red: 0.93, green: 0.89, blue: 0.82))
+            garment(w: 65, h: 155, color: DSColor.warmFill)
                 .rotationEffect(.degrees(1.5))
                 .offset(x: 2, y: -18)
 
@@ -64,8 +64,8 @@ public struct WelcomeView: View {
                 LinearGradient(
                     stops: [
                         .init(color: .clear, location: 0),
-                        .init(color: Color(red: 0.975, green: 0.970, blue: 0.962).opacity(0.7), location: 0.55),
-                        .init(color: Color(red: 0.975, green: 0.970, blue: 0.962), location: 1),
+                        .init(color: DSColor.background.opacity(0.7), location: 0.55),
+                        .init(color: DSColor.background, location: 1),
                     ],
                     startPoint: .top,
                     endPoint: .bottom
@@ -122,7 +122,7 @@ public struct WelcomeView: View {
             Button(action: onLogin) {
                 Text("Ya tengo cuenta")
                     .font(.system(.subheadline, design: .rounded, weight: .medium))
-                    .foregroundStyle(Color(red: 0.40, green: 0.35, blue: 0.31))
+                    .foregroundStyle(DSColor.secondaryText)
                     .frame(maxWidth: .infinity)
                     .frame(height: 44)
             }
@@ -135,8 +135,8 @@ public struct WelcomeView: View {
             LinearGradient(
                 stops: [
                     .init(color: .clear, location: 0),
-                    .init(color: Color(red: 0.975, green: 0.970, blue: 0.962).opacity(0.96), location: 0.12),
-                    .init(color: Color(red: 0.975, green: 0.970, blue: 0.962), location: 0.25),
+                    .init(color: DSColor.background.opacity(0.96), location: 0.12),
+                    .init(color: DSColor.background, location: 0.25),
                 ],
                 startPoint: .top,
                 endPoint: .bottom

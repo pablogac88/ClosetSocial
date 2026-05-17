@@ -43,10 +43,10 @@ struct GarmentImage: View {
 private struct FailurePlaceholder: View {
     var body: some View {
         ZStack {
-            Color(red: 0.93, green: 0.91, blue: 0.88)
+            DSColor.imagePlaceholder
             Image(systemName: "photo")
                 .font(.system(size: 18, weight: .ultraLight))
-                .foregroundStyle(Color(red: 0.64, green: 0.58, blue: 0.52))
+                .foregroundStyle(DSColor.tertiaryText)
         }
     }
 }
@@ -58,15 +58,15 @@ private struct ShimmerPlaceholder: View {
 
     var body: some View {
         ZStack {
-            Color(red: 0.95, green: 0.93, blue: 0.90)
+            DSColor.imagePlaceholder
 
             GeometryReader { geo in
                 LinearGradient(
                     stops: [
                         .init(color: .clear,                    location: 0.00),
-                        .init(color: Color.white.opacity(0.42), location: 0.42),
-                        .init(color: Color.white.opacity(0.52), location: 0.50),
-                        .init(color: Color.white.opacity(0.42), location: 0.58),
+                        .init(color: DSColor.surface.opacity(0.42), location: 0.42),
+                        .init(color: DSColor.surface.opacity(0.52), location: 0.50),
+                        .init(color: DSColor.surface.opacity(0.42), location: 0.58),
                         .init(color: .clear,                    location: 1.00),
                     ],
                     startPoint: .leading,

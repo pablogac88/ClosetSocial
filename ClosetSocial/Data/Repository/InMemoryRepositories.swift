@@ -417,3 +417,11 @@ public struct InMemoryProfileRepository: ProfileRepository {
         await backend.updateProfile(displayName: displayName, bio: bio, avatarURL: avatarURL)
     }
 }
+
+public struct InMemoryUploadRepository: UploadRepository {
+    public init() {}
+    public func uploadImage(_ data: Data, mimeType: String, token: String) async throws -> URL {
+        URL(string: "https://example.com/uploads/preview.jpg")!
+    }
+}
+

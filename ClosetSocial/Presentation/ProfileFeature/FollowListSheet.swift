@@ -71,14 +71,14 @@ public struct FollowListSheet: View {
                         }
                         .buttonStyle(.plain)
                         .listRowBackground(Color.clear)
-                        .listRowSeparatorTint(Color(red: 0.88, green: 0.83, blue: 0.78))
+                        .listRowSeparatorTint(DSColor.warmFill)
                     }
                     .listStyle(.plain)
                 }
             }
             .navigationTitle(kind.title)
             .navigationBarTitleDisplayMode(.inline)
-            .background(Color(red: 0.975, green: 0.970, blue: 0.962).ignoresSafeArea())
+            .background(DSColor.background.ignoresSafeArea())
             .navigationDestination(item: $selectedUserID) { id in
                 PublicProfileView(
                     viewModel: PublicProfileViewModel(
@@ -124,17 +124,17 @@ private struct UserRow: View {
                 displayName: user.displayName,
                 avatarURL: user.avatarURL,
                 size: 46,
-                fillColor: Color(red: 0.91, green: 0.87, blue: 0.82),
-                textColor: Color(red: 0.44, green: 0.38, blue: 0.32)
+                fillColor: DSColor.warmFill,
+                textColor: DSColor.secondaryText
             )
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(user.displayName)
                     .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                    .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
+                    .foregroundStyle(DSColor.primaryText)
                 Text("@\(user.username)")
                     .font(.system(.caption, design: .rounded, weight: .regular))
-                    .foregroundStyle(Color(red: 0.56, green: 0.50, blue: 0.46))
+                    .foregroundStyle(DSColor.secondaryText)
             }
 
             Spacer()

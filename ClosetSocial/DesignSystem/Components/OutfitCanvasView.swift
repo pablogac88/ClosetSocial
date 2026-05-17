@@ -6,7 +6,7 @@ struct OutfitCanvasView: View {
     let layout: OutfitComposerLayout?
     let garments: [Garment]
     var cornerRadius: CGFloat = 18
-    var backgroundColor: Color = Color(red: 0.982, green: 0.973, blue: 0.957)
+    var backgroundColor: Color = DSColor.background
 
     var body: some View {
         GeometryReader { geo in
@@ -68,7 +68,7 @@ private struct CanvasTile: View {
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: tileCornerRadius, style: .continuous)
-                .fill(Color.white)
+                .fill(DSColor.surface)
                 .shadow(color: .black.opacity(0.07), radius: 4, x: 0, y: 2)
             GarmentImage(url: garment.imageURL)
                 .clipShape(RoundedRectangle(cornerRadius: max(tileCornerRadius - 1.5, 0), style: .continuous))

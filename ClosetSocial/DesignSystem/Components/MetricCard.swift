@@ -19,6 +19,6 @@ public struct MetricCard: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(18)
-        .background(Color.white, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .background(DSColor.surface, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 }

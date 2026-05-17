@@ -58,7 +58,7 @@ public struct OutfitDetailView: View {
                 if let post { actionsSection(post) }
             }
         }
-        .background(Color(red: 0.975, green: 0.970, blue: 0.962).ignoresSafeArea())
+        .background(DSColor.background.ignoresSafeArea())
         .sheet(item: $selectedGarment) { garment in
             NavigationStack {
                 GarmentDetailView(
@@ -73,7 +73,7 @@ public struct OutfitDetailView: View {
             ToolbarItem(placement: .principal) {
                 Text(outfit?.title ?? "Look")
                     .font(.system(.subheadline, design: .rounded, weight: .medium))
-                    .foregroundStyle(Color(red: 0.30, green: 0.26, blue: 0.22).opacity(0.7))
+                    .foregroundStyle(DSColor.primaryText.opacity(0.7))
             }
             if canDelete {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -109,7 +109,7 @@ public struct OutfitDetailView: View {
     private var hero: some View {
         GeometryReader { geo in
             ZStack {
-                Color(red: 0.982, green: 0.973, blue: 0.957)
+                DSColor.background
 
                 if let outfit {
                     OutfitCanvasView(
@@ -149,12 +149,12 @@ public struct OutfitDetailView: View {
                 if let title = outfit?.title {
                     Text(title)
                         .font(.system(size: 26, weight: .semibold, design: .rounded))
-                        .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
+                        .foregroundStyle(DSColor.primaryText)
                 }
                 if let note = outfit?.note {
                     Text(note)
                         .font(.system(.body, design: .rounded, weight: .regular))
-                        .foregroundStyle(Color(red: 0.52, green: 0.47, blue: 0.43))
+                        .foregroundStyle(DSColor.secondaryText)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
@@ -166,13 +166,13 @@ public struct OutfitDetailView: View {
                     Text(post.caption)
                         .font(.system(.subheadline, design: .rounded, weight: .regular))
                         .italic()
-                        .foregroundStyle(Color(red: 0.48, green: 0.44, blue: 0.40))
+                        .foregroundStyle(DSColor.secondaryText)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             } else if let createdAt = outfit?.createdAt {
                 Text(createdAt.formatted(date: .abbreviated, time: .omitted))
                     .font(.system(.caption, design: .rounded, weight: .regular))
-                    .foregroundStyle(Color(red: 0.62, green: 0.57, blue: 0.52))
+                    .foregroundStyle(DSColor.tertiaryText)
             }
         }
         .padding(.horizontal, 24)
@@ -186,16 +186,16 @@ public struct OutfitDetailView: View {
                 displayName: post.author.displayName,
                 avatarURL: post.author.avatarURL,
                 size: 40,
-                fillColor: Color(red: 0.91, green: 0.87, blue: 0.82),
-                textColor: Color(red: 0.44, green: 0.38, blue: 0.32)
+                fillColor: DSColor.warmFill,
+                textColor: DSColor.secondaryText
             )
             VStack(alignment: .leading, spacing: 2) {
                 Text(post.author.displayName)
                     .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                    .foregroundStyle(Color(red: 0.18, green: 0.15, blue: 0.13))
+                    .foregroundStyle(DSColor.primaryText)
                 Text("@\(post.author.username) · \(post.createdAt.formatted(date: .abbreviated, time: .omitted))")
                     .font(.system(.caption, design: .rounded, weight: .regular))
-                    .foregroundStyle(Color(red: 0.60, green: 0.55, blue: 0.51))
+                    .foregroundStyle(DSColor.secondaryText)
             }
         }
     }
@@ -206,7 +206,7 @@ public struct OutfitDetailView: View {
         VStack(alignment: .leading, spacing: 14) {
             Text("Prendas")
                 .font(.system(.footnote, design: .rounded, weight: .semibold))
-                .foregroundStyle(Color(red: 0.60, green: 0.55, blue: 0.51))
+                .foregroundStyle(DSColor.secondaryText)
                 .padding(.horizontal, 24)
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -233,7 +233,7 @@ public struct OutfitDetailView: View {
                     icon: post.isLikedByCurrentUser ? "heart.fill" : "heart",
                     label: "\(post.likesCount)",
                     isActive: post.isLikedByCurrentUser,
-                    activeColor: Color(red: 0.88, green: 0.25, blue: 0.28),
+                    activeColor: DSColor.destructive,
                     disabled: !post.isReal,
                     action: onLikeTap
                 )
@@ -303,11 +303,11 @@ private struct GarmentDetailCard: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(garment.name)
                     .font(.system(.caption, design: .rounded, weight: .semibold))
-                    .foregroundStyle(Color(red: 0.18, green: 0.15, blue: 0.13))
+                    .foregroundStyle(DSColor.primaryText)
                     .lineLimit(1)
                 Text(garment.type.rawValue)
                     .font(.system(.caption2, design: .rounded, weight: .regular))
-                    .foregroundStyle(Color(red: 0.62, green: 0.57, blue: 0.52))
+                    .foregroundStyle(DSColor.tertiaryText)
                 if let brand = garment.brand {
                     Text(brand)
                         .font(.system(.caption2, design: .rounded, weight: .regular))
@@ -338,7 +338,7 @@ private struct ActionPill: View {
                 Text(label)
                     .font(.system(.subheadline, design: .rounded, weight: isActive ? .semibold : .regular))
             }
-            .foregroundStyle(isActive ? activeColor : Color(red: 0.52, green: 0.47, blue: 0.43))
+            .foregroundStyle(isActive ? activeColor : DSColor.secondaryText)
             .padding(.horizontal, 18)
             .padding(.vertical, 12)
             .background(

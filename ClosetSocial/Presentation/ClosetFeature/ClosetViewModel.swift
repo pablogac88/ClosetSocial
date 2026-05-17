@@ -21,6 +21,7 @@ public final class ClosetViewModel {
 
     private let repository: any ClosetRepository
     private let addGarmentUseCase: any AddGarmentUseCase
+    private let uploadRepository: any UploadRepository
     private let tokenProvider: TokenProvider
     private let onGarmentAdded: OnGarmentAdded
     private let onGarmentDeleted: OnGarmentDeleted?
@@ -28,12 +29,14 @@ public final class ClosetViewModel {
     public init(
         repository: any ClosetRepository,
         addGarmentUseCase: any AddGarmentUseCase,
+        uploadRepository: any UploadRepository,
         tokenProvider: @escaping TokenProvider,
         onGarmentAdded: @escaping OnGarmentAdded,
         onGarmentDeleted: (OnGarmentDeleted)? = nil
     ) {
         self.repository = repository
         self.addGarmentUseCase = addGarmentUseCase
+        self.uploadRepository = uploadRepository
         self.tokenProvider = tokenProvider
         self.onGarmentAdded = onGarmentAdded
         self.onGarmentDeleted = onGarmentDeleted
@@ -69,6 +72,7 @@ public final class ClosetViewModel {
     public func makeAddGarmentViewModel() -> AddGarmentViewModel {
         AddGarmentViewModel(
             useCase: addGarmentUseCase,
+            uploadRepository: uploadRepository,
             tokenProvider: tokenProvider
         ) { [weak self] result in
             guard let self else { return }

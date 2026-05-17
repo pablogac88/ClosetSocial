@@ -272,7 +272,7 @@ private struct FeedPostCard: View {
             if !post.caption.isEmpty {
                 Text(post.caption)
                     .font(DSFont.body)
-                    .foregroundStyle(Color(red: 0.18, green: 0.15, blue: 0.13))
+                    .foregroundStyle(DSColor.primaryText)
                     .padding(.horizontal, 16)
                     .padding(.bottom, hasMedia ? 12 : 0)
             }
@@ -287,7 +287,7 @@ private struct FeedPostCard: View {
                 .padding(.bottom, 14)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.white)
+        .background(DSColor.surface)
         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
         .shadow(color: .black.opacity(0.05), radius: 12, x: 0, y: 3)
     }
@@ -307,20 +307,20 @@ private struct FeedPostCard: View {
                     HStack(spacing: 4) {
                         Text("@\(post.author.username)")
                             .font(DSFont.footnote)
-                            .foregroundStyle(Color(red: 0.58, green: 0.52, blue: 0.48))
+                            .foregroundStyle(DSColor.secondaryText)
 
                         Text("·")
                             .font(DSFont.footnote)
-                            .foregroundStyle(Color(red: 0.74, green: 0.68, blue: 0.64))
+                            .foregroundStyle(DSColor.tertiaryText)
 
                         Text(post.createdAt.formatted(date: .abbreviated, time: .omitted))
                             .font(DSFont.footnote)
-                            .foregroundStyle(Color(red: 0.74, green: 0.68, blue: 0.64))
+                            .foregroundStyle(DSColor.tertiaryText)
 
                         if !post.isReal {
                             Image(systemName: "sparkles")
                                 .font(.system(size: 9, weight: .medium))
-                                .foregroundStyle(Color(red: 0.76, green: 0.70, blue: 0.64))
+                                .foregroundStyle(DSColor.tertiaryText)
                         }
                     }
                 }
@@ -342,7 +342,7 @@ private struct FeedPostCard: View {
                 layout: outfit.layout,
                 garments: outfit.garments,
                 cornerRadius: 0,
-                backgroundColor: Color(red: 0.975, green: 0.970, blue: 0.962)
+                backgroundColor: DSColor.background
             )
             .aspectRatio(3 / 4, contentMode: .fit)
 
@@ -376,14 +376,14 @@ private struct FeedPostCard: View {
                         .symbolEffect(.bounce, value: post.isLikedByCurrentUser)
                         .foregroundStyle(
                             post.isLikedByCurrentUser
-                                ? Color(red: 0.85, green: 0.20, blue: 0.20)
+                                ? DSColor.destructive
                                 : Color.secondary
                         )
                     Text("\(post.likesCount)")
                         .font(DSFont.footnote)
                         .foregroundStyle(
                             post.isLikedByCurrentUser
-                                ? Color(red: 0.85, green: 0.20, blue: 0.20)
+                                ? DSColor.destructive
                                 : Color.secondary
                         )
                 }

@@ -36,7 +36,7 @@ public struct OutfitsView: View {
                 )
             }
         }
-        .background(Color(red: 0.975, green: 0.970, blue: 0.962).ignoresSafeArea())
+        .background(DSColor.background.ignoresSafeArea())
         .navigationTitle("Outfits")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -135,7 +135,7 @@ public struct OutfitsView: View {
                 }
                 .listRowBackground(
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(Color.white)
+                        .fill(DSColor.surface)
                         .padding(.vertical, 4)
                 )
             }
@@ -197,7 +197,7 @@ private struct CreateOutfitSheet: View {
 
     var body: some View {
         ZStack(alignment: .top) {
-            Color(red: 0.975, green: 0.970, blue: 0.962).ignoresSafeArea()
+            DSColor.background.ignoresSafeArea()
 
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 0) {
@@ -235,7 +235,7 @@ private struct CreateOutfitSheet: View {
 
                     Button("Cancelar") { dismiss() }
                         .font(.system(.subheadline, design: .rounded, weight: .medium))
-                        .foregroundStyle(Color(red: 0.58, green: 0.52, blue: 0.48))
+                        .foregroundStyle(DSColor.secondaryText)
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
                         .disabled(viewModel.isSaving)
@@ -262,16 +262,16 @@ private struct CreateOutfitSheet: View {
         HStack {
             Text("Crear look")
                 .font(.system(.headline, design: .rounded, weight: .semibold))
-                .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
+                .foregroundStyle(DSColor.primaryText)
 
             Spacer()
 
             Button { dismiss() } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(Color(red: 0.44, green: 0.38, blue: 0.34))
+                    .foregroundStyle(DSColor.secondaryText)
                     .frame(width: 32, height: 32)
-                    .background(Color.white.opacity(0.85), in: Circle())
+                    .background(DSColor.surface.opacity(0.85), in: Circle())
                     .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 1)
             }
             .buttonStyle(.plain)
@@ -283,8 +283,8 @@ private struct CreateOutfitSheet: View {
         .background(
             LinearGradient(
                 stops: [
-                    .init(color: Color(red: 0.975, green: 0.970, blue: 0.962), location: 0.65),
-                    .init(color: Color(red: 0.975, green: 0.970, blue: 0.962).opacity(0), location: 1),
+                    .init(color: DSColor.background, location: 0.65),
+                    .init(color: DSColor.background.opacity(0), location: 1),
                 ],
                 startPoint: .top,
                 endPoint: .bottom
@@ -324,7 +324,7 @@ private struct CreateOutfitSheet: View {
             HStack {
                 Text("Prendas")
                     .font(.system(.caption, design: .rounded, weight: .semibold))
-                    .foregroundStyle(Color(red: 0.62, green: 0.56, blue: 0.52))
+                    .foregroundStyle(DSColor.tertiaryText)
                     .padding(.leading, 4)
 
                 Spacer()
@@ -347,7 +347,7 @@ private struct CreateOutfitSheet: View {
                 }
                 .frame(maxWidth: .infinity)
                 .frame(height: 80)
-                .background(Color.white, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                .background(DSColor.surface, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
             } else if viewModel.availableGarments.isEmpty {
                 EmptyStateView(
                     icon: "hanger",
@@ -355,7 +355,7 @@ private struct CreateOutfitSheet: View {
                     message: "Añade prendas al armario para poder crear un look."
                 )
                 .frame(height: 200)
-                .background(Color.white, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                .background(DSColor.surface, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
             } else {
                 VStack(spacing: 0) {
                     ForEach(Array(viewModel.availableGarments.enumerated()), id: \.element.id) { index, garment in
@@ -377,7 +377,7 @@ private struct CreateOutfitSheet: View {
                         }
                     }
                 }
-                .background(Color.white, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                .background(DSColor.surface, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
                 .shadow(color: .black.opacity(0.04), radius: 8, x: 0, y: 2)
             }
         }
@@ -407,10 +407,10 @@ private struct WarmGarmentPickerRow: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(garment.name)
                         .font(.system(.subheadline, design: .rounded, weight: isSelected ? .semibold : .regular))
-                        .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
+                        .foregroundStyle(DSColor.primaryText)
                     Text(garment.type.rawValue)
                         .font(.system(.caption, design: .rounded, weight: .regular))
-                        .foregroundStyle(Color(red: 0.58, green: 0.52, blue: 0.48))
+                        .foregroundStyle(DSColor.secondaryText)
                 }
 
                 Spacer()
@@ -418,7 +418,7 @@ private struct WarmGarmentPickerRow: View {
                 ZStack {
                     Circle()
                         .stroke(
-                            isSelected ? DSColor.highlight : Color(red: 0.82, green: 0.78, blue: 0.74),
+                            isSelected ? DSColor.highlight : DSColor.border,
                             lineWidth: 1.5
                         )
                         .frame(width: 24, height: 24)

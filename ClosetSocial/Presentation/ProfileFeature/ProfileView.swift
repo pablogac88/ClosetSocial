@@ -3,6 +3,8 @@ import SwiftUI
 public struct ProfileView: View {
     @Bindable private var viewModel: ProfileViewModel
     private let makePublicProfileViewModel: (UUID) -> PublicProfileViewModel
+    private let uploadRepository: any UploadRepository
+    private let tokenProvider: @MainActor () -> String?
 
     @State private var followListTarget: FollowListKind?
     @State private var isEditingProfile = false
@@ -10,10 +12,14 @@ public struct ProfileView: View {
 
     public init(
         viewModel: ProfileViewModel,
-        makePublicProfileViewModel: @escaping (UUID) -> PublicProfileViewModel
+        makePublicProfileViewModel: @escaping (UUID) -> PublicProfileViewModel,
+        uploadRepository: any UploadRepository,
+        tokenProvider: @escaping @MainActor () -> String?
     ) {
         self.viewModel = viewModel
         self.makePublicProfileViewModel = makePublicProfileViewModel
+        self.uploadRepository = uploadRepository
+        self.tokenProvider = tokenProvider
     }
 
     public var body: some View {
@@ -40,7 +46,7 @@ public struct ProfileView: View {
                     } label: {
                         Image(systemName: "pencil")
                             .font(.system(size: 16, weight: .medium))
-                            .foregroundStyle(Color(red: 0.28, green: 0.24, blue: 0.22))
+                            .foregroundStyle(DSColor.primaryText)
                     }
                 }
             }
@@ -52,10 +58,10 @@ public struct ProfileView: View {
                         ZStack(alignment: .topTrailing) {
                             Image(systemName: "bell")
                                 .font(.system(size: 16, weight: .medium))
-                                .foregroundStyle(Color(red: 0.28, green: 0.24, blue: 0.22))
+                                .foregroundStyle(DSColor.primaryText)
                             if viewModel.notificationsViewModel.unreadCount > 0 {
                                 Circle()
-                                    .fill(Color(red: 0.82, green: 0.25, blue: 0.28))
+                                    .fill(DSColor.destructive)
                                     .frame(width: 8, height: 8)
                                     .offset(x: 4, y: -4)
                             }
@@ -86,6 +92,8 @@ public struct ProfileView: View {
                     initialDisplayName: profile.user.displayName,
                     initialBio: profile.user.bio ?? "",
                     initialAvatarURL: profile.user.avatarURL?.absoluteString ?? "",
+                    uploadRepository: uploadRepository,
+                    tokenProvider: tokenProvider,
                     onSave: { displayName, bio, avatarURL in
                         let saved = await viewModel.updateProfile(
                             displayName: displayName,
@@ -127,7 +135,7 @@ public struct ProfileView: View {
                 }
             }
         }
-        .background(Color(red: 0.975, green: 0.970, blue: 0.962).ignoresSafeArea())
+        .background(DSColor.background.ignoresSafeArea())
     }
 
     // MARK: Header
@@ -138,23 +146,23 @@ public struct ProfileView: View {
                 displayName: profile.user.displayName,
                 avatarURL: profile.user.avatarURL,
                 size: 96,
-                fillColor: Color(red: 0.91, green: 0.87, blue: 0.82),
-                textColor: Color(red: 0.44, green: 0.38, blue: 0.32)
+                fillColor: DSColor.warmFill,
+                textColor: DSColor.secondaryText
             )
 
             VStack(spacing: 5) {
                 Text(profile.user.displayName)
                     .font(.system(size: 24, weight: .semibold, design: .rounded))
-                    .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
+                    .foregroundStyle(DSColor.primaryText)
 
                 Text("@\(profile.user.username)")
                     .font(.system(.subheadline, design: .rounded, weight: .regular))
-                    .foregroundStyle(Color(red: 0.56, green: 0.50, blue: 0.46))
+                    .foregroundStyle(DSColor.secondaryText)
 
                 if let bio = profile.user.bio, !bio.isEmpty {
                     Text(bio)
                         .font(.system(.body, design: .rounded, weight: .regular))
-                        .foregroundStyle(Color(red: 0.40, green: 0.35, blue: 0.31))
+                        .foregroundStyle(DSColor.secondaryText)
                         .multilineTextAlignment(.center)
                         .padding(.top, 2)
                 }
@@ -177,7 +185,7 @@ public struct ProfileView: View {
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 14)
-            .background(Color.white.opacity(0.65), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+            .background(DSColor.surface.opacity(0.65), in: RoundedRectangle(cornerRadius: 20, style: .continuous))
         }
         .padding(.horizontal, 24)
         .padding(.top, 20)
@@ -201,8 +209,8 @@ public struct ProfileView: View {
                             ))
                             .foregroundStyle(
                                 viewModel.selectedTab == tab
-                                    ? Color(red: 0.14, green: 0.11, blue: 0.09)
-                                    : Color(red: 0.58, green: 0.52, blue: 0.48)
+                                    ? DSColor.primaryText
+                                    : DSColor.secondaryText
                             )
                             .animation(.none, value: viewModel.selectedTab)
 
@@ -210,7 +218,7 @@ public struct ProfileView: View {
                             .frame(height: 2)
                             .foregroundStyle(
                                 viewModel.selectedTab == tab
-                                    ? Color(red: 0.25, green: 0.30, blue: 0.58)
+                                    ? DSColor.highlight
                                     : Color.clear
                             )
                     }
@@ -221,7 +229,7 @@ public struct ProfileView: View {
             }
         }
         .padding(.horizontal, 16)
-        .background(Color(red: 0.975, green: 0.970, blue: 0.962))
+        .background(DSColor.background)
         .overlay(alignment: .bottom) { Divider() }
     }
 
@@ -308,7 +316,7 @@ private struct OutfitsTabContent: View {
                         if let title = outfit.title {
                             Text(title)
                                 .font(.system(.caption, design: .rounded, weight: .medium))
-                                .foregroundStyle(Color(red: 0.28, green: 0.24, blue: 0.22))
+                                .foregroundStyle(DSColor.primaryText)
                                 .lineLimit(1)
                         }
                     }
@@ -428,7 +436,7 @@ private struct ProfilePostCard: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.white, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .background(DSColor.surface, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 }
 
@@ -442,10 +450,10 @@ private struct ProfileStat: View {
         VStack(spacing: 3) {
             Text("\(value)")
                 .font(.system(size: 20, weight: .bold, design: .rounded))
-                .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
+                .foregroundStyle(DSColor.primaryText)
             Text(label)
                 .font(.system(.caption, design: .rounded, weight: .regular))
-                .foregroundStyle(Color(red: 0.58, green: 0.52, blue: 0.48))
+                .foregroundStyle(DSColor.secondaryText)
         }
         .frame(maxWidth: .infinity)
     }

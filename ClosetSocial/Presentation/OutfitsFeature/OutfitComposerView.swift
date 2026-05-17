@@ -54,7 +54,7 @@ public struct OutfitComposerView: View {
                 GeometryReader { geo in
                     ZStack {
                         RoundedRectangle(cornerRadius: 28, style: .continuous)
-                            .fill(Color(red: 0.982, green: 0.973, blue: 0.957))
+                            .fill(DSColor.background)
                             .shadow(color: .black.opacity(0.07), radius: 22, x: 0, y: 7)
                             .shadow(color: .black.opacity(0.03), radius: 4,  x: 0, y: 1)
 
@@ -104,11 +104,11 @@ public struct OutfitComposerView: View {
         VStack(spacing: 18) {
             ZStack {
                 Circle()
-                    .fill(Color(red: 0.91, green: 0.87, blue: 0.82).opacity(0.55))
+                    .fill(DSColor.warmFill.opacity(0.55))
                     .frame(width: 68, height: 68)
                 Image(systemName: "hanger")
                     .font(.system(size: 26, weight: .ultraLight))
-                    .foregroundStyle(Color(red: 0.54, green: 0.47, blue: 0.39))
+                    .foregroundStyle(DSColor.secondaryText)
             }
             VStack(spacing: 5) {
                 Text("Tu look empieza aquí")
@@ -116,7 +116,7 @@ public struct OutfitComposerView: View {
                     .foregroundStyle(Color(red: 0.44, green: 0.39, blue: 0.35))
                 Text("Elige prendas abajo para componer")
                     .font(.system(.caption, design: .rounded, weight: .regular))
-                    .foregroundStyle(Color(red: 0.63, green: 0.58, blue: 0.54))
+                    .foregroundStyle(DSColor.tertiaryText)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -126,7 +126,7 @@ public struct OutfitComposerView: View {
 
     private var pickerArea: some View {
         VStack(spacing: 0) {
-            Color(red: 0.87, green: 0.85, blue: 0.82).opacity(0.45).frame(height: 0.5)
+            DSColor.warmFill.opacity(0.45).frame(height: 0.5)
 
             if viewModel.isLoadingWardrobe {
                 HStack(spacing: 10) {
@@ -215,7 +215,7 @@ public struct OutfitComposerView: View {
         let hasSelection = !viewModel.selectedGarments.isEmpty
         let busy = viewModel.isPublishing || viewModel.isSaving
         return VStack(spacing: 0) {
-            Color(red: 0.87, green: 0.85, blue: 0.82).opacity(0.45).frame(height: 0.5)
+            DSColor.warmFill.opacity(0.45).frame(height: 0.5)
             VStack(spacing: 12) {
                 HStack(spacing: 14) {
                     if viewModel.selectedGarments.count > 0 {
@@ -242,7 +242,7 @@ public struct OutfitComposerView: View {
                     } label: {
                         Text("Guardar sin publicar")
                             .font(.system(.subheadline, design: .rounded, weight: .medium))
-                            .foregroundStyle(Color(red: 0.55, green: 0.50, blue: 0.46))
+                            .foregroundStyle(DSColor.secondaryText)
                     }
                     .buttonStyle(.plain)
                     .disabled(busy)
@@ -276,7 +276,7 @@ private struct CanvasGarmentCard: View {
     var body: some View {
         ZStack(alignment: .topTrailing) {
             RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .fill(Color.white)
+                .fill(DSColor.surface)
                 .shadow(color: .black.opacity(0.08), radius: 14, x: 0, y: 5)
                 .shadow(color: .black.opacity(0.04), radius: 3,  x: 0, y: 1)
 
@@ -308,14 +308,14 @@ private struct CanvasGarmentCard: View {
         VStack(spacing: 8) {
             Image(systemName: "hanger")
                 .font(.system(size: 20, weight: .ultraLight))
-                .foregroundStyle(Color(red: 0.64, green: 0.58, blue: 0.52))
+                .foregroundStyle(DSColor.tertiaryText)
             Text(garment.name)
                 .font(.system(.caption2, design: .rounded, weight: .medium))
-                .foregroundStyle(Color(red: 0.54, green: 0.48, blue: 0.44))
+                .foregroundStyle(DSColor.secondaryText)
                 .multilineTextAlignment(.center).lineLimit(2)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(red: 0.95, green: 0.93, blue: 0.90))
+        .background(DSColor.imagePlaceholder)
     }
 }
 
@@ -352,7 +352,7 @@ private struct PickerGarmentCard: View {
                         Image(systemName: "checkmark.circle.fill")
                             .font(.system(size: 17, weight: .semibold))
                             .symbolRenderingMode(.palette)
-                            .foregroundStyle(Color.white, DSColor.accent)
+                            .foregroundStyle(DSColor.surface, DSColor.accent)
                             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                             .padding(6)
                     }
@@ -361,7 +361,7 @@ private struct PickerGarmentCard: View {
 
                 Text(garment.name)
                     .font(.system(.caption2, design: .rounded, weight: .medium))
-                    .foregroundStyle(isDisabled ? Color.secondary.opacity(0.35) : Color(red: 0.30, green: 0.26, blue: 0.24))
+                    .foregroundStyle(isDisabled ? Color.secondary.opacity(0.35) : DSColor.primaryText)
                     .lineLimit(1).frame(width: 86)
             }
         }
@@ -372,7 +372,7 @@ private struct PickerGarmentCard: View {
     private var typeIcon: some View {
         Image(systemName: garmentSystemImage(garment.type))
             .font(.system(size: 22, weight: .ultraLight))
-            .foregroundStyle(Color(red: 0.60, green: 0.54, blue: 0.50))
+            .foregroundStyle(DSColor.tertiaryText)
     }
 }
 
@@ -473,10 +473,10 @@ private struct SaveOutfitSheet: View {
         VStack(spacing: 6) {
             Text("Guardar look")
                 .font(.system(size: 22, weight: .semibold, design: .rounded))
-                .foregroundStyle(Color(red: 0.18, green: 0.15, blue: 0.13))
+                .foregroundStyle(DSColor.primaryText)
             Text("Ponle un nombre a este outfit")
                 .font(.system(.subheadline, design: .rounded, weight: .regular))
-                .foregroundStyle(Color(red: 0.58, green: 0.53, blue: 0.48))
+                .foregroundStyle(DSColor.secondaryText)
         }
     }
 
@@ -492,9 +492,9 @@ private struct SaveOutfitSheet: View {
         let label = count == 1 ? "1 prenda" : "\(count) prendas"
         return Text(label)
             .font(.system(.caption, design: .rounded, weight: .medium))
-            .foregroundStyle(Color(red: 0.62, green: 0.57, blue: 0.52))
+            .foregroundStyle(DSColor.tertiaryText)
             .padding(.horizontal, 14).padding(.vertical, 6)
-            .background(Color(red: 0.89, green: 0.87, blue: 0.84).opacity(0.6), in: Capsule())
+            .background(DSColor.border.opacity(0.5).opacity(0.6), in: Capsule())
     }
 
     private var fields: some View {
@@ -520,7 +520,7 @@ private struct SaveOutfitSheet: View {
             Button { dismiss() } label: {
                 Text("Cancelar")
                     .font(.system(.subheadline, design: .rounded, weight: .medium))
-                    .foregroundStyle(Color(red: 0.55, green: 0.50, blue: 0.46))
+                    .foregroundStyle(DSColor.secondaryText)
             }
             .buttonStyle(.plain)
             .disabled(viewModel.isSaving)
@@ -579,10 +579,10 @@ private struct PublishOutfitSheet: View {
         VStack(spacing: 6) {
             Text("Publicar look")
                 .font(.system(size: 22, weight: .semibold, design: .rounded))
-                .foregroundStyle(Color(red: 0.18, green: 0.15, blue: 0.13))
+                .foregroundStyle(DSColor.primaryText)
             Text("Comparte este outfit con la comunidad")
                 .font(.system(.subheadline, design: .rounded, weight: .regular))
-                .foregroundStyle(Color(red: 0.58, green: 0.53, blue: 0.48))
+                .foregroundStyle(DSColor.secondaryText)
         }
     }
 
@@ -598,9 +598,9 @@ private struct PublishOutfitSheet: View {
         let label = count == 1 ? "1 prenda" : "\(count) prendas"
         return Text(label)
             .font(.system(.caption, design: .rounded, weight: .medium))
-            .foregroundStyle(Color(red: 0.62, green: 0.57, blue: 0.52))
+            .foregroundStyle(DSColor.tertiaryText)
             .padding(.horizontal, 14).padding(.vertical, 6)
-            .background(Color(red: 0.89, green: 0.87, blue: 0.84).opacity(0.6), in: Capsule())
+            .background(DSColor.border.opacity(0.5).opacity(0.6), in: Capsule())
     }
 
     private var fields: some View {
@@ -639,7 +639,7 @@ private struct PublishOutfitSheet: View {
             Button { dismiss() } label: {
                 Text("Cancelar")
                     .font(.system(.subheadline, design: .rounded, weight: .medium))
-                    .foregroundStyle(Color(red: 0.55, green: 0.50, blue: 0.46))
+                    .foregroundStyle(DSColor.secondaryText)
             }
             .buttonStyle(.plain)
             .disabled(viewModel.isPublishing)
@@ -660,17 +660,17 @@ private struct SheetInputCard: View {
         VStack(alignment: .leading, spacing: 7) {
             Text(label)
                 .font(.system(.caption, design: .rounded, weight: .semibold))
-                .foregroundStyle(Color(red: 0.55, green: 0.50, blue: 0.46))
+                .foregroundStyle(DSColor.secondaryText)
                 .padding(.horizontal, 2)
             TextField(placeholder, text: $text, axis: axis)
                 .font(.system(.body, design: .rounded, weight: .medium))
-                .foregroundStyle(Color(red: 0.18, green: 0.15, blue: 0.13))
+                .foregroundStyle(DSColor.primaryText)
                 .tint(DSColor.accent)
                 .lineLimit(axis == .vertical ? lineLimit : 1...1)
                 .padding(.horizontal, 16).padding(.vertical, 14)
                 .background(
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(Color.white)
+                        .fill(DSColor.surface)
                         .shadow(color: .black.opacity(0.04), radius: 8, x: 0, y: 2)
                 )
         }

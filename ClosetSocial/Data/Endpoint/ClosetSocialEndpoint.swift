@@ -22,4 +22,5 @@ enum ClosetSocialEndpoint {
     static func userFollowers(id: UUID) -> String { "api/users/\(id)/followers" }
     static func userFollowing(id: UUID) -> String { "api/users/\(id)/following" }
     static func notificationRead(id: UUID) -> String { "api/notifications/\(id)/read" }
+    static let uploadImage = "api/uploads/image"
 }

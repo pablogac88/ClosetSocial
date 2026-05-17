@@ -57,6 +57,7 @@ struct MainTabView: View {
         let closet = ClosetViewModel(
             repository: dependencies.closetRepository,
             addGarmentUseCase: dependencies.addGarmentUseCase,
+            uploadRepository: dependencies.uploadRepository,
             tokenProvider: tokenProvider
         ) { result in
             timeline.replace(with: result.updatedTimeline)
@@ -135,7 +136,9 @@ struct MainTabView: View {
             NavigationStack {
                 ProfileView(
                     viewModel: profileViewModel,
-                    makePublicProfileViewModel: makePublicProfileViewModel(for:)
+                    makePublicProfileViewModel: makePublicProfileViewModel(for:),
+                    uploadRepository: dependencies.uploadRepository,
+                    tokenProvider: tokenProvider
                 )
             }
             .tag(4)

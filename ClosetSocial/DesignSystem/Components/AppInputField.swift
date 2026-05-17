@@ -41,7 +41,7 @@ public struct AppInputField: View {
                 .foregroundStyle(
                     isFocused
                         ? DSColor.highlight
-                        : Color(red: 0.62, green: 0.56, blue: 0.52)
+                        : DSColor.tertiaryText
                 )
                 .animation(.easeInOut(duration: 0.15), value: isFocused)
 
@@ -57,13 +57,13 @@ public struct AppInputField: View {
             }
             .textContentType(contentType)
             .font(.system(.body, design: .rounded, weight: .regular))
-            .foregroundStyle(Color(red: 0.14, green: 0.11, blue: 0.09))
+            .foregroundStyle(DSColor.primaryText)
             .submitLabel(submitLabel)
             .onSubmit(onSubmit)
             .frame(height: 28)
             .padding(.horizontal, 16)
             .padding(.vertical, 14)
-            .background(Color.white, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .background(DSColor.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .stroke(
