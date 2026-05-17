@@ -35,7 +35,7 @@ public struct GarmentDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .principal) {
-                Text(garment.type.rawValue)
+                Text(garment.type.name)
                     .font(.system(.subheadline, design: .rounded, weight: .medium))
                     .foregroundStyle(DSColor.primaryText.opacity(0.7))
             }
@@ -100,12 +100,12 @@ public struct GarmentDetailView: View {
                 if let brand = garment.brand, !brand.isEmpty {
                     Text(brand)
                         .font(.system(.title3, design: .rounded, weight: .regular))
-                        .foregroundStyle(Color(red: 0.44, green: 0.39, blue: 0.35))
+                        .foregroundStyle(DSColor.secondaryText)
                 }
             }
 
             HStack(spacing: 8) {
-                MetaPill(label: garment.type.rawValue)
+                MetaPill(label: garment.type.name)
                 if !garment.color.isEmpty {
                     MetaPill(label: garment.color)
                 }
@@ -174,11 +174,11 @@ private struct MetaPill: View {
     var body: some View {
         Text(label)
             .font(.system(.caption, design: .rounded, weight: .medium))
-            .foregroundStyle(Color(red: 0.44, green: 0.39, blue: 0.35))
+            .foregroundStyle(DSColor.secondaryText)
             .padding(.horizontal, 14)
             .padding(.vertical, 7)
             .background(
-                Color(red: 0.91, green: 0.88, blue: 0.84).opacity(0.8),
+                DSColor.surfaceElevated.opacity(0.8),
                 in: Capsule()
             )
     }

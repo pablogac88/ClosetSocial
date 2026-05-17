@@ -26,18 +26,23 @@ public struct RemoteUploadRepository: UploadRepository {
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.httpBody = body
 
+        NetworkLogger.logRequest(method: "POST", url: url, body: nil, note: "multipart/form-data \(body.count) bytes")
+
         let (responseData, response): (Data, URLResponse)
         do {
             (responseData, response) = try await session.data(for: request)
         } catch let error as URLError where error.code == .notConnectedToInternet {
+            NetworkLogger.logError("Sin conexión", url: url)
             throw DomainError.transport(.offline)
         } catch {
+            NetworkLogger.logError(error.localizedDescription, url: url)
             throw DomainError.transport(.unknown)
         }
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw DomainError.transport(.unknown)
         }
+        NetworkLogger.logResponse(status: httpResponse.statusCode, url: url, data: responseData)
         guard (200..<300).contains(httpResponse.statusCode) else {
             let payload = try? decoder.decode(ServerErrorDTO.self, from: responseData)
             let reason = payload?.reason ?? "HTTP \(httpResponse.statusCode)"

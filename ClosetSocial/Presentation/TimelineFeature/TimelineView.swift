@@ -157,7 +157,7 @@ private struct CreatePostSheet: View {
                             ForEach(viewModel.availableGarments) { garment in
                                 SelectionRow(
                                     title: garment.name,
-                                    subtitle: garment.type.rawValue,
+                                    subtitle: garment.type.name,
                                     isSelected: selectedGarmentID == garment.id
                                 ) { selectedGarmentID = garment.id }
                             }
@@ -302,7 +302,7 @@ private struct FeedPostCard: View {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(post.author.displayName)
                         .font(DSFont.headline)
-                        .foregroundStyle(Color(red: 0.12, green: 0.09, blue: 0.07))
+                        .foregroundStyle(DSColor.primaryText)
 
                     HStack(spacing: 4) {
                         Text("@\(post.author.username)")

@@ -305,13 +305,13 @@ private struct GarmentDetailCard: View {
                     .font(.system(.caption, design: .rounded, weight: .semibold))
                     .foregroundStyle(DSColor.primaryText)
                     .lineLimit(1)
-                Text(garment.type.rawValue)
+                Text(garment.type.name)
                     .font(.system(.caption2, design: .rounded, weight: .regular))
                     .foregroundStyle(DSColor.tertiaryText)
                 if let brand = garment.brand {
                     Text(brand)
                         .font(.system(.caption2, design: .rounded, weight: .regular))
-                        .foregroundStyle(Color(red: 0.72, green: 0.67, blue: 0.62))
+                        .foregroundStyle(DSColor.secondaryText)
                         .lineLimit(1)
                 }
             }
@@ -344,7 +344,7 @@ private struct ActionPill: View {
             .background(
                 isActive
                     ? activeColor.opacity(0.10)
-                    : Color(red: 0.91, green: 0.89, blue: 0.86).opacity(0.7),
+                    : DSColor.surfaceElevated.opacity(0.7),
                 in: Capsule()
             )
             .animation(.easeInOut(duration: 0.18), value: isActive)

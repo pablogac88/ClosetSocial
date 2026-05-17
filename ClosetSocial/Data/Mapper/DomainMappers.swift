@@ -58,6 +58,12 @@ extension GarmentDTO {
     }
 }
 
+extension GarmentTypeOptionDTO {
+    func toDomain() -> GarmentType {
+        GarmentType(name)
+    }
+}
+
 extension OutfitDTO {
     func toDomain() -> Outfit {
         Outfit(

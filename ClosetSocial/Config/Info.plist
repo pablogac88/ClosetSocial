@@ -25,6 +25,8 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Necesitamos acceso a tu cámara para hacer fotos de tus prendas directamente.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Necesitamos acceso a tus fotos para añadir imágenes a tus prendas y avatar.</string>
 	<key>UIApplicationSceneManifest</key>

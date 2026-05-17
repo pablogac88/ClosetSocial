@@ -98,7 +98,7 @@ public actor InMemoryClosetSocialBackend {
         let garments = closet.filter { garment in
             normalized(garment.name).contains(normalizedQuery)
                 || normalized(garment.brand).contains(normalizedQuery)
-                || normalized(garment.type.rawValue).contains(normalizedQuery)
+                || normalized(garment.type.displayName).contains(normalizedQuery)
                 || normalized(garment.color).contains(normalizedQuery)
         }
 
@@ -304,7 +304,7 @@ public struct InMemoryTimelineRepository: TimelineRepository {
     }
 }
 
-public struct InMemoryClosetRepository: ClosetRepository {
+public struct InMemoryClosetRepository: ClosetRepository, CatalogRepository {
     private let backend: InMemoryClosetSocialBackend
 
     public init(backend: InMemoryClosetSocialBackend) {
@@ -313,6 +313,18 @@ public struct InMemoryClosetRepository: ClosetRepository {
 
     public func fetchCloset(token: String) async throws -> [Garment] {
         await backend.currentCloset()
+    }
+
+    public func fetchGarmentTypes(token: String) async throws -> [GarmentType] {
+        GarmentType.defaultOptions
+    }
+
+    public func fetchGarmentCategories(token: String) async throws -> [GarmentCategory] {
+        GarmentCategory.defaultCategories
+    }
+
+    public func fetchBrands(token: String) async throws -> [Brand] {
+        []
     }
 
     public func createGarment(token: String, garment: NewGarment) async throws -> Garment {
@@ -424,4 +436,3 @@ public struct InMemoryUploadRepository: UploadRepository {
         URL(string: "https://example.com/uploads/preview.jpg")!
     }
 }
-

@@ -20,6 +20,7 @@ public final class ClosetViewModel {
     public private(set) var deletingGarmentIDs: Set<UUID> = []
 
     private let repository: any ClosetRepository
+    private let catalogRepository: any CatalogRepository
     private let addGarmentUseCase: any AddGarmentUseCase
     private let uploadRepository: any UploadRepository
     private let tokenProvider: TokenProvider
@@ -28,6 +29,7 @@ public final class ClosetViewModel {
 
     public init(
         repository: any ClosetRepository,
+        catalogRepository: any CatalogRepository,
         addGarmentUseCase: any AddGarmentUseCase,
         uploadRepository: any UploadRepository,
         tokenProvider: @escaping TokenProvider,
@@ -35,6 +37,7 @@ public final class ClosetViewModel {
         onGarmentDeleted: (OnGarmentDeleted)? = nil
     ) {
         self.repository = repository
+        self.catalogRepository = catalogRepository
         self.addGarmentUseCase = addGarmentUseCase
         self.uploadRepository = uploadRepository
         self.tokenProvider = tokenProvider
@@ -72,6 +75,7 @@ public final class ClosetViewModel {
     public func makeAddGarmentViewModel() -> AddGarmentViewModel {
         AddGarmentViewModel(
             useCase: addGarmentUseCase,
+            catalogRepository: catalogRepository,
             uploadRepository: uploadRepository,
             tokenProvider: tokenProvider
         ) { [weak self] result in

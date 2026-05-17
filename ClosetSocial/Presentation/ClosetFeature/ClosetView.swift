@@ -158,7 +158,7 @@ public struct ClosetView: View {
 
 private extension Garment {
     var subtitle: String {
-        [brand, type.rawValue, color]
+        [brand, type.name, color]
             .compactMap { value in
                 guard let value else { return nil }
                 return value.isEmpty ? nil : value

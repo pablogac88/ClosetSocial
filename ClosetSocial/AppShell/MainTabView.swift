@@ -56,6 +56,7 @@ struct MainTabView: View {
         )
         let closet = ClosetViewModel(
             repository: dependencies.closetRepository,
+            catalogRepository: dependencies.catalogRepository,
             addGarmentUseCase: dependencies.addGarmentUseCase,
             uploadRepository: dependencies.uploadRepository,
             tokenProvider: tokenProvider

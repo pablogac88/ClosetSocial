@@ -18,7 +18,7 @@ public struct OutfitComposerView: View {
             pickerArea
             bottomBar
         }
-        .background(Color(red: 0.96, green: 0.95, blue: 0.93).ignoresSafeArea())
+        .background(DSColor.background.ignoresSafeArea())
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
@@ -113,7 +113,7 @@ public struct OutfitComposerView: View {
             VStack(spacing: 5) {
                 Text("Tu look empieza aquí")
                     .font(.system(.subheadline, design: .rounded, weight: .medium))
-                    .foregroundStyle(Color(red: 0.44, green: 0.39, blue: 0.35))
+                    .foregroundStyle(DSColor.secondaryText)
                 Text("Elige prendas abajo para componer")
                     .font(.system(.caption, design: .rounded, weight: .regular))
                     .foregroundStyle(DSColor.tertiaryText)
@@ -151,7 +151,7 @@ public struct OutfitComposerView: View {
                 garmentPicker.padding(.top, 10).padding(.bottom, 14)
             }
         }
-        .background(.white)
+        .background(DSColor.surface)
     }
 
     private var categoryFilter: some View {
@@ -159,7 +159,7 @@ public struct OutfitComposerView: View {
             HStack(spacing: 7) {
                 categoryChip(type: nil, label: "Todo")
                 ForEach(availableCategories, id: \.self) { type in
-                    categoryChip(type: type, label: type.rawValue)
+                    categoryChip(type: type, label: type.name)
                 }
             }
             .padding(.horizontal, 20)
@@ -174,10 +174,10 @@ public struct OutfitComposerView: View {
         } label: {
             Text(label)
                 .font(.system(.caption, design: .rounded, weight: isActive ? .semibold : .regular))
-                .foregroundStyle(isActive ? DSColor.accent : Color(red: 0.54, green: 0.52, blue: 0.50))
+                .foregroundStyle(isActive ? DSColor.accent : DSColor.tertiaryText)
                 .padding(.horizontal, 13).padding(.vertical, 7)
                 .background(
-                    isActive ? DSColor.accentSoft : Color(red: 0.94, green: 0.93, blue: 0.91),
+                    isActive ? DSColor.accentSoft : DSColor.surfaceElevated,
                     in: Capsule()
                 )
         }
@@ -252,13 +252,13 @@ public struct OutfitComposerView: View {
             .animation(.spring(response: 0.3, dampingFraction: 0.82), value: viewModel.selectedGarments.count)
             .padding(.horizontal, 20).padding(.vertical, 15)
         }
-        .background(.white)
+        .background(DSColor.surface)
     }
 
     // MARK: Helpers
 
     private var availableCategories: [GarmentType] {
-        Array(Set(viewModel.wardrobeGarments.map(\.type))).sorted { $0.rawValue < $1.rawValue }
+        Array(Set(viewModel.wardrobeGarments.map(\.type))).sorted { $0.name < $1.name }
     }
 
     private var filteredGarments: [Garment] {
@@ -287,7 +287,7 @@ private struct CanvasGarmentCard: View {
             Button(action: onRemove) {
                 Image(systemName: "xmark")
                     .font(.system(size: 9, weight: .bold))
-                    .foregroundStyle(Color(red: 0.35, green: 0.30, blue: 0.28))
+                    .foregroundStyle(DSColor.secondaryText)
                     .padding(6)
                     .background(Circle().fill(.regularMaterial).shadow(color: .black.opacity(0.12), radius: 4, x: 0, y: 1))
             }
@@ -332,7 +332,7 @@ private struct PickerGarmentCard: View {
             VStack(spacing: 7) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(isSelected ? DSColor.accentSoft : Color(red: 0.95, green: 0.94, blue: 0.92))
+                        .fill(isSelected ? DSColor.accentSoft : DSColor.surfaceElevated)
                         .overlay(
                             RoundedRectangle(cornerRadius: 14, style: .continuous)
                                 .strokeBorder(isSelected ? DSColor.accent.opacity(0.7) : Color.clear, lineWidth: 1.5)
@@ -410,7 +410,7 @@ private struct ComposerSaveButton: View {
                 LinearGradient(
                     colors: isEnabled
                         ? DSColor.primaryButtonGradient
-                        : [Color(red: 0.75, green: 0.77, blue: 0.82), Color(red: 0.75, green: 0.77, blue: 0.82)],
+                        : [DSColor.border, DSColor.border],
                     startPoint: .leading, endPoint: .trailing
                 ),
                 in: RoundedRectangle(cornerRadius: 17, style: .continuous)
@@ -440,7 +440,7 @@ private struct SaveOutfitSheet: View {
 
     var body: some View {
         ZStack {
-            Color(red: 0.96, green: 0.955, blue: 0.945).ignoresSafeArea()
+            DSColor.background.ignoresSafeArea()
             ScrollView {
                 VStack(spacing: 0) {
                     dragHandle
@@ -464,7 +464,7 @@ private struct SaveOutfitSheet: View {
 
     private var dragHandle: some View {
         Capsule()
-            .fill(Color(red: 0.80, green: 0.78, blue: 0.75).opacity(0.55))
+            .fill(DSColor.border.opacity(0.55))
             .frame(width: 36, height: 4)
             .padding(.top, 12).padding(.bottom, 26)
     }
@@ -546,7 +546,7 @@ private struct PublishOutfitSheet: View {
 
     var body: some View {
         ZStack {
-            Color(red: 0.96, green: 0.955, blue: 0.945).ignoresSafeArea()
+            DSColor.background.ignoresSafeArea()
             ScrollView {
                 VStack(spacing: 0) {
                     dragHandle
@@ -570,7 +570,7 @@ private struct PublishOutfitSheet: View {
 
     private var dragHandle: some View {
         Capsule()
-            .fill(Color(red: 0.80, green: 0.78, blue: 0.75).opacity(0.55))
+            .fill(DSColor.border.opacity(0.55))
             .frame(width: 36, height: 4)
             .padding(.top, 12).padding(.bottom, 26)
     }
@@ -680,7 +680,7 @@ private struct SheetInputCard: View {
 // MARK: - Helpers
 
 private func garmentSystemImage(_ type: GarmentType) -> String {
-    switch type {
+    switch type.kind {
     case .coat, .jacket, .blazer: return "coat"
     case .shirt, .tShirt, .top:   return "tshirt"
     case .trousers:               return "rectangle.split.2x1"

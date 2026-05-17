@@ -1,5 +1,6 @@
 import SwiftUI
 import PhotosUI
+import AVFoundation
 
 public struct EditProfileSheet: View {
     @Environment(\.dismiss) private var dismiss
@@ -12,17 +13,23 @@ public struct EditProfileSheet: View {
 
     @State private var displayName: String
     @State private var bio: String
-    @State private var avatarURL: String
+    @State private var baseAvatarURL: String
     @State private var isSaving = false
     @State private var errorMessage: String?
     @FocusState private var focusedField: EditField?
 
     @State private var pickerItem: PhotosPickerItem?
-    @State private var pickedAvatarData: Data?
-    @State private var isUploadingAvatar = false
-    @State private var uploadError: String?
+    @State private var imageUpload = ImageUploadManager()
+    @State private var showSourcePicker = false
+    @State private var showGallery = false
+    @State private var showCamera = false
+    @State private var showCameraPermissionAlert = false
 
     private let bioLimit = 160
+
+    private var effectiveAvatarURL: String {
+        imageUpload.remoteURL?.absoluteString ?? baseAvatarURL
+    }
 
     public init(
         initialDisplayName: String,
@@ -34,7 +41,7 @@ public struct EditProfileSheet: View {
     ) {
         self._displayName = State(initialValue: initialDisplayName)
         self._bio = State(initialValue: initialBio)
-        self._avatarURL = State(initialValue: initialAvatarURL)
+        self._baseAvatarURL = State(initialValue: initialAvatarURL)
         self.uploadRepository = uploadRepository
         self.tokenProvider = tokenProvider
         self.onSave = onSave
@@ -55,7 +62,7 @@ public struct EditProfileSheet: View {
                     fieldsSection
                         .padding(.bottom, 24)
 
-                    if let error = uploadError {
+                    if let error = imageUpload.errorMessage {
                         AppErrorBanner(error)
                             .padding(.bottom, 12)
                             .transition(.move(edge: .top).combined(with: .opacity))
@@ -71,7 +78,7 @@ public struct EditProfileSheet: View {
                         title: "Guardar cambios",
                         isLoading: isSaving,
                         isEnabled: !displayName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                            && !isUploadingAvatar
+                            && !imageUpload.isUploading
                     ) {
                         Task { await saveProfile() }
                     }
@@ -82,13 +89,13 @@ public struct EditProfileSheet: View {
                         .foregroundStyle(DSColor.secondaryText)
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
-                        .disabled(isSaving || isUploadingAvatar)
+                        .disabled(isSaving || imageUpload.isUploading)
 
                     Spacer(minLength: 32)
                 }
                 .padding(.horizontal, 24)
                 .animation(.easeInOut(duration: 0.2), value: errorMessage)
-                .animation(.easeInOut(duration: 0.2), value: uploadError)
+                .animation(.easeInOut(duration: 0.2), value: imageUpload.errorMessage)
             }
             .scrollDismissesKeyboard(.interactively)
 
@@ -100,10 +107,53 @@ public struct EditProfileSheet: View {
                 if let data = try? await newItem.loadTransferable(type: Data.self) {
                     await uploadAvatar(data)
                 } else {
-                    uploadError = "No se pudo cargar la imagen seleccionada."
+                    errorMessage = "No se pudo cargar la imagen seleccionada."
                 }
                 pickerItem = nil
             }
+        }
+        .confirmationDialog(
+            "Foto de perfil",
+            isPresented: $showSourcePicker,
+            titleVisibility: .visible
+        ) {
+            Button("Elegir de galería") { showGallery = true }
+            if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                Button("Hacer foto") { openCamera() }
+            }
+            if imageUpload.hasImage || !baseAvatarURL.isEmpty {
+                Button("Eliminar foto", role: .destructive) {
+                    imageUpload.remove()
+                    baseAvatarURL = ""
+                }
+            }
+            Button("Cancelar", role: .cancel) {}
+        }
+        .photosPicker(
+            isPresented: $showGallery,
+            selection: $pickerItem,
+            matching: .images,
+            photoLibrary: .shared()
+        )
+        .sheet(isPresented: $showCamera) {
+            CameraPicker(
+                onImagePicked: { data in
+                    showCamera = false
+                    Task { await uploadAvatar(data) }
+                },
+                onCancel: { showCamera = false }
+            )
+            .ignoresSafeArea()
+        }
+        .alert("Acceso a la cámara denegado", isPresented: $showCameraPermissionAlert) {
+            Button("Abrir Ajustes") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            Button("Cancelar", role: .cancel) {}
+        } message: {
+            Text("Para hacer fotos, permite el acceso a la cámara en Ajustes > ClosetSocial.")
         }
     }
 
@@ -126,7 +176,7 @@ public struct EditProfileSheet: View {
                     .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 1)
             }
             .buttonStyle(.plain)
-            .disabled(isSaving || isUploadingAvatar)
+            .disabled(isSaving || imageUpload.isUploading)
         }
         .padding(.horizontal, 24)
         .padding(.top, 20)
@@ -147,68 +197,71 @@ public struct EditProfileSheet: View {
     // MARK: Avatar section
 
     private var avatarSection: some View {
-        let isUploading = isUploadingAvatar
-        let pickedData = pickedAvatarData
-        let currentAvatarURL = avatarURL
-        let name = displayName
+        let upload = imageUpload
 
         return VStack(spacing: 16) {
-            ZStack {
-                Circle()
-                    .fill(DSColor.warmFill)
-                    .frame(width: 100, height: 100)
+            Button {
+                guard !upload.isUploading else { return }
+                if upload.isFailed {
+                    Task { await retryAvatarUpload() }
+                } else {
+                    showSourcePicker = true
+                }
+            } label: {
+                ZStack {
+                    Circle()
+                        .fill(DSColor.warmFill)
+                        .frame(width: 100, height: 100)
 
-                Group {
-                    if let data = pickedData, let uiImage = UIImage(data: data) {
+                    if let data = upload.localData, let uiImage = UIImage(data: data) {
                         Image(uiImage: uiImage)
                             .resizable()
                             .scaledToFill()
                             .frame(width: 100, height: 100)
                             .clipShape(Circle())
                             .transition(.opacity.animation(.easeIn(duration: 0.22)))
-                    } else if let url = URL(string: currentAvatarURL), !currentAvatarURL.isEmpty {
+                    } else if let url = URL(string: baseAvatarURL), !baseAvatarURL.isEmpty {
                         GarmentImage(url: url)
                             .frame(width: 100, height: 100)
                             .clipShape(Circle())
                     } else {
                         AvatarBubble(
-                            displayName: name.isEmpty ? "?" : name,
+                            displayName: displayName.isEmpty ? "?" : displayName,
                             size: 100,
                             fillColor: DSColor.warmFill,
                             textColor: DSColor.secondaryText
                         )
                     }
-                }
 
-                if isUploading {
-                    Circle()
-                        .fill(Color.black.opacity(0.35))
-                        .frame(width: 100, height: 100)
-                    ProgressView().tint(.white)
-                } else {
-                    Circle()
-                        .fill(Color.black.opacity(0.18))
-                        .frame(width: 100, height: 100)
-                    Image(systemName: "camera.fill")
-                        .font(.system(size: 22, weight: .medium))
-                        .foregroundStyle(.white)
+                    if upload.isUploading {
+                        Circle()
+                            .fill(Color.black.opacity(0.35))
+                            .frame(width: 100, height: 100)
+                        ProgressView().tint(.white)
+                    } else if upload.isFailed {
+                        Circle()
+                            .fill(Color.black.opacity(0.50))
+                            .frame(width: 100, height: 100)
+                        VStack(spacing: 4) {
+                            Image(systemName: "arrow.clockwise")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundStyle(.white)
+                            Text("Reintentar")
+                                .font(.system(.caption2, design: .rounded, weight: .semibold))
+                                .foregroundStyle(.white.opacity(0.90))
+                        }
+                    } else {
+                        Circle()
+                            .fill(Color.black.opacity(0.18))
+                            .frame(width: 100, height: 100)
+                        Image(systemName: "camera.fill")
+                            .font(.system(size: 22, weight: .medium))
+                            .foregroundStyle(.white)
+                    }
                 }
+                .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 4)
             }
-            .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 4)
-            .contentShape(Circle())
-            .overlay {
-                PhotosPicker(
-                    selection: $pickerItem,
-                    matching: .images,
-                    photoLibrary: .shared()
-                ) {
-                    Color.clear
-                        .frame(width: 100, height: 100)
-                        .clipShape(Circle())
-                }
-                .buttonStyle(.plain)
-                .disabled(isUploading)
-            }
+            .buttonStyle(.plain)
         }
     }
 
@@ -292,31 +345,33 @@ public struct EditProfileSheet: View {
 
     private func uploadAvatar(_ data: Data) async {
         guard let token = tokenProvider() else {
-            uploadError = DomainError.unauthenticated.userMessage
+            errorMessage = DomainError.unauthenticated.userMessage
             return
         }
-        isUploadingAvatar = true
-        uploadError = nil
-        defer { isUploadingAvatar = false }
-
-        let mimeType = mimeType(for: data)
-        do {
-            let url = try await uploadRepository.uploadImage(data, mimeType: mimeType, token: token)
-            pickedAvatarData = data
-            avatarURL = url.absoluteString
-        } catch {
-            uploadError = error.userMessage
-        }
+        await imageUpload.pick(data, using: uploadRepository, token: token)
     }
 
-    private func mimeType(for data: Data) -> String {
-        let bytes = Array(data.prefix(4))
-        if bytes.starts(with: [0xFF, 0xD8, 0xFF]) { return "image/jpeg" }
-        if bytes.starts(with: [0x89, 0x50, 0x4E, 0x47]) { return "image/png" }
-        if bytes.count >= 4, bytes[0] == 0x52, bytes[1] == 0x49, bytes[2] == 0x46, bytes[3] == 0x46 {
-            return "image/webp"
+    private func retryAvatarUpload() async {
+        guard let token = tokenProvider() else { return }
+        await imageUpload.retry(using: uploadRepository, token: token)
+    }
+
+    // MARK: Camera permission
+
+    private func openCamera() {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized:
+            showCamera = true
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                Task { @MainActor in
+                    if granted { showCamera = true }
+                    else { showCameraPermissionAlert = true }
+                }
+            }
+        default:
+            showCameraPermissionAlert = true
         }
-        return "image/jpeg"
     }
 
     // MARK: Save
@@ -328,7 +383,7 @@ public struct EditProfileSheet: View {
         let saved = await onSave(
             displayName.trimmingCharacters(in: .whitespacesAndNewlines),
             bio,
-            avatarURL.trimmingCharacters(in: .whitespacesAndNewlines)
+            effectiveAvatarURL.trimmingCharacters(in: .whitespacesAndNewlines)
         )
         if saved {
             dismiss()

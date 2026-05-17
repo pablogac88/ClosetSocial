@@ -131,7 +131,7 @@ public struct PublicProfileView: View {
             Group {
                 if viewModel.isFollowLoading {
                     ProgressView()
-                        .tint(profile.isFollowing ? DSColor.secondaryText : .white)
+                        .tint(profile.isFollowing ? DSColor.actionSecondaryForeground : DSColor.actionPrimaryForeground)
                 } else {
                     Text(profile.isFollowing ? "Siguiendo" : "Seguir")
                         .font(.system(.subheadline, design: .rounded, weight: .semibold))
@@ -140,14 +140,14 @@ public struct PublicProfileView: View {
             .frame(width: 120, height: 38)
             .background(
                 profile.isFollowing
-                    ? Color.white
-                    : Color(red: 0.10, green: 0.08, blue: 0.07),
+                    ? DSColor.actionSecondaryBackground
+                    : DSColor.actionPrimaryBackground,
                 in: RoundedRectangle(cornerRadius: 12, style: .continuous)
             )
             .foregroundStyle(
                 profile.isFollowing
-                    ? DSColor.primaryText
-                    : Color.white
+                    ? DSColor.actionSecondaryForeground
+                    : DSColor.actionPrimaryForeground
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)

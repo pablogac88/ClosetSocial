@@ -243,7 +243,7 @@ public struct ExploreView: View {
                  ? "Resultados para tu búsqueda"
                  : "Contenido real de la comunidad")
                 .font(DSFont.body)
-                .foregroundStyle(Color(red: 0.52, green: 0.46, blue: 0.41))
+                .foregroundStyle(DSColor.secondaryText)
         }
         .padding(.horizontal, 20)
     }
@@ -271,7 +271,7 @@ private struct ExploreSearchBar: View {
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(Color(red: 0.68, green: 0.61, blue: 0.55))
+                        .foregroundStyle(DSColor.tertiaryText)
                 }
                 .buttonStyle(.plain)
             }
@@ -300,7 +300,7 @@ private struct ExploreSection<Content: View>: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(DSFont.title)
-                    .foregroundStyle(Color(red: 0.15, green: 0.12, blue: 0.10))
+                    .foregroundStyle(DSColor.primaryText)
                 Text(subtitle)
                     .font(DSFont.footnote)
                     .foregroundStyle(DSColor.secondaryText)
@@ -321,15 +321,15 @@ private struct ExploreHintCard: View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: icon)
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(Color(red: 0.54, green: 0.46, blue: 0.39))
+                .foregroundStyle(DSColor.secondaryText)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(DSFont.footnoteBold)
-                    .foregroundStyle(Color(red: 0.22, green: 0.18, blue: 0.16))
+                    .foregroundStyle(DSColor.primaryText)
                 Text(message)
                     .font(DSFont.footnote)
-                    .foregroundStyle(Color(red: 0.44, green: 0.38, blue: 0.33))
+                    .foregroundStyle(DSColor.secondaryText)
             }
         }
         .padding(16)
@@ -365,12 +365,12 @@ private struct ExploreLookCard: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(title)
                         .font(DSFont.headline)
-                        .foregroundStyle(Color(red: 0.16, green: 0.12, blue: 0.10))
+                        .foregroundStyle(DSColor.primaryText)
                         .lineLimit(2)
 
                     Text(post.author.displayName)
                         .font(DSFont.footnoteBold)
-                        .foregroundStyle(Color(red: 0.49, green: 0.42, blue: 0.37))
+                        .foregroundStyle(DSColor.secondaryText)
 
                     if !post.caption.isEmpty {
                         Text(post.caption)
@@ -419,12 +419,12 @@ private struct ExploreEditorialGarmentCard: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(garment?.name ?? "Prenda")
                         .font(DSFont.headline)
-                        .foregroundStyle(Color(red: 0.16, green: 0.12, blue: 0.10))
+                        .foregroundStyle(DSColor.primaryText)
                         .lineLimit(2)
 
                     Text(detailLine)
                         .font(DSFont.footnote)
-                        .foregroundStyle(Color(red: 0.49, green: 0.42, blue: 0.37))
+                        .foregroundStyle(DSColor.secondaryText)
                         .lineLimit(1)
 
                     HStack(spacing: 8) {
@@ -433,7 +433,7 @@ private struct ExploreEditorialGarmentCard: View {
                             avatarURL: post.author.avatarURL,
                             size: 28,
                             fillColor: DSColor.imagePlaceholder,
-                            textColor: Color(red: 0.46, green: 0.39, blue: 0.34)
+                            textColor: DSColor.secondaryText
                         )
                         Text(post.author.displayName)
                             .font(DSFont.caption)
@@ -460,7 +460,7 @@ private struct ExploreEditorialGarmentCard: View {
     private var detailLine: String {
         [
             garment?.brand,
-            garment?.type.rawValue,
+            garment?.type.name,
             garment?.color
         ]
         .compactMap { value in
@@ -484,21 +484,21 @@ private struct ExploreEditorialPersonCard: View {
                         avatarURL: person.user.avatarURL,
                         size: 54,
                         fillColor: DSColor.imagePlaceholder,
-                        textColor: Color(red: 0.46, green: 0.39, blue: 0.34)
+                        textColor: DSColor.secondaryText
                     )
                     Spacer()
                     Text(person.lastActivityAt.formatted(date: .abbreviated, time: .omitted))
                         .font(DSFont.caption)
-                        .foregroundStyle(Color(red: 0.60, green: 0.53, blue: 0.48))
+                        .foregroundStyle(DSColor.secondaryText)
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(person.user.displayName)
                         .font(DSFont.headline)
-                        .foregroundStyle(Color(red: 0.16, green: 0.12, blue: 0.10))
+                        .foregroundStyle(DSColor.primaryText)
                     Text("@\(person.user.username)")
                         .font(DSFont.footnote)
-                        .foregroundStyle(Color(red: 0.49, green: 0.42, blue: 0.37))
+                        .foregroundStyle(DSColor.secondaryText)
                 }
 
                 if let bio = person.user.bio, !bio.isEmpty {
@@ -548,16 +548,16 @@ private struct ExploreSearchUserCard: View {
                     avatarURL: user.avatarURL,
                     size: 58,
                     fillColor: DSColor.imagePlaceholder,
-                    textColor: Color(red: 0.46, green: 0.39, blue: 0.34)
+                    textColor: DSColor.secondaryText
                 )
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(user.displayName)
                         .font(DSFont.headline)
-                        .foregroundStyle(Color(red: 0.16, green: 0.12, blue: 0.10))
+                        .foregroundStyle(DSColor.primaryText)
                     Text("@\(user.username)")
                         .font(DSFont.footnote)
-                        .foregroundStyle(Color(red: 0.49, green: 0.42, blue: 0.37))
+                        .foregroundStyle(DSColor.secondaryText)
                 }
 
                 if let bio = user.bio, !bio.isEmpty {
@@ -597,12 +597,12 @@ private struct ExploreSearchGarmentCard: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(garment.name)
                         .font(DSFont.headline)
-                        .foregroundStyle(Color(red: 0.16, green: 0.12, blue: 0.10))
+                        .foregroundStyle(DSColor.primaryText)
                         .lineLimit(2)
 
                     Text(detailLine)
                         .font(DSFont.footnote)
-                        .foregroundStyle(Color(red: 0.49, green: 0.42, blue: 0.37))
+                        .foregroundStyle(DSColor.secondaryText)
                         .lineLimit(2)
                 }
             }
@@ -622,7 +622,7 @@ private struct ExploreSearchGarmentCard: View {
     }
 
     private var detailLine: String {
-        [garment.brand, garment.type.rawValue, garment.color]
+        [garment.brand, garment.type.name, garment.color]
             .compactMap { value in
                 guard let value else { return nil }
                 return value.isEmpty ? nil : value
@@ -650,7 +650,7 @@ private struct ExploreSearchOutfitCard: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(title)
                         .font(DSFont.headline)
-                        .foregroundStyle(Color(red: 0.16, green: 0.12, blue: 0.10))
+                        .foregroundStyle(DSColor.primaryText)
                         .lineLimit(2)
 
                     if let note = outfit.note, !note.isEmpty {
@@ -697,10 +697,10 @@ private struct PersonMetric: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(value)
                 .font(.system(size: 16, weight: .bold, design: .rounded))
-                .foregroundStyle(Color(red: 0.17, green: 0.14, blue: 0.12))
+                .foregroundStyle(DSColor.primaryText)
             Text(label)
                 .font(DSFont.caption)
-                .foregroundStyle(Color(red: 0.55, green: 0.48, blue: 0.43))
+                .foregroundStyle(DSColor.secondaryText)
         }
     }
 }

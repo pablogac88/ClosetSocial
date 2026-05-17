@@ -1,6 +1,6 @@
 import Foundation
 
-public struct RemoteClosetRepository: ClosetRepository {
+public struct RemoteClosetRepository: ClosetRepository, CatalogRepository {
     private let sender: RemoteRequestSender
 
     public init(client: any HTTPClient, encoder: JSONEncoder, decoder: JSONDecoder) {
@@ -15,6 +15,36 @@ public struct RemoteClosetRepository: ClosetRepository {
             as: ClosetResponseDTO.self
         )
         return dto.items.map { $0.toDomain() }
+    }
+
+    public func fetchGarmentTypes(token: String) async throws -> [GarmentType] {
+        let dto = try await sender.send(
+            path: ClosetSocialEndpoint.catalogGarmentTypes,
+            method: .get,
+            token: token,
+            as: [GarmentTypeOptionDTO].self
+        )
+        return dto.map { $0.toDomain() }
+    }
+
+    public func fetchGarmentCategories(token: String) async throws -> [GarmentCategory] {
+        let dto = try await sender.send(
+            path: ClosetSocialEndpoint.catalogGarmentCategories,
+            method: .get,
+            token: token,
+            as: [GarmentCategoryResponseDTO].self
+        )
+        return dto.map { $0.toDomain() }
+    }
+
+    public func fetchBrands(token: String) async throws -> [Brand] {
+        let dto = try await sender.send(
+            path: ClosetSocialEndpoint.catalogBrands,
+            method: .get,
+            token: token,
+            as: [BrandResponseDTO].self
+        )
+        return dto.map { $0.toDomain() }
     }
 
     public func createGarment(token: String, garment: NewGarment) async throws -> Garment {

@@ -76,7 +76,7 @@ public struct LoginView: View {
         VStack(alignment: .leading, spacing: 10) {
             Text("ClosetSocial")
                 .font(.system(size: 40, weight: .black, design: .rounded))
-                .foregroundStyle(Color(red: 0.10, green: 0.08, blue: 0.07))
+                .foregroundStyle(DSColor.primaryText)
 
             Text("Viste tu historia.")
                 .font(.system(.title3, design: .rounded, weight: .regular))
@@ -205,7 +205,7 @@ public struct LoginView: View {
         .padding(.horizontal, 16)
         .padding(.vertical, 14)
         .background(
-            Color(red: 1.0, green: 0.93, blue: 0.93),
+            DSColor.destructive.opacity(0.10),
             in: RoundedRectangle(cornerRadius: 16, style: .continuous)
         )
     }
@@ -224,7 +224,7 @@ public struct LoginView: View {
 
             Text("pablo@closetsocial.app  ·  password123")
                 .font(.system(.caption, design: .rounded, weight: .regular))
-                .foregroundStyle(Color(red: 0.68, green: 0.62, blue: 0.58))
+                .foregroundStyle(DSColor.tertiaryText)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 16)

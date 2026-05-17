@@ -10,57 +10,101 @@ public final class AddGarmentViewModel {
     public var name = ""
     public var brand = ""
     public var type: GarmentType = .shirt
+    public var selectedCategory: GarmentCategory?
+    public private(set) var availableCategories: [GarmentCategory] = []
+    public private(set) var availableBrands: [Brand] = []
     public var color = ""
     public var errorMessage: String?
+    public var catalogLoadError: String?
 
-    // Upload state
-    public var pickedImageData: Data?
-    public var uploadedImageURL: URL?
-    public private(set) var isUploading = false
-    public var uploadError: String?
+    public var imageUpload = ImageUploadManager()
 
+    public private(set) var isLoadingCatalog = false
     public private(set) var isSaving = false
 
     private let useCase: any AddGarmentUseCase
+    private let catalogRepository: any CatalogRepository
     private let uploadRepository: any UploadRepository
     private let tokenProvider: TokenProvider
     private let onSaved: OnSaved
 
     public init(
         useCase: any AddGarmentUseCase,
+        catalogRepository: any CatalogRepository,
         uploadRepository: any UploadRepository,
         tokenProvider: @escaping TokenProvider,
         onSaved: @escaping OnSaved
     ) {
         self.useCase = useCase
+        self.catalogRepository = catalogRepository
         self.uploadRepository = uploadRepository
         self.tokenProvider = tokenProvider
         self.onSaved = onSaved
     }
 
+    public var availableTypes: [GarmentType] {
+        if let cat = selectedCategory {
+            return cat.subtypes
+        }
+        return availableCategories.flatMap(\.subtypes)
+    }
+
+    public var isLoadingTypes: Bool { isLoadingCatalog }
+    public var typeLoadError: String? { catalogLoadError }
+
     public var isSaveDisabled: Bool {
-        isSaving || isUploading || name.isEmpty || color.isEmpty
+        isSaving || imageUpload.isUploading || isLoadingCatalog || availableCategories.isEmpty || name.isEmpty || color.isEmpty
+    }
+
+    public func loadGarmentTypesIfNeeded() async {
+        guard availableCategories.isEmpty, !isLoadingCatalog else { return }
+        await loadCatalog()
+    }
+
+    public func loadGarmentTypes() async {
+        await loadCatalog()
+    }
+
+    private func loadCatalog() async {
+        guard let token = tokenProvider() else {
+            catalogLoadError = DomainError.unauthenticated.userMessage
+            availableCategories = GarmentCategory.defaultCategories
+            return
+        }
+
+        isLoadingCatalog = true
+        catalogLoadError = nil
+        defer { isLoadingCatalog = false }
+
+        async let categoriesResult = catalogRepository.fetchGarmentCategories(token: token)
+        async let brandsResult = catalogRepository.fetchBrands(token: token)
+
+        do {
+            let (categories, brands) = try await (categoriesResult, brandsResult)
+            availableCategories = categories.isEmpty ? GarmentCategory.defaultCategories : categories
+            availableBrands = brands
+        } catch {
+            availableCategories = GarmentCategory.defaultCategories
+            availableBrands = []
+            catalogLoadError = error.userMessage
+        }
+
+        if !availableTypes.contains(type) {
+            type = availableTypes.first ?? .shirt
+        }
     }
 
     public func handleImagePicked(_ data: Data) async {
         guard let token = tokenProvider() else {
-            uploadError = DomainError.unauthenticated.userMessage
+            errorMessage = DomainError.unauthenticated.userMessage
             return
         }
-        isUploading = true
-        uploadError = nil
-        defer { isUploading = false }
+        await imageUpload.pick(data, using: uploadRepository, token: token)
+    }
 
-        let mimeType = mimeType(for: data)
-        do {
-            let url = try await uploadRepository.uploadImage(data, mimeType: mimeType, token: token)
-            uploadedImageURL = url
-            pickedImageData = data
-        } catch {
-            uploadError = error.userMessage
-            pickedImageData = nil
-            uploadedImageURL = nil
-        }
+    public func retryImageUpload() async {
+        guard let token = tokenProvider() else { return }
+        await imageUpload.retry(using: uploadRepository, token: token)
     }
 
     public func save() async -> Bool {
@@ -77,7 +121,7 @@ public final class AddGarmentViewModel {
             brand: brand.trimmingCharacters(in: .whitespacesAndNewlines).trimmedToNil,
             type: type,
             color: color.trimmingCharacters(in: .whitespacesAndNewlines),
-            imageURL: uploadedImageURL
+            imageURL: imageUpload.remoteURL
         )
 
         do {
@@ -88,16 +132,6 @@ public final class AddGarmentViewModel {
             errorMessage = error.userMessage
             return false
         }
-    }
-
-    private func mimeType(for data: Data) -> String {
-        let bytes = Array(data.prefix(4))
-        if bytes.starts(with: [0xFF, 0xD8, 0xFF]) { return "image/jpeg" }
-        if bytes.starts(with: [0x89, 0x50, 0x4E, 0x47]) { return "image/png" }
-        if bytes.count >= 4, bytes[0] == 0x52, bytes[1] == 0x49, bytes[2] == 0x46, bytes[3] == 0x46 {
-            return "image/webp"
-        }
-        return "image/jpeg"
     }
 }
 

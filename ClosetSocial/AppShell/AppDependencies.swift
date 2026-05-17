@@ -7,6 +7,7 @@ public struct AppDependencies: Sendable {
     public let timelineRepository: any TimelineRepository
     public let searchRepository: any SearchRepository
     public let closetRepository: any ClosetRepository
+    public let catalogRepository: any CatalogRepository
     public let outfitsRepository: any OutfitsRepository
     public let profileRepository: any ProfileRepository
     public let notificationRepository: any NotificationRepository
@@ -19,6 +20,7 @@ public struct AppDependencies: Sendable {
         timelineRepository: any TimelineRepository,
         searchRepository: any SearchRepository,
         closetRepository: any ClosetRepository,
+        catalogRepository: any CatalogRepository,
         outfitsRepository: any OutfitsRepository,
         profileRepository: any ProfileRepository,
         notificationRepository: any NotificationRepository,
@@ -28,6 +30,7 @@ public struct AppDependencies: Sendable {
         self.timelineRepository = timelineRepository
         self.searchRepository = searchRepository
         self.closetRepository = closetRepository
+        self.catalogRepository = catalogRepository
         self.outfitsRepository = outfitsRepository
         self.profileRepository = profileRepository
         self.notificationRepository = notificationRepository
@@ -50,6 +53,7 @@ public struct AppDependencies: Sendable {
             timelineRepository: repos.timeline,
             searchRepository: repos.search,
             closetRepository: repos.closet,
+            catalogRepository: repos.catalog,
             outfitsRepository: repos.outfits,
             profileRepository: repos.profile,
             notificationRepository: repos.notifications,
@@ -60,11 +64,13 @@ public struct AppDependencies: Sendable {
     /// Stack en memoria — ideal para previews y tests de integración rápidos.
     public static func inMemory() -> AppDependencies {
         let backend = InMemoryClosetSocialBackend()
+        let closetRepository = InMemoryClosetRepository(backend: backend)
         return AppDependencies(
             authRepository: InMemoryAuthRepository(backend: backend),
             timelineRepository: InMemoryTimelineRepository(backend: backend),
             searchRepository: InMemorySearchRepository(backend: backend),
-            closetRepository: InMemoryClosetRepository(backend: backend),
+            closetRepository: closetRepository,
+            catalogRepository: closetRepository,
             outfitsRepository: InMemoryOutfitsRepository(backend: backend),
             profileRepository: InMemoryProfileRepository(backend: backend),
             notificationRepository: InMemoryNotificationRepository(),

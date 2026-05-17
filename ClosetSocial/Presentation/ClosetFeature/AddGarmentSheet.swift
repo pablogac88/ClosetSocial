@@ -1,11 +1,17 @@
 import SwiftUI
 import PhotosUI
+import AVFoundation
 
 struct AddGarmentSheet: View {
     @Environment(\.dismiss) private var dismiss
     @Bindable var viewModel: AddGarmentViewModel
     @FocusState private var focusedField: GarmentField?
     @State private var pickerItem: PhotosPickerItem?
+    @State private var showSourcePicker = false
+    @State private var showGallery = false
+    @State private var showCamera = false
+    @State private var showCameraPermissionAlert = false
+    @State private var showBrandPicker = false
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -22,10 +28,10 @@ struct AddGarmentSheet: View {
                     fieldsSection
                         .padding(.bottom, 24)
 
-                    typeSection
+                    categorySection
                         .padding(.bottom, 24)
 
-                    if let error = viewModel.uploadError {
+                    if let error = viewModel.imageUpload.errorMessage {
                         AppErrorBanner(error)
                             .padding(.bottom, 12)
                             .transition(.move(edge: .top).combined(with: .opacity))
@@ -55,13 +61,13 @@ struct AddGarmentSheet: View {
                         .foregroundStyle(DSColor.secondaryText)
                         .frame(maxWidth: .infinity)
                         .frame(height: 44)
-                        .disabled(viewModel.isSaving || viewModel.isUploading)
+                        .disabled(viewModel.isSaving || viewModel.imageUpload.isUploading)
 
                     Spacer(minLength: 32)
                 }
                 .padding(.horizontal, 24)
                 .animation(.easeInOut(duration: 0.2), value: viewModel.errorMessage)
-                .animation(.easeInOut(duration: 0.2), value: viewModel.uploadError)
+                .animation(.easeInOut(duration: 0.2), value: viewModel.imageUpload.errorMessage)
             }
             .scrollDismissesKeyboard(.interactively)
 
@@ -73,10 +79,64 @@ struct AddGarmentSheet: View {
                 if let data = try? await newItem.loadTransferable(type: Data.self) {
                     await viewModel.handleImagePicked(data)
                 } else {
-                    viewModel.uploadError = "No se pudo cargar la imagen seleccionada."
+                    viewModel.errorMessage = "No se pudo cargar la imagen seleccionada."
                 }
                 pickerItem = nil
             }
+        }
+        .task {
+            await viewModel.loadGarmentTypesIfNeeded()
+        }
+        .confirmationDialog(
+            "Foto de la prenda",
+            isPresented: $showSourcePicker,
+            titleVisibility: .visible
+        ) {
+            Button("Elegir de galería") { showGallery = true }
+            if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                Button("Hacer foto") { openCamera() }
+            }
+            if viewModel.imageUpload.hasImage {
+                Button("Eliminar imagen", role: .destructive) {
+                    viewModel.imageUpload.remove()
+                }
+            }
+            Button("Cancelar", role: .cancel) {}
+        }
+        .photosPicker(
+            isPresented: $showGallery,
+            selection: $pickerItem,
+            matching: .images,
+            photoLibrary: .shared()
+        )
+        .sheet(isPresented: $showCamera) {
+            CameraPicker(
+                onImagePicked: { data in
+                    showCamera = false
+                    Task { await viewModel.handleImagePicked(data) }
+                },
+                onCancel: {
+                    showCamera = false
+                }
+            )
+            .ignoresSafeArea()
+        }
+        .sheet(isPresented: $showBrandPicker) {
+            BrandPickerSheet(
+                selectedBrand: $viewModel.brand,
+                brands: viewModel.availableBrands
+            )
+            .presentationDetents([.medium, .large])
+        }
+        .alert("Acceso a la cámara denegado", isPresented: $showCameraPermissionAlert) {
+            Button("Abrir Ajustes") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            Button("Cancelar", role: .cancel) {}
+        } message: {
+            Text("Para hacer fotos, permite el acceso a la cámara en Ajustes > ClosetSocial.")
         }
     }
 
@@ -99,7 +159,7 @@ struct AddGarmentSheet: View {
                     .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 1)
             }
             .buttonStyle(.plain)
-            .disabled(viewModel.isSaving || viewModel.isUploading)
+            .disabled(viewModel.isSaving || viewModel.imageUpload.isUploading)
         }
         .padding(.horizontal, 24)
         .padding(.top, 20)
@@ -120,32 +180,26 @@ struct AddGarmentSheet: View {
     // MARK: Image section
 
     private var imageSection: some View {
-        let isUploading = viewModel.isUploading
-        let pickedData = viewModel.pickedImageData
-        let uploadedURL = viewModel.uploadedImageURL
-        let hasImage = uploadedURL != nil
+        let upload = viewModel.imageUpload
 
-        return ZStack {
-            RoundedRectangle(cornerRadius: 24, style: .continuous)
-                .fill(DSColor.imagePlaceholder)
+        return Button {
+            guard !upload.isUploading else { return }
+            if upload.isFailed {
+                Task { await viewModel.retryImageUpload() }
+            } else {
+                showSourcePicker = true
+            }
+        } label: {
+            ZStack {
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .fill(DSColor.imagePlaceholder)
 
-            Group {
-                if isUploading {
-                    VStack(spacing: 12) {
-                        ProgressView().scaleEffect(1.2)
-                        Text("Subiendo imagen…")
-                            .font(.system(.caption, design: .rounded, weight: .medium))
-                            .foregroundStyle(DSColor.secondaryText)
-                    }
-                } else if let data = pickedData, let uiImage = UIImage(data: data) {
+                if let data = upload.localData, let uiImage = UIImage(data: data) {
                     Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFill()
-                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                         .transition(.opacity.animation(.easeIn(duration: 0.22)))
-                } else if let url = uploadedURL {
-                    GarmentImage(url: url)
-                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
                 } else {
                     VStack(spacing: 10) {
                         Image(systemName: "photo.badge.plus")
@@ -156,37 +210,50 @@ struct AddGarmentSheet: View {
                             .foregroundStyle(DSColor.tertiaryText)
                     }
                 }
+
+                if upload.isUploading {
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .fill(Color.black.opacity(0.30))
+                    VStack(spacing: 8) {
+                        ProgressView().tint(.white).scaleEffect(1.1)
+                        Text("Subiendo…")
+                            .font(.system(.caption2, design: .rounded, weight: .semibold))
+                            .foregroundStyle(.white.opacity(0.85))
+                    }
+                } else if upload.isFailed {
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .fill(Color.black.opacity(0.45))
+                    VStack(spacing: 8) {
+                        Image(systemName: "arrow.clockwise")
+                            .font(.system(size: 22, weight: .medium))
+                            .foregroundStyle(.white)
+                        Text("Error al subir · Reintentar")
+                            .font(.system(.caption2, design: .rounded, weight: .semibold))
+                            .foregroundStyle(.white.opacity(0.90))
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 220)
+            .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+            .overlay(alignment: .bottomTrailing) {
+                if !upload.isUploading && !upload.isFailed {
+                    HStack(spacing: 5) {
+                        Image(systemName: upload.hasImage ? "arrow.triangle.2.circlepath.camera.fill" : "camera.fill")
+                            .font(.system(size: 11, weight: .semibold))
+                        Text(upload.hasImage ? "Cambiar" : "Galería o cámara")
+                            .font(.system(.caption2, design: .rounded, weight: .semibold))
+                    }
+                    .foregroundStyle(DSColor.secondaryText)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(DSColor.surface.opacity(0.88), in: Capsule())
+                    .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: 1)
+                    .padding(12)
+                }
             }
         }
-        .frame(maxWidth: .infinity)
-        .frame(height: 220)
-        .overlay(alignment: .bottomTrailing) {
-            HStack(spacing: 5) {
-                Image(systemName: "camera.fill")
-                    .font(.system(size: 11, weight: .semibold))
-                Text(hasImage ? "Cambiar" : "Foto")
-                    .font(.system(.caption2, design: .rounded, weight: .semibold))
-            }
-            .foregroundStyle(DSColor.secondaryText)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6)
-            .background(DSColor.surface.opacity(0.88), in: Capsule())
-            .shadow(color: .black.opacity(0.08), radius: 4, x: 0, y: 1)
-            .opacity(isUploading ? 0 : 1)
-            .padding(12)
-        }
-        .contentShape(Rectangle())
-        .overlay {
-            PhotosPicker(
-                selection: $pickerItem,
-                matching: .images,
-                photoLibrary: .shared()
-            ) {
-                Color.clear
-            }
-            .buttonStyle(.plain)
-            .disabled(isUploading)
-        }
+        .buttonStyle(.plain)
     }
 
     // MARK: Fields
@@ -198,18 +265,9 @@ struct AddGarmentSheet: View {
                 text: $viewModel.name,
                 isFocused: focusedField == .name,
                 submitLabel: .next,
-                onSubmit: { focusedField = .brand }
-            )
-            .focused($focusedField, equals: .name)
-
-            AppInputField(
-                label: "Marca",
-                text: $viewModel.brand,
-                isFocused: focusedField == .brand,
-                submitLabel: .next,
                 onSubmit: { focusedField = .color }
             )
-            .focused($focusedField, equals: .brand)
+            .focused($focusedField, equals: .name)
 
             AppInputField(
                 label: "Color",
@@ -219,31 +277,133 @@ struct AddGarmentSheet: View {
                 onSubmit: { focusedField = nil }
             )
             .focused($focusedField, equals: .color)
+
+            brandRow
         }
     }
 
-    // MARK: Type selector
+    private var brandRow: some View {
+        Button {
+            focusedField = nil
+            showBrandPicker = true
+        } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Marca")
+                        .font(.system(.caption, design: .rounded, weight: .semibold))
+                        .foregroundStyle(DSColor.tertiaryText)
+                    Text(viewModel.brand.isEmpty ? "Sin especificar" : viewModel.brand)
+                        .font(.system(.body, design: .rounded, weight: .regular))
+                        .foregroundStyle(viewModel.brand.isEmpty ? DSColor.tertiaryText : DSColor.primaryText)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(DSColor.tertiaryText)
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .background(DSColor.surface, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+        .buttonStyle(.plain)
+    }
 
-    private var typeSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
+    // MARK: Category / type section
+
+    private var categorySection: some View {
+        VStack(alignment: .leading, spacing: 16) {
             Text("Tipo de prenda")
                 .font(.system(.caption, design: .rounded, weight: .semibold))
                 .foregroundStyle(DSColor.tertiaryText)
                 .padding(.leading, 4)
 
-            LazyVGrid(
-                columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 3),
-                spacing: 10
-            ) {
-                ForEach(GarmentType.allCases) { type in
-                    TypeChip(
-                        title: type.rawValue,
-                        isSelected: viewModel.type == type
+            if viewModel.isLoadingCatalog {
+                HStack(spacing: 10) {
+                    ProgressView()
+                    Text("Cargando tipos…")
+                        .font(.system(.subheadline, design: .rounded, weight: .medium))
+                        .foregroundStyle(DSColor.secondaryText)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 6)
+            } else if let error = viewModel.catalogLoadError {
+                VStack(alignment: .leading, spacing: 10) {
+                    AppErrorBanner(error)
+                    Button("Reintentar") {
+                        Task { await viewModel.loadGarmentTypes() }
+                    }
+                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                    .foregroundStyle(DSColor.accent)
+                    .buttonStyle(.plain)
+                }
+            } else if viewModel.availableCategories.isEmpty {
+                Text("No hay categorías disponibles.")
+                    .font(.system(.subheadline, design: .rounded, weight: .medium))
+                    .foregroundStyle(DSColor.secondaryText)
+                    .padding(.horizontal, 6)
+            } else {
+                categoryChips
+                if !viewModel.availableTypes.isEmpty {
+                    subtypeGrid
+                }
+            }
+        }
+    }
+
+    private var categoryChips: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(viewModel.availableCategories) { category in
+                    CategoryChip(
+                        title: category.name,
+                        isSelected: viewModel.selectedCategory?.id == category.id
                     ) {
-                        viewModel.type = type
+                        if viewModel.selectedCategory?.id == category.id {
+                            viewModel.selectedCategory = nil
+                        } else {
+                            viewModel.selectedCategory = category
+                            if !category.subtypes.contains(viewModel.type) {
+                                viewModel.type = category.subtypes.first ?? viewModel.type
+                            }
+                        }
                     }
                 }
             }
+            .padding(.horizontal, 4)
+        }
+    }
+
+    private var subtypeGrid: some View {
+        LazyVGrid(
+            columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 3),
+            spacing: 10
+        ) {
+            ForEach(viewModel.availableTypes) { type in
+                TypeChip(
+                    title: type.displayName,
+                    isSelected: viewModel.type == type
+                ) {
+                    viewModel.type = type
+                }
+            }
+        }
+    }
+
+    // MARK: Camera permission
+
+    private func openCamera() {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized:
+            showCamera = true
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                Task { @MainActor in
+                    if granted { showCamera = true }
+                    else { showCameraPermissionAlert = true }
+                }
+            }
+        default:
+            showCameraPermissionAlert = true
         }
     }
 }
@@ -251,7 +411,32 @@ struct AddGarmentSheet: View {
 // MARK: - Focus fields
 
 private enum GarmentField {
-    case name, brand, color
+    case name, color
+}
+
+// MARK: - Category chip
+
+private struct CategoryChip: View {
+    let title: String
+    let isSelected: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            Text(title)
+                .font(.system(.caption, design: .rounded, weight: isSelected ? .semibold : .medium))
+                .foregroundStyle(isSelected ? DSColor.actionPrimaryForeground : DSColor.secondaryText)
+                .lineLimit(1)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(
+                    isSelected ? DSColor.actionPrimaryBackground : DSColor.surface,
+                    in: Capsule()
+                )
+        }
+        .buttonStyle(.plain)
+        .animation(.spring(response: 0.22, dampingFraction: 0.75), value: isSelected)
+    }
 }
 
 // MARK: - Type chip
@@ -277,7 +462,7 @@ private struct TypeChip: View {
                 .frame(maxWidth: .infinity)
                 .background(
                     isSelected
-                        ? Color(red: 0.10, green: 0.08, blue: 0.07)
+                        ? DSColor.primaryText
                         : DSColor.surface,
                     in: RoundedRectangle(cornerRadius: 14, style: .continuous)
                 )

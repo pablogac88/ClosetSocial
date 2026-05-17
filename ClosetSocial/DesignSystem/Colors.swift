@@ -87,6 +87,26 @@ public enum DSColor {
         dark:  UIColor(red: 0.50, green: 0.56, blue: 0.86, alpha: 1)
     )
 
+    /// Primary action background. In dark mode we bias toward a richer accent
+    /// so CTA buttons remain readable and feel intentional.
+    public static let actionPrimaryBackground = Color(
+        light: UIColor(red: 0.14, green: 0.11, blue: 0.09, alpha: 1),
+        dark:  UIColor(red: 0.43, green: 0.49, blue: 0.82, alpha: 1)
+    )
+
+    public static let actionPrimaryForeground = Color(
+        light: UIColor(red: 1.00, green: 1.00, blue: 1.00, alpha: 1),
+        dark:  UIColor(red: 0.08, green: 0.09, blue: 0.13, alpha: 1)
+    )
+
+    /// Secondary action surface used by “following” / neutral buttons.
+    public static let actionSecondaryBackground = Color(
+        light: UIColor(red: 1.00, green: 1.00, blue: 1.00, alpha: 1),
+        dark:  UIColor(red: 0.24, green: 0.21, blue: 0.19, alpha: 1)
+    )
+
+    public static let actionSecondaryForeground = primaryText
+
     // ── Semantic ──────────────────────────────────────────────────────────────
 
     /// Destructive / error red.

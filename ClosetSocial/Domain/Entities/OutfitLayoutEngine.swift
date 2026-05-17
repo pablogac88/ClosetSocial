@@ -31,7 +31,7 @@ public struct OutfitLayoutEngine: Sendable {
     }
 
     private static func priority(_ type: GarmentType) -> Int {
-        switch type {
+        switch type.kind {
         case .coat:      return 0
         case .jacket:    return 1
         case .blazer:    return 2

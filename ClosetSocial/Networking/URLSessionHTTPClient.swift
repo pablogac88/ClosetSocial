@@ -28,17 +28,23 @@ public struct URLSessionHTTPClient: HTTPClient {
             urlRequest.httpBody = body
         }
 
+        let method = request.method.rawValue
+        NetworkLogger.logRequest(method: method, url: url, body: request.body)
+
         do {
             let (data, response) = try await session.data(for: urlRequest)
             guard let httpResponse = response as? HTTPURLResponse else {
                 throw HTTPError.invalidResponse
             }
+            NetworkLogger.logResponse(status: httpResponse.statusCode, url: url, data: data)
             return HTTPClientResponse(status: httpResponse.statusCode, data: data)
         } catch let error as URLError where error.code == .notConnectedToInternet {
+            NetworkLogger.logError("Sin conexión", url: url)
             throw HTTPError.offline
         } catch let error as HTTPError {
             throw error
-        } catch {
+        } catch let error {
+            NetworkLogger.logError(error.localizedDescription, url: url)
             throw HTTPError.unknown
         }
     }

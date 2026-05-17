@@ -22,17 +22,17 @@ public struct PrimaryButton: View {
         Button(action: action) {
             HStack {
                 if isLoading {
-                    ProgressView().tint(.white)
+                    ProgressView().tint(DSColor.actionPrimaryForeground)
                 }
                 Text(title).font(DSFont.headline)
             }
             .frame(maxWidth: .infinity)
             .frame(height: 56)
             .background(
-                DSColor.primaryText,
+                DSColor.actionPrimaryBackground,
                 in: RoundedRectangle(cornerRadius: 20, style: .continuous)
             )
-            .foregroundStyle(.white)
+            .foregroundStyle(DSColor.actionPrimaryForeground)
         }
         .buttonStyle(.plain)
         .disabled(!isEnabled || isLoading)

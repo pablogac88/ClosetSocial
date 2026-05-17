@@ -408,7 +408,7 @@ private struct WarmGarmentPickerRow: View {
                     Text(garment.name)
                         .font(.system(.subheadline, design: .rounded, weight: isSelected ? .semibold : .regular))
                         .foregroundStyle(DSColor.primaryText)
-                    Text(garment.type.rawValue)
+                    Text(garment.type.name)
                         .font(.system(.caption, design: .rounded, weight: .regular))
                         .foregroundStyle(DSColor.secondaryText)
                 }

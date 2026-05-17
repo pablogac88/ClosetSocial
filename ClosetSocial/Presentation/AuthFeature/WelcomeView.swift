@@ -27,19 +27,19 @@ public struct WelcomeView: View {
 
     private var heroIllustration: some View {
         ZStack {
-            Color(red: 0.955, green: 0.948, blue: 0.930)
+            DSColor.background
 
             // Garment silhouettes — back row
             garment(w: 52, h: 132, color: DSColor.secondaryText)
                 .rotationEffect(.degrees(5.5))
                 .offset(x: 116, y: -28)
 
-            garment(w: 50, h: 130, color: Color(red: 0.78, green: 0.72, blue: 0.64))
+            garment(w: 50, h: 130, color: DSColor.border)
                 .rotationEffect(.degrees(-7))
                 .offset(x: -114, y: -30)
 
             // Garment silhouettes — mid row
-            garment(w: 60, h: 148, color: Color(red: 0.64, green: 0.58, blue: 0.50))
+            garment(w: 60, h: 148, color: DSColor.secondaryText)
                 .rotationEffect(.degrees(-3.5))
                 .offset(x: 62, y: -22)
 
@@ -54,7 +54,7 @@ public struct WelcomeView: View {
 
             // Rod
             RoundedRectangle(cornerRadius: 3)
-                .fill(Color(red: 0.32, green: 0.27, blue: 0.23))
+                .fill(DSColor.primaryText)
                 .frame(width: 260, height: 5)
                 .offset(y: -114)
 
@@ -94,24 +94,24 @@ public struct WelcomeView: View {
         VStack(alignment: .leading, spacing: 0) {
             Text("Tu estilo,\ntu historia.")
                 .font(.system(size: 36, weight: .black, design: .serif))
-                .foregroundStyle(Color(red: 0.10, green: 0.08, blue: 0.06))
+                .foregroundStyle(DSColor.primaryText)
                 .lineSpacing(4)
                 .padding(.bottom, 14)
 
             Text("Construye tu armario, crea looks\ny comparte tu estilo.")
                 .font(.system(.subheadline, design: .rounded, weight: .regular))
-                .foregroundStyle(Color(red: 0.52, green: 0.46, blue: 0.42))
+                .foregroundStyle(DSColor.secondaryText)
                 .padding(.bottom, 36)
 
             // Primary CTA
             Button(action: onGetStarted) {
                 Text("Empezar")
                     .font(.system(.headline, design: .rounded, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(DSColor.actionPrimaryForeground)
                     .frame(maxWidth: .infinity)
                     .frame(height: 56)
                     .background(
-                        Color(red: 0.10, green: 0.08, blue: 0.07),
+                        DSColor.actionPrimaryBackground,
                         in: RoundedRectangle(cornerRadius: 20, style: .continuous)
                     )
             }

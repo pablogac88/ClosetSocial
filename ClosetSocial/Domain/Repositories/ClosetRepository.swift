@@ -21,3 +21,9 @@ public protocol ClosetRepository: Sendable {
     func createGarment(token: String, garment: NewGarment) async throws -> Garment
     func deleteGarment(token: String, id: UUID) async throws
 }
+
+public protocol CatalogRepository: Sendable {
+    func fetchGarmentTypes(token: String) async throws -> [GarmentType]
+    func fetchGarmentCategories(token: String) async throws -> [GarmentCategory]
+    func fetchBrands(token: String) async throws -> [Brand]
+}

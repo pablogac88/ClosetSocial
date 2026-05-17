@@ -39,3 +39,8 @@ struct CreateGarmentRequestDTO: Codable, Sendable, Equatable {
         case imageURL
     }
 }
+
+struct GarmentTypeOptionDTO: Codable, Sendable, Equatable, Identifiable {
+    let id: UUID
+    let name: String
+}
