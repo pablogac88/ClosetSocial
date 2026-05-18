@@ -25,6 +25,7 @@ public struct OutfitDetailView: View {
     let context: OutfitDetailContext
     var onLikeTap: (() -> Void)?    = nil
     var onCommentTap: (() -> Void)? = nil
+    var onSaveTap: (() -> Void)?    = nil
     var onDelete: (() async throws -> Void)? = nil
 
     @Environment(\.dismiss) private var dismiss
@@ -39,12 +40,14 @@ public struct OutfitDetailView: View {
         context: OutfitDetailContext,
         onLikeTap: (() -> Void)? = nil,
         onCommentTap: (() -> Void)? = nil,
+        onSaveTap: (() -> Void)? = nil,
         onDelete: (() async throws -> Void)? = nil
     ) {
         self.context      = context
         self.onLikeTap    = onLikeTap
         self.onCommentTap = onCommentTap
-        self.onDelete = onDelete
+        self.onSaveTap    = onSaveTap
+        self.onDelete     = onDelete
     }
 
     public var body: some View {
@@ -56,6 +59,7 @@ public struct OutfitDetailView: View {
                     garmentsSection(outfit.garments)
                 }
                 if let post { actionsSection(post) }
+                else if onSaveTap != nil { standaloneActionsSection }
             }
         }
         .background(DSColor.background.ignoresSafeArea())
@@ -107,24 +111,33 @@ public struct OutfitDetailView: View {
     // MARK: Hero
 
     private var hero: some View {
-        GeometryReader { geo in
-            ZStack {
-                DSColor.background
+        Group {
+            if let outfit, let coverURL = outfit.coverImageURL {
+                Color.clear
+                    .aspectRatio(3 / 4, contentMode: .fit)
+                    .overlay { GarmentImage(url: coverURL) }
+                    .clipped()
+            } else {
+                GeometryReader { geo in
+                    ZStack {
+                        DSColor.background
 
-                if let outfit {
-                    OutfitCanvasView(
-                        layout: outfit.layout,
-                        garments: outfit.garments,
-                        cornerRadius: 0,
-                        backgroundColor: .clear
-                    )
-                    .padding(.horizontal, heroCanvasPadding(geo.size.width))
-                    .padding(.vertical, 20)
+                        if let outfit {
+                            OutfitCanvasView(
+                                layout: outfit.layout,
+                                garments: outfit.garments,
+                                cornerRadius: 0,
+                                backgroundColor: .clear
+                            )
+                            .padding(.horizontal, heroCanvasPadding(geo.size.width))
+                            .padding(.vertical, 20)
+                        }
+                    }
                 }
+                .frame(maxWidth: .infinity)
+                .aspectRatio(1 / 0.78, contentMode: .fit)
             }
         }
-        .frame(maxWidth: .infinity)
-        .aspectRatio(1 / 0.78, contentMode: .fit)
         .clipShape(UnevenRoundedRectangle(
             bottomLeadingRadius: 28,
             bottomTrailingRadius: 28
@@ -224,6 +237,26 @@ public struct OutfitDetailView: View {
         .padding(.bottom, 8)
     }
 
+    // MARK: Standalone actions (saved outfit context — no post)
+
+    private var standaloneActionsSection: some View {
+        HStack(spacing: 16) {
+            if let onSaveTap, let outfit {
+                ActionPill(
+                    icon: outfit.isSavedByCurrentUser ? "bookmark.fill" : "bookmark",
+                    label: outfit.isSavedByCurrentUser ? "Guardado" : "Guardar",
+                    isActive: outfit.isSavedByCurrentUser,
+                    activeColor: DSColor.accent,
+                    disabled: false,
+                    action: onSaveTap
+                )
+            }
+        }
+        .padding(.horizontal, 24)
+        .padding(.top, 28)
+        .padding(.bottom, 40)
+    }
+
     // MARK: Actions
 
     private func actionsSection(_ post: FeedPost) -> some View {
@@ -246,6 +279,16 @@ public struct OutfitDetailView: View {
                     activeColor: DSColor.accent,
                     disabled: !post.isReal,
                     action: onCommentTap
+                )
+            }
+            if let onSaveTap {
+                ActionPill(
+                    icon: post.isSavedByCurrentUser ? "bookmark.fill" : "bookmark",
+                    label: post.isSavedByCurrentUser ? "Guardado" : "Guardar",
+                    isActive: post.isSavedByCurrentUser,
+                    activeColor: DSColor.accent,
+                    disabled: !post.isReal,
+                    action: onSaveTap
                 )
             }
         }

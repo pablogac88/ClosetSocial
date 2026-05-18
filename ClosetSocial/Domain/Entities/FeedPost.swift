@@ -32,6 +32,7 @@ public struct FeedPost: Codable, Sendable, Equatable, Identifiable {
     public let imageURLs: [URL]
     public let likesCount: Int
     public let isLikedByCurrentUser: Bool
+    public let isSavedByCurrentUser: Bool
     public let commentsCount: Int
     public let isReal: Bool
     public let createdAt: Date
@@ -46,6 +47,7 @@ public struct FeedPost: Codable, Sendable, Equatable, Identifiable {
         imageURLs: [URL],
         likesCount: Int,
         isLikedByCurrentUser: Bool,
+        isSavedByCurrentUser: Bool,
         commentsCount: Int,
         isReal: Bool,
         createdAt: Date
@@ -59,6 +61,7 @@ public struct FeedPost: Codable, Sendable, Equatable, Identifiable {
         self.imageURLs = imageURLs
         self.likesCount = likesCount
         self.isLikedByCurrentUser = isLikedByCurrentUser
+        self.isSavedByCurrentUser = isSavedByCurrentUser
         self.commentsCount = commentsCount
         self.isReal = isReal
         self.createdAt = createdAt
@@ -71,6 +74,32 @@ public struct FeedPost: Codable, Sendable, Equatable, Identifiable {
             outfit: outfit, garment: garment, imageURLs: imageURLs,
             likesCount: isLikedByCurrentUser ? max(0, likesCount - 1) : likesCount + 1,
             isLikedByCurrentUser: !isLikedByCurrentUser,
+            isSavedByCurrentUser: isSavedByCurrentUser,
+            commentsCount: commentsCount,
+            isReal: isReal, createdAt: createdAt
+        )
+    }
+
+    /// Returns a copy with the nested outfit's save state toggled (for optimistic updates).
+    func withOutfitSaveToggled() -> FeedPost {
+        guard let outfit else { return self }
+        return FeedPost(
+            id: id, author: author, kind: kind, caption: caption,
+            outfit: outfit.togglingBookmark(), garment: garment, imageURLs: imageURLs,
+            likesCount: likesCount, isLikedByCurrentUser: isLikedByCurrentUser,
+            isSavedByCurrentUser: isSavedByCurrentUser,
+            commentsCount: commentsCount, isReal: isReal, createdAt: createdAt
+        )
+    }
+
+    /// Returns a copy with the post-level save state toggled (for optimistic updates).
+    func togglingSave() -> FeedPost {
+        FeedPost(
+            id: id, author: author, kind: kind, caption: caption,
+            outfit: outfit, garment: garment, imageURLs: imageURLs,
+            likesCount: likesCount,
+            isLikedByCurrentUser: isLikedByCurrentUser,
+            isSavedByCurrentUser: !isSavedByCurrentUser,
             commentsCount: commentsCount,
             isReal: isReal, createdAt: createdAt
         )
@@ -82,6 +111,7 @@ public struct FeedPost: Codable, Sendable, Equatable, Identifiable {
             id: id, author: author, kind: kind, caption: caption,
             outfit: outfit, garment: garment, imageURLs: imageURLs,
             likesCount: likesCount, isLikedByCurrentUser: isLikedByCurrentUser,
+            isSavedByCurrentUser: isSavedByCurrentUser,
             commentsCount: commentsCount + 1,
             isReal: isReal, createdAt: createdAt
         )

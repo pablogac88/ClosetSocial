@@ -45,6 +45,7 @@ struct MainTabView: View {
             repository: dependencies.outfitsRepository,
             closetRepository: dependencies.closetRepository,
             timelineRepository: dependencies.timelineRepository,
+            uploadRepository: dependencies.uploadRepository,
             tokenProvider: tokenProvider,
             onOutfitDeleted: {
                 Task {

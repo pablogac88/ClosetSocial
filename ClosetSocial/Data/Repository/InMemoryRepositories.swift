@@ -51,6 +51,7 @@ public actor InMemoryClosetSocialBackend {
                 imageURLs: [],
                 likesCount: 0,
                 isLikedByCurrentUser: false,
+                isSavedByCurrentUser: false,
                 commentsCount: 0,
                 isReal: false,
                 createdAt: .now
@@ -133,6 +134,7 @@ public actor InMemoryClosetSocialBackend {
             imageURLs: request.imageURLs.compactMap(URL.init(string:)),
             likesCount: 0,
             isLikedByCurrentUser: false,
+            isSavedByCurrentUser: false,
             commentsCount: 0,
             isReal: true,
             createdAt: .now
@@ -182,6 +184,7 @@ public actor InMemoryClosetSocialBackend {
                 imageURLs: garment.imageURL.map { [$0] } ?? [],
                 likesCount: 0,
                 isLikedByCurrentUser: false,
+                isSavedByCurrentUser: false,
                 commentsCount: 0,
                 isReal: false,
                 createdAt: .now
@@ -279,6 +282,10 @@ public struct InMemoryTimelineRepository: TimelineRepository {
         await backend.currentTimeline()
     }
 
+    public func fetchForYou(token: String) async throws -> [FeedPost] {
+        await backend.currentTimeline()
+    }
+
     public func fetchDiscovery(token: String) async throws -> [FeedPost] {
         await backend.currentTimeline()
     }
@@ -294,6 +301,9 @@ public struct InMemoryTimelineRepository: TimelineRepository {
     public func unlikePost(token: String, postID: UUID) async throws {
         await backend.toggleLike(postID: postID)
     }
+
+    public func savePost(token: String, postID: UUID) async throws {}
+    public func unsavePost(token: String, postID: UUID) async throws {}
 
     public func fetchComments(token: String, postID: UUID) async throws -> [Comment] {
         await backend.fetchComments(postID: postID)
@@ -363,9 +373,12 @@ public struct InMemoryOutfitsRepository: OutfitsRepository {
         await backend.createOutfit(request)
     }
 
+    public func fetchSavedOutfits(token: String) async throws -> [Outfit] { [] }
     public func deleteOutfit(token: String, id: UUID) async throws {
         await backend.deleteOutfit(id: id)
     }
+    public func saveOutfit(token: String, id: UUID) async throws {}
+    public func unsaveOutfit(token: String, id: UUID) async throws {}
 }
 
 public struct InMemoryNotificationRepository: NotificationRepository {

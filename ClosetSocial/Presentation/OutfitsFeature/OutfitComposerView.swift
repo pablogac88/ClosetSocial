@@ -1,4 +1,6 @@
 import SwiftUI
+import PhotosUI
+import AVFoundation
 
 public struct OutfitComposerView: View {
     @Bindable var viewModel: OutfitComposerViewModel
@@ -34,13 +36,10 @@ public struct OutfitComposerView: View {
             }
         }
         .sheet(isPresented: $showSaveSheet) {
-            SaveOutfitSheet(viewModel: viewModel) { dismiss() }
+            SaveOutfitSheet(viewModel: viewModel, onSaved: { dismiss() })
         }
         .sheet(isPresented: $showPublishSheet) {
-            PublishOutfitSheet(viewModel: viewModel) { dismiss() }
-        }
-        .onChange(of: viewModel.savedOutfit) { _, outfit in
-            if outfit != nil { dismiss() }
+            PublishOutfitSheet(viewModel: viewModel, onPublished: { dismiss() })
         }
         .task { await viewModel.loadWardrobe() }
     }
@@ -513,7 +512,8 @@ private struct SaveOutfitSheet: View {
                     await viewModel.saveOutfit(title: title.trimmedToNil, note: note.trimmedToNil)
                     if viewModel.saveError == nil {
                         HapticEngine.notification(.success)
-                        dismiss()
+                        dismiss()   // cierra este sheet
+                        onSaved()   // cierra el compositor padre
                     }
                 }
             }
@@ -532,7 +532,7 @@ private struct SaveOutfitSheet: View {
 
 private struct PublishOutfitSheet: View {
     @Environment(\.dismiss) private var dismiss
-    let viewModel: OutfitComposerViewModel
+    @Bindable var viewModel: OutfitComposerViewModel
     let onPublished: () -> Void
 
     @State private var caption = ""
@@ -540,8 +540,15 @@ private struct PublishOutfitSheet: View {
     @State private var note    = ""
     @FocusState private var captionFocused: Bool
 
+    @State private var coverPickerItem: PhotosPickerItem?
+    @State private var showSourcePicker = false
+    @State private var showCamera = false
+    @State private var showCameraPermissionAlert = false
+
     private var canPublish: Bool {
-        !caption.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !viewModel.isPublishing
+        !caption.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            && !viewModel.isPublishing
+            && !viewModel.coverImageUpload.isUploading
     }
 
     var body: some View {
@@ -550,12 +557,14 @@ private struct PublishOutfitSheet: View {
             ScrollView {
                 VStack(spacing: 0) {
                     dragHandle
-                    VStack(spacing: 30) {
+                    VStack(spacing: 28) {
                         header
+                        coverPhotoSection
                         preview
                         garmentHint
                         fields
                         if let error = viewModel.publishError { AppErrorBanner(error) }
+                        if let error = viewModel.coverImageUpload.errorMessage { AppErrorBanner(error) }
                         actions
                     }
                     .padding(.horizontal, 24).padding(.bottom, 32)
@@ -563,9 +572,51 @@ private struct PublishOutfitSheet: View {
             }
             .scrollDismissesKeyboard(.interactively)
         }
-        .presentationDetents([.fraction(0.88)])
+        .presentationDetents([.fraction(0.92)])
         .presentationCornerRadius(32)
         .onAppear { captionFocused = true }
+        .confirmationDialog("Foto de portada", isPresented: $showSourcePicker, titleVisibility: .visible) {
+            Button("Galería") { }
+                .overlay {
+                    PhotosPicker(selection: $coverPickerItem, matching: .images) {
+                        Color.clear
+                    }
+                }
+            Button("Cámara") { openCamera() }
+            if viewModel.coverImageUpload.hasImage {
+                Button("Eliminar portada", role: .destructive) { viewModel.removeCoverImage() }
+            }
+            Button("Cancelar", role: .cancel) { }
+        }
+        .alert("Cámara no disponible", isPresented: $showCameraPermissionAlert) {
+            Button("Abrir Ajustes") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            Button("Cancelar", role: .cancel) { }
+        } message: {
+            Text("Activa el acceso a la cámara en Ajustes > ClosetSocial.")
+        }
+        .fullScreenCover(isPresented: $showCamera) {
+            CameraPicker(
+                onImagePicked: { data in
+                    showCamera = false
+                    Task { await viewModel.handleCoverImagePicked(data) }
+                },
+                onCancel: { showCamera = false }
+            )
+            .ignoresSafeArea()
+        }
+        .onChange(of: coverPickerItem) { _, item in
+            guard let item else { return }
+            Task {
+                if let data = try? await item.loadTransferable(type: Data.self) {
+                    await viewModel.handleCoverImagePicked(data)
+                }
+                coverPickerItem = nil
+            }
+        }
     }
 
     private var dragHandle: some View {
@@ -583,6 +634,64 @@ private struct PublishOutfitSheet: View {
             Text("Comparte este outfit con la comunidad")
                 .font(.system(.subheadline, design: .rounded, weight: .regular))
                 .foregroundStyle(DSColor.secondaryText)
+        }
+    }
+
+    @ViewBuilder
+    private var coverPhotoSection: some View {
+        let upload = viewModel.coverImageUpload
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Foto de portada")
+                .font(.system(.caption, design: .rounded, weight: .semibold))
+                .foregroundStyle(DSColor.secondaryText)
+                .padding(.horizontal, 2)
+
+            Button { showSourcePicker = true } label: {
+                ZStack {
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(DSColor.surfaceElevated)
+                        .frame(height: 110)
+
+                    if let data = upload.localData, let uiImage = UIImage(data: data) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 110)
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                            .overlay(alignment: .topTrailing) {
+                                if upload.isUploading {
+                                    ProgressView()
+                                        .tint(.white)
+                                        .padding(8)
+                                        .background(Circle().fill(.black.opacity(0.45)))
+                                        .padding(8)
+                                }
+                            }
+                    } else {
+                        VStack(spacing: 6) {
+                            Image(systemName: "photo.badge.plus")
+                                .font(.system(size: 22, weight: .light))
+                                .foregroundStyle(DSColor.accent)
+                            Text("Añadir foto real (opcional)")
+                                .font(.system(.caption, design: .rounded, weight: .medium))
+                                .foregroundStyle(DSColor.secondaryText)
+                        }
+                    }
+                }
+            }
+            .buttonStyle(.plain)
+
+            if upload.isFailed {
+                Button {
+                    Task { await viewModel.retryCoverImageUpload() }
+                } label: {
+                    Label("Reintentar subida", systemImage: "arrow.clockwise")
+                        .font(.system(.caption, design: .rounded, weight: .medium))
+                        .foregroundStyle(DSColor.accent)
+                }
+                .buttonStyle(.plain)
+            }
         }
     }
 
@@ -623,6 +732,7 @@ private struct PublishOutfitSheet: View {
                 isLoading: viewModel.isPublishing,
                 isEnabled: canPublish
             ) {
+                guard canPublish else { return }
                 Task {
                     await viewModel.publishOutfit(
                         title: title.trimmedToNil,
@@ -643,6 +753,23 @@ private struct PublishOutfitSheet: View {
             }
             .buttonStyle(.plain)
             .disabled(viewModel.isPublishing)
+        }
+    }
+
+    private func openCamera() {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        switch status {
+        case .authorized:
+            showCamera = true
+        case .notDetermined:
+            AVCaptureDevice.requestAccess(for: .video) { granted in
+                Task { @MainActor in
+                    if granted { showCamera = true }
+                    else { showCameraPermissionAlert = true }
+                }
+            }
+        default:
+            showCameraPermissionAlert = true
         }
     }
 }

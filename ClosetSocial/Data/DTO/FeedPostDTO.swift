@@ -10,6 +10,7 @@ struct FeedPostDTO: Codable, Sendable, Equatable, Identifiable {
     let imageURLs: [String]?
     let likesCount: Int?
     let isLikedByCurrentUser: Bool?
+    let isSavedByCurrentUser: Bool?
     let commentsCount: Int?
     let isReal: Bool?
     let createdAt: Date

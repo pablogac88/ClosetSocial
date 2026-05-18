@@ -8,6 +8,8 @@ struct OutfitDTO: Codable, Sendable, Equatable, Identifiable {
     let garmentIDs: [UUID]?
     let garmentNames: [String]?
     let layoutJSON: String?
+    let coverImageURL: String?
+    let isSavedByCurrentUser: Bool?
     let createdAt: Date
 }
 
@@ -20,6 +22,7 @@ struct CreateOutfitRequestDTO: Encodable, Sendable {
     let note: String?
     let garmentIDs: [UUID]
     let layoutJSON: String?
+    let coverImageURL: String?
 }
 
 extension CreateOutfitRequest {
@@ -28,6 +31,12 @@ extension CreateOutfitRequest {
             guard let data = try? JSONEncoder().encode(l) else { return nil }
             return String(data: data, encoding: .utf8)
         }
-        return CreateOutfitRequestDTO(title: title, note: note, garmentIDs: garmentIDs, layoutJSON: encodedLayout)
+        return CreateOutfitRequestDTO(
+            title: title,
+            note: note,
+            garmentIDs: garmentIDs,
+            layoutJSON: encodedLayout,
+            coverImageURL: coverImageURL
+        )
     }
 }

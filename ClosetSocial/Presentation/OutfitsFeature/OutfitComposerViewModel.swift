@@ -20,6 +20,7 @@ public final class OutfitComposerViewModel: Identifiable {
     public var saveError: String?
     public var publishError: String?
     public private(set) var savedOutfit: Outfit?
+    public var coverImageUpload = ImageUploadManager()
 
     static let maxGarments = 6
 
@@ -28,6 +29,7 @@ public final class OutfitComposerViewModel: Identifiable {
     private let closetRepository: any ClosetRepository
     private let outfitsRepository: any OutfitsRepository
     private let timelineRepository: any TimelineRepository
+    private let uploadRepository: any UploadRepository
     private let tokenProvider: TokenProvider
     private let onOutfitSaved: OnOutfitSaved?
 
@@ -35,14 +37,32 @@ public final class OutfitComposerViewModel: Identifiable {
         closetRepository: any ClosetRepository,
         outfitsRepository: any OutfitsRepository,
         timelineRepository: any TimelineRepository,
+        uploadRepository: any UploadRepository,
         tokenProvider: @escaping TokenProvider,
         onOutfitSaved: (OnOutfitSaved)? = nil
     ) {
         self.closetRepository   = closetRepository
         self.outfitsRepository  = outfitsRepository
         self.timelineRepository = timelineRepository
+        self.uploadRepository   = uploadRepository
         self.tokenProvider      = tokenProvider
         self.onOutfitSaved      = onOutfitSaved
+    }
+
+    // MARK: Cover image
+
+    public func handleCoverImagePicked(_ data: Data) async {
+        guard let token = tokenProvider() else { return }
+        await coverImageUpload.pick(data, using: uploadRepository, token: token)
+    }
+
+    public func retryCoverImageUpload() async {
+        guard let token = tokenProvider() else { return }
+        await coverImageUpload.retry(using: uploadRepository, token: token)
+    }
+
+    public func removeCoverImage() {
+        coverImageUpload.remove()
     }
 
     // MARK: Wardrobe
@@ -159,7 +179,8 @@ public final class OutfitComposerViewModel: Identifiable {
             title: title,
             note: note,
             garmentIDs: selectedGarments.map(\.id),
-            layout: currentLayout
+            layout: currentLayout,
+            coverImageURL: coverImageUpload.remoteURL?.absoluteString
         )
     }
 }

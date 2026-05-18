@@ -13,31 +13,18 @@ public struct OutfitsView: View {
     }
 
     public var body: some View {
-        Group {
-            switch viewModel.state {
-            case .idle, .loading:
-                ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
-            case let .content(items):
-                list(items)
-            case .empty:
-                EmptyStateView(
-                    icon: "square.grid.2x2",
-                    title: "Sin looks todavía",
-                    message: "Combina prendas del armario y crea tu primer outfit con el compositor visual.",
-                    action: .init(label: "Crear look") {
-                        composerVM = viewModel.makeComposerViewModel()
-                    }
-                )
-            case let .error(message):
-                ContentUnavailableView(
-                    "No hemos podido cargar tus outfits",
-                    systemImage: "exclamationmark.triangle",
-                    description: Text(message)
-                )
+        VStack(spacing: 0) {
+            tabBar
+            TabView(selection: $viewModel.selectedTab) {
+                tabPage(myOutfitsState: viewModel.myOutfitsState)
+                    .tag(OutfitsTab.myOutfits)
+                tabPage(savedState: viewModel.savedState)
+                    .tag(OutfitsTab.saved)
             }
+            .tabViewStyle(.page(indexDisplayMode: .never))
         }
         .background(DSColor.background.ignoresSafeArea())
-        .navigationTitle("Outfits")
+        .navigationTitle("")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
@@ -65,9 +52,7 @@ public struct OutfitsView: View {
             }
         }
         .navigationDestination(item: $selectedOutfit) { outfit in
-            OutfitDetailView(context: .myOutfit(outfit), onDelete: {
-                try await viewModel.delete(outfit)
-            })
+            outfitDestination(outfit)
         }
         .confirmationDialog(
             "Eliminar outfit",
@@ -76,7 +61,7 @@ public struct OutfitsView: View {
         ) {
             if let outfit = outfitPendingDeletion {
                 Button("Eliminar", role: .destructive) {
-                    Task { await delete(outfit) }
+                    Task { await deleteOutfit(outfit) }
                 }
             }
             Button("Cancelar", role: .cancel) {}
@@ -89,49 +74,106 @@ public struct OutfitsView: View {
             Text(deleteErrorMessage ?? "")
         }
         .task { await viewModel.load() }
+        .onChange(of: viewModel.selectedTab) { _, newTab in
+            if newTab == .saved, case .idle = viewModel.savedState {
+                Task { await viewModel.loadSaved() }
+            }
+        }
     }
 
-    private func list(_ items: [Outfit]) -> some View {
+    // MARK: Tab bar
+
+    private var tabBar: some View {
+        HStack(spacing: 0) {
+            ForEach(OutfitsTab.allCases, id: \.self) { tab in
+                Button {
+                    withAnimation(.easeInOut(duration: 0.18)) {
+                        viewModel.selectedTab = tab
+                    }
+                } label: {
+                    VStack(spacing: 6) {
+                        Text(tab.rawValue)
+                            .font(.system(.subheadline, design: .rounded,
+                                          weight: viewModel.selectedTab == tab ? .semibold : .regular))
+                            .foregroundStyle(viewModel.selectedTab == tab
+                                             ? DSColor.primaryText : DSColor.tertiaryText)
+                            .frame(maxWidth: .infinity)
+                        Rectangle()
+                            .fill(viewModel.selectedTab == tab ? DSColor.primaryText : Color.clear)
+                            .frame(height: 2)
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .background(DSColor.surface)
+    }
+
+    // MARK: Tab pages (independent state per tab)
+
+    @ViewBuilder
+    private func tabPage(myOutfitsState state: OutfitsState) -> some View {
+        switch state {
+        case .idle, .loading:
+            ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
+        case let .content(items):
+            outfitList(items)
+        case .empty:
+            emptyState(for: .myOutfits)
+        case let .error(message):
+            ContentUnavailableView("Algo ha fallado", systemImage: "exclamationmark.triangle",
+                                   description: Text(message))
+        }
+    }
+
+    @ViewBuilder
+    private func tabPage(savedState state: OutfitsState) -> some View {
+        switch state {
+        case .idle, .loading:
+            ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
+        case let .content(items):
+            outfitList(items)
+        case .empty:
+            emptyState(for: .saved)
+        case let .error(message):
+            ContentUnavailableView("Algo ha fallado", systemImage: "exclamationmark.triangle",
+                                   description: Text(message))
+        }
+    }
+
+    @ViewBuilder
+    private func emptyState(for tab: OutfitsTab) -> some View {
+        switch tab {
+        case .myOutfits:
+            EmptyStateView(
+                icon: "square.grid.2x2",
+                title: "Tus outfits aparecerán aquí",
+                message: "Combina prendas del armario y crea tu primer outfit con el compositor visual.",
+                action: .init(label: "Crear look") {
+                    composerVM = viewModel.makeComposerViewModel()
+                }
+            )
+        case .saved:
+            EmptyStateView(
+                icon: "bookmark",
+                title: "Sin looks guardados",
+                message: "Guarda looks desde el feed o Explore para verlos aquí."
+            )
+        }
+    }
+
+    // MARK: List
+
+    private func outfitList(_ items: [Outfit]) -> some View {
         List {
             ForEach(items) { outfit in
                 Button { selectedOutfit = outfit } label: {
-                    HStack(spacing: 14) {
-                        OutfitCanvasView(
-                            layout: outfit.layout,
-                            garments: outfit.garments,
-                            cornerRadius: 10
-                        )
-                        .frame(width: 52, height: 52)
-
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(outfit.title ?? "Outfit sin título").font(DSFont.headline)
-                            if let note = outfit.note {
-                                Text(note)
-                                    .font(DSFont.footnote)
-                                    .foregroundStyle(.secondary)
-                                    .lineLimit(1)
-                            }
-                            Text(outfit.garments.map(\.name).joined(separator: " · "))
-                                .font(DSFont.footnoteBold)
-                                .foregroundStyle(DSColor.highlightSoft)
-                                .lineLimit(1)
-                        }
-                        Spacer()
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(Color.secondary.opacity(0.4))
-                    }
+                    outfitRow(outfit)
                 }
                 .buttonStyle(.plain)
                 .padding(.vertical, 6)
                 .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                    Button {
-                        outfitPendingDeletion = outfit
-                    } label: {
-                        Label("Eliminar", systemImage: "trash")
-                    }
-                    .tint(.red)
-                    .disabled(viewModel.isDeleting(outfit))
+                    swipeAction(for: outfit)
                 }
                 .listRowBackground(
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
@@ -142,38 +184,118 @@ public struct OutfitsView: View {
         }
         .scrollContentBackground(.hidden)
         .background(Color.clear)
-        .refreshable { await viewModel.load() }
+        .refreshable { await viewModel.loadActiveTab() }
     }
+
+    private func outfitRow(_ outfit: Outfit) -> some View {
+        HStack(spacing: 14) {
+            if let coverURL = outfit.coverImageURL {
+                Color.clear
+                    .aspectRatio(1, contentMode: .fit)
+                    .overlay { GarmentImage(url: coverURL) }
+                    .clipped()
+                    .frame(width: 52, height: 52)
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            } else {
+                OutfitCanvasView(
+                    layout: outfit.layout,
+                    garments: outfit.garments,
+                    cornerRadius: 10
+                )
+                .frame(width: 52, height: 52)
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(outfit.title ?? "Outfit sin título").font(DSFont.headline)
+                if let note = outfit.note {
+                    Text(note)
+                        .font(DSFont.footnote)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(1)
+                }
+                Text(outfit.garments.map(\.name).joined(separator: " · "))
+                    .font(DSFont.footnoteBold)
+                    .foregroundStyle(DSColor.highlightSoft)
+                    .lineLimit(1)
+            }
+            Spacer()
+            Image(systemName: "chevron.right")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(Color.secondary.opacity(0.4))
+        }
+    }
+
+    @ViewBuilder
+    private func swipeAction(for outfit: Outfit) -> some View {
+        switch viewModel.selectedTab {
+        case .myOutfits:
+            Button {
+                outfitPendingDeletion = outfit
+            } label: {
+                Label("Eliminar", systemImage: "trash")
+            }
+            .tint(.red)
+            .disabled(viewModel.isDeleting(outfit))
+        case .saved:
+            Button {
+                Task { await viewModel.unsave(outfit) }
+            } label: {
+                Label("Quitar", systemImage: "bookmark.slash")
+            }
+            .tint(DSColor.accent)
+        }
+    }
+
+    // MARK: Detail destination
+
+    @ViewBuilder
+    private func outfitDestination(_ outfit: Outfit) -> some View {
+        switch viewModel.selectedTab {
+        case .myOutfits:
+            OutfitDetailView(
+                context: .myOutfit(outfit),
+                onDelete: { try await viewModel.delete(outfit) }
+            )
+        case .saved:
+            OutfitDetailView(
+                context: .myOutfit(outfit),
+                onSaveTap: { Task { await viewModel.unsave(outfit) } }
+            )
+        }
+    }
+
+    // MARK: Helpers
 
     private var isShowingDeleteConfirmation: Binding<Bool> {
         Binding(
             get: { outfitPendingDeletion != nil },
-            set: { isPresented in
-                if !isPresented { outfitPendingDeletion = nil }
-            }
+            set: { if !$0 { outfitPendingDeletion = nil } }
         )
     }
 
     private var deleteErrorIsPresented: Binding<Bool> {
         Binding(
             get: { deleteErrorMessage != nil },
-            set: { isPresented in
-                if !isPresented { deleteErrorMessage = nil }
-            }
+            set: { if !$0 { deleteErrorMessage = nil } }
         )
     }
 
-    private func delete(_ outfit: Outfit) async {
+    private func deleteOutfit(_ outfit: Outfit) async {
         do {
             try await viewModel.delete(outfit)
-            if selectedOutfit?.id == outfit.id {
-                selectedOutfit = nil
-            }
+            if selectedOutfit?.id == outfit.id { selectedOutfit = nil }
         } catch {
             deleteErrorMessage = error.userMessage
         }
     }
 }
+
+// MARK: - Save button in OutfitDetailView
+
+// The save pill is already in OutfitDetailView. For the saved tab, onSaveTap unsaves.
+// isSavedByCurrentUser on Outfit drives the bookmark icon state.
+
+// MARK: - CreateOutfitSheet (unchanged)
 
 private struct CreateOutfitSheet: View {
     @Environment(\.dismiss) private var dismiss
@@ -226,9 +348,7 @@ private struct CreateOutfitSheet: View {
                                 note: note.trimmedToNil,
                                 garments: selectedGarments
                             )
-                            if viewModel.saveError == nil {
-                                dismiss()
-                            }
+                            if viewModel.saveError == nil { dismiss() }
                         }
                     }
                     .padding(.bottom, 12)
@@ -256,16 +376,12 @@ private struct CreateOutfitSheet: View {
         }
     }
 
-    // MARK: Header
-
     private var headerBar: some View {
         HStack {
             Text("Crear look")
                 .font(.system(.headline, design: .rounded, weight: .semibold))
                 .foregroundStyle(DSColor.primaryText)
-
             Spacer()
-
             Button { dismiss() } label: {
                 Image(systemName: "xmark")
                     .font(.system(size: 13, weight: .semibold))
@@ -286,14 +402,11 @@ private struct CreateOutfitSheet: View {
                     .init(color: DSColor.background, location: 0.65),
                     .init(color: DSColor.background.opacity(0), location: 1),
                 ],
-                startPoint: .top,
-                endPoint: .bottom
+                startPoint: .top, endPoint: .bottom
             )
             .ignoresSafeArea()
         )
     }
-
-    // MARK: Fields
 
     private var fieldsSection: some View {
         VStack(spacing: 14) {
@@ -317,8 +430,6 @@ private struct CreateOutfitSheet: View {
         }
     }
 
-    // MARK: Garments
-
     private var garmentsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -326,9 +437,7 @@ private struct CreateOutfitSheet: View {
                     .font(.system(.caption, design: .rounded, weight: .semibold))
                     .foregroundStyle(DSColor.tertiaryText)
                     .padding(.leading, 4)
-
                 Spacer()
-
                 if !selectedIDs.isEmpty {
                     Text("\(selectedIDs.count) seleccionada\(selectedIDs.count == 1 ? "" : "s")")
                         .font(.system(.caption, design: .rounded, weight: .medium))
@@ -345,8 +454,7 @@ private struct CreateOutfitSheet: View {
                         .font(.system(.footnote, design: .rounded))
                         .foregroundStyle(.secondary)
                 }
-                .frame(maxWidth: .infinity)
-                .frame(height: 80)
+                .frame(maxWidth: .infinity).frame(height: 80)
                 .background(DSColor.surface, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
             } else if viewModel.availableGarments.isEmpty {
                 EmptyStateView(
@@ -364,14 +472,10 @@ private struct CreateOutfitSheet: View {
                             isSelected: selectedIDs.contains(garment.id)
                         ) {
                             withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) {
-                                if selectedIDs.contains(garment.id) {
-                                    selectedIDs.remove(garment.id)
-                                } else {
-                                    selectedIDs.insert(garment.id)
-                                }
+                                if selectedIDs.contains(garment.id) { selectedIDs.remove(garment.id) }
+                                else { selectedIDs.insert(garment.id) }
                             }
                         }
-
                         if index < viewModel.availableGarments.count - 1 {
                             Divider().padding(.leading, 78)
                         }
@@ -384,13 +488,7 @@ private struct CreateOutfitSheet: View {
     }
 }
 
-// MARK: - Focus
-
-private enum CreateOutfitField {
-    case title, note
-}
-
-// MARK: - Warm garment picker row
+private enum CreateOutfitField { case title, note }
 
 private struct WarmGarmentPickerRow: View {
     let garment: Garment
@@ -403,7 +501,6 @@ private struct WarmGarmentPickerRow: View {
                 GarmentImage(url: garment.imageURL)
                     .frame(width: 48, height: 48)
                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-
                 VStack(alignment: .leading, spacing: 3) {
                     Text(garment.name)
                         .font(.system(.subheadline, design: .rounded, weight: isSelected ? .semibold : .regular))
@@ -412,21 +509,13 @@ private struct WarmGarmentPickerRow: View {
                         .font(.system(.caption, design: .rounded, weight: .regular))
                         .foregroundStyle(DSColor.secondaryText)
                 }
-
                 Spacer()
-
                 ZStack {
                     Circle()
-                        .stroke(
-                            isSelected ? DSColor.highlight : DSColor.border,
-                            lineWidth: 1.5
-                        )
+                        .stroke(isSelected ? DSColor.highlight : DSColor.border, lineWidth: 1.5)
                         .frame(width: 24, height: 24)
-
                     if isSelected {
-                        Circle()
-                            .fill(DSColor.highlight)
-                            .frame(width: 24, height: 24)
+                        Circle().fill(DSColor.highlight).frame(width: 24, height: 24)
                         Image(systemName: "checkmark")
                             .font(.system(size: 11, weight: .bold))
                             .foregroundStyle(.white)
@@ -434,8 +523,7 @@ private struct WarmGarmentPickerRow: View {
                 }
                 .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isSelected)
             }
-            .padding(.horizontal, 16)
-            .padding(.vertical, 12)
+            .padding(.horizontal, 16).padding(.vertical, 12)
             .background(isSelected ? DSColor.highlight.opacity(0.04) : Color.clear)
             .contentShape(Rectangle())
         }

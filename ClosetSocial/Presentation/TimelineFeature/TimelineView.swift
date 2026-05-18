@@ -21,29 +21,12 @@ public struct TimelineView: View {
     }
 
     public var body: some View {
-        Group {
-            switch viewModel.state {
-            case .idle, .loading:
-                ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
-            case let .content(items):
-                content(items)
-            case .empty:
-                EmptyStateView(
-                    icon: "sparkles",
-                    title: "Tu feed está vacío",
-                    message: "Sigue a personas desde Explore para ver su contenido aquí. También puedes añadir prendas y outfits propios.",
-                    action: onAddGarmentTap.map { .init(label: "Añadir prenda", handler: $0) }
-                )
-            case let .error(message):
-                ContentUnavailableView(
-                    "Algo ha fallado",
-                    systemImage: "exclamationmark.triangle",
-                    description: Text(message)
-                )
-            }
+        VStack(spacing: 0) {
+            tabBar
+            tabContent
         }
-        .navigationTitle("Timeline")
-        .toolbarTitleDisplayMode(.large)
+        .navigationTitle("")
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button {
@@ -69,19 +52,96 @@ public struct TimelineView: View {
                 GarmentDetailView(garment: garment, relatedOutfits: [])
             }
         }
-        .sheet(item: $outfitDetailPost) { post in
+        .sheet(item: $outfitDetailPost) { initial in
             NavigationStack {
+                let post = viewModel.findPost(id: initial.id) ?? initial
                 OutfitDetailView(
                     context: .feedPost(post),
                     onLikeTap: { Task { await viewModel.toggleLike(for: post) } },
                     onCommentTap: {
                         outfitDetailPost = nil
                         postForComments = post
-                    }
+                    },
+                    onSaveTap: post.outfit != nil ? { Task { await viewModel.toggleOutfitSave(for: post) } } : nil
                 )
             }
         }
         .task { await viewModel.load() }
+    }
+
+    private var tabBar: some View {
+        HStack(spacing: 0) {
+            ForEach(TimelineTab.allCases, id: \.self) { tab in
+                Button {
+                    withAnimation(.easeInOut(duration: 0.18)) {
+                        viewModel.selectedTab = tab
+                    }
+                } label: {
+                    VStack(spacing: 6) {
+                        Text(tab.rawValue)
+                            .font(.system(.subheadline, design: .rounded,
+                                          weight: viewModel.selectedTab == tab ? .semibold : .regular))
+                            .foregroundStyle(viewModel.selectedTab == tab
+                                             ? DSColor.primaryText : DSColor.tertiaryText)
+                            .frame(maxWidth: .infinity)
+                        Rectangle()
+                            .fill(viewModel.selectedTab == tab ? DSColor.primaryText : Color.clear)
+                            .frame(height: 2)
+                    }
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .background(DSColor.surface)
+    }
+
+    @ViewBuilder
+    private var tabContent: some View {
+        TabView(selection: $viewModel.selectedTab) {
+            tabPage(state: viewModel.forYouState, tab: .forYou)
+                .tag(TimelineTab.forYou)
+            tabPage(state: viewModel.followingState, tab: .following)
+                .tag(TimelineTab.following)
+        }
+        .tabViewStyle(.page(indexDisplayMode: .never))
+    }
+
+    @ViewBuilder
+    private func tabPage(state: TimelineState, tab: TimelineTab) -> some View {
+        switch state {
+        case .idle, .loading:
+            ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
+        case let .content(items):
+            content(items)
+        case .empty:
+            emptyState(for: tab)
+        case let .error(message):
+            ContentUnavailableView(
+                "Algo ha fallado",
+                systemImage: "exclamationmark.triangle",
+                description: Text(message)
+            )
+        }
+    }
+
+    @ViewBuilder
+    private func emptyState(for tab: TimelineTab) -> some View {
+        switch tab {
+        case .forYou:
+            EmptyStateView(
+                icon: "sparkles",
+                title: "Nada por aquí aún",
+                message: "Sigue a más personas o añade prendas para personalizar tu feed.",
+                action: onAddGarmentTap.map { .init(label: "Añadir prenda", handler: $0) }
+            )
+        case .following:
+            EmptyStateView(
+                icon: "person.2",
+                title: "Sin actividad reciente",
+                message: "Las personas que sigues no han publicado nada todavía.",
+                action: nil
+            )
+        }
     }
 
     private func content(_ items: [FeedPost]) -> some View {
@@ -93,6 +153,7 @@ public struct TimelineView: View {
                         onAuthorTap: { selectedAuthor = post.author },
                         onLikeTap: { Task { await viewModel.toggleLike(for: post) } },
                         onCommentTap: { postForComments = post },
+                        onSaveTap: post.outfit != nil ? { Task { await viewModel.toggleOutfitSave(for: post) } } : nil,
                         onOutfitTap: post.outfit != nil ? { outfitDetailPost = post } : nil,
                         onGarmentTap: post.garment != nil ? { garmentDetail = post.garment } : nil
                     )
@@ -100,7 +161,7 @@ public struct TimelineView: View {
             }
             .padding(20)
         }
-        .refreshable { await viewModel.load() }
+        .refreshable { await viewModel.loadActiveTab() }
     }
 }
 
@@ -257,6 +318,7 @@ private struct FeedPostCard: View {
     let onAuthorTap: () -> Void
     let onLikeTap: () -> Void
     let onCommentTap: () -> Void
+    var onSaveTap: (() -> Void)? = nil
     var onOutfitTap: (() -> Void)? = nil
     var onGarmentTap: (() -> Void)? = nil
 
@@ -338,29 +400,39 @@ private struct FeedPostCard: View {
     @ViewBuilder
     private var mediaSection: some View {
         if let outfit = post.outfit {
-            let canvas = OutfitCanvasView(
-                layout: outfit.layout,
-                garments: outfit.garments,
-                cornerRadius: 0,
-                backgroundColor: DSColor.background
-            )
-            .aspectRatio(3 / 4, contentMode: .fit)
-
-            if let onOutfitTap {
-                Button(action: onOutfitTap) { canvas }
-                    .buttonStyle(.plain)
+            if let coverURL = outfit.coverImageURL {
+                let coverView = Color.clear
+                    .aspectRatio(3 / 4, contentMode: .fit)
+                    .overlay { GarmentImage(url: coverURL) }
+                    .clipped()
+                if let onOutfitTap {
+                    Button(action: onOutfitTap) { coverView }.buttonStyle(.plain)
+                } else {
+                    coverView
+                }
             } else {
-                canvas
+                let canvasView = OutfitCanvasView(
+                    layout: outfit.layout,
+                    garments: outfit.garments,
+                    cornerRadius: 0,
+                    backgroundColor: DSColor.background
+                )
+                .aspectRatio(3 / 4, contentMode: .fit)
+                if let onOutfitTap {
+                    Button(action: onOutfitTap) { canvasView }.buttonStyle(.plain)
+                } else {
+                    canvasView
+                }
             }
         } else if let garment = post.garment {
-            let image = GarmentImage(url: garment.imageURL)
+            let garmentView = Color.clear
                 .aspectRatio(1, contentMode: .fit)
-
+                .overlay { GarmentImage(url: garment.imageURL) }
+                .clipped()
             if let onGarmentTap {
-                Button(action: onGarmentTap) { image }
-                    .buttonStyle(.plain)
+                Button(action: onGarmentTap) { garmentView }.buttonStyle(.plain)
             } else {
-                image
+                garmentView
             }
         }
     }
@@ -368,23 +440,20 @@ private struct FeedPostCard: View {
     // MARK: Actions
 
     private var actionsRow: some View {
-        HStack(spacing: 20) {
+        let isSaved = post.outfit?.isSavedByCurrentUser ?? false
+        return HStack(spacing: 20) {
             Button(action: onLikeTap) {
                 HStack(spacing: 6) {
                     Image(systemName: post.isLikedByCurrentUser ? "heart.fill" : "heart")
                         .font(.system(size: 15, weight: .medium))
                         .symbolEffect(.bounce, value: post.isLikedByCurrentUser)
                         .foregroundStyle(
-                            post.isLikedByCurrentUser
-                                ? DSColor.destructive
-                                : Color.secondary
+                            post.isLikedByCurrentUser ? DSColor.destructive : Color.secondary
                         )
                     Text("\(post.likesCount)")
                         .font(DSFont.footnote)
                         .foregroundStyle(
-                            post.isLikedByCurrentUser
-                                ? DSColor.destructive
-                                : Color.secondary
+                            post.isLikedByCurrentUser ? DSColor.destructive : Color.secondary
                         )
                 }
             }
@@ -405,6 +474,17 @@ private struct FeedPostCard: View {
             .disabled(!post.isReal)
 
             Spacer()
+
+            if let onSaveTap {
+                Button(action: onSaveTap) {
+                    Image(systemName: isSaved ? "bookmark.fill" : "bookmark")
+                        .font(.system(size: 15, weight: .medium))
+                        .foregroundStyle(isSaved ? DSColor.accent : Color.secondary)
+                        .symbolEffect(.bounce, value: isSaved)
+                }
+                .buttonStyle(.plain)
+                .disabled(!post.isReal)
+            }
         }
     }
 }

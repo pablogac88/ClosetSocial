@@ -31,6 +31,7 @@ extension FeedPostDTO {
             imageURLs: imageURLs?.compactMap(URL.init(string:)) ?? [],
             likesCount: likesCount ?? 0,
             isLikedByCurrentUser: isLikedByCurrentUser ?? false,
+            isSavedByCurrentUser: isSavedByCurrentUser ?? false,
             commentsCount: commentsCount ?? 0,
             isReal: isReal ?? false,
             createdAt: createdAt
@@ -72,6 +73,8 @@ extension OutfitDTO {
             note: note?.trimmedToNil,
             garments: resolvedGarments,
             layout: decodedLayout,
+            coverImageURL: resolveImageURL(coverImageURL),
+            isSavedByCurrentUser: isSavedByCurrentUser ?? false,
             createdAt: createdAt
         )
     }

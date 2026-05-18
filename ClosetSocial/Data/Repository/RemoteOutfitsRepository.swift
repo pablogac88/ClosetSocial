@@ -28,9 +28,35 @@ public struct RemoteOutfitsRepository: OutfitsRepository {
         return dto.toDomain()
     }
 
+    public func fetchSavedOutfits(token: String) async throws -> [Outfit] {
+        let dto = try await sender.send(
+            path: ClosetSocialEndpoint.savedOutfits,
+            method: .get,
+            token: token,
+            as: OutfitsResponseDTO.self
+        )
+        return dto.items.map { $0.toDomain() }
+    }
+
     public func deleteOutfit(token: String, id: UUID) async throws {
         try await sender.sendVoid(
             path: ClosetSocialEndpoint.outfit(id: id),
+            method: .delete,
+            token: token
+        )
+    }
+
+    public func saveOutfit(token: String, id: UUID) async throws {
+        try await sender.sendVoid(
+            path: ClosetSocialEndpoint.outfitSave(id: id),
+            method: .post,
+            token: token
+        )
+    }
+
+    public func unsaveOutfit(token: String, id: UUID) async throws {
+        try await sender.sendVoid(
+            path: ClosetSocialEndpoint.outfitSave(id: id),
             method: .delete,
             token: token
         )

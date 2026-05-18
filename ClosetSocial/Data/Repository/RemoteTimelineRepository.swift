@@ -17,6 +17,16 @@ public struct RemoteTimelineRepository: TimelineRepository {
         return dto.items.map { $0.toDomain() }
     }
 
+    public func fetchForYou(token: String) async throws -> [FeedPost] {
+        let dto = try await sender.send(
+            path: ClosetSocialEndpoint.timelineForYou,
+            method: .get,
+            token: token,
+            as: TimelineResponseDTO.self
+        )
+        return dto.items.map { $0.toDomain() }
+    }
+
     public func fetchDiscovery(token: String) async throws -> [FeedPost] {
         let dto = try await sender.send(
             path: ClosetSocialEndpoint.discover,
@@ -49,6 +59,22 @@ public struct RemoteTimelineRepository: TimelineRepository {
     public func unlikePost(token: String, postID: UUID) async throws {
         try await sender.sendVoid(
             path: ClosetSocialEndpoint.postLike(id: postID),
+            method: .delete,
+            token: token
+        )
+    }
+
+    public func savePost(token: String, postID: UUID) async throws {
+        try await sender.sendVoid(
+            path: ClosetSocialEndpoint.postSave(id: postID),
+            method: .post,
+            token: token
+        )
+    }
+
+    public func unsavePost(token: String, postID: UUID) async throws {
+        try await sender.sendVoid(
+            path: ClosetSocialEndpoint.postSave(id: postID),
             method: .delete,
             token: token
         )

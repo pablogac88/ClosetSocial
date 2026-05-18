@@ -2,8 +2,11 @@ import Foundation
 
 public protocol OutfitsRepository: Sendable {
     func fetchOutfits(token: String) async throws -> [Outfit]
+    func fetchSavedOutfits(token: String) async throws -> [Outfit]
     func createOutfit(token: String, request: CreateOutfitRequest) async throws -> Outfit
     func deleteOutfit(token: String, id: UUID) async throws
+    func saveOutfit(token: String, id: UUID) async throws
+    func unsaveOutfit(token: String, id: UUID) async throws
 }
 
 public struct CreateOutfitRequest: Sendable {
@@ -11,11 +14,19 @@ public struct CreateOutfitRequest: Sendable {
     public let note: String?
     public let garmentIDs: [UUID]
     public let layout: OutfitComposerLayout?
+    public let coverImageURL: String?
 
-    public init(title: String?, note: String?, garmentIDs: [UUID], layout: OutfitComposerLayout? = nil) {
+    public init(
+        title: String?,
+        note: String?,
+        garmentIDs: [UUID],
+        layout: OutfitComposerLayout? = nil,
+        coverImageURL: String? = nil
+    ) {
         self.title = title
         self.note = note
         self.garmentIDs = garmentIDs
         self.layout = layout
+        self.coverImageURL = coverImageURL
     }
 }
