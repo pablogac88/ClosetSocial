@@ -6,6 +6,7 @@ public struct AppDependencies: Sendable {
     public let authRepository: any AuthRepository
     public let timelineRepository: any TimelineRepository
     public let searchRepository: any SearchRepository
+    public let exploreRepository: any ExploreRepository
     public let closetRepository: any ClosetRepository
     public let catalogRepository: any CatalogRepository
     public let outfitsRepository: any OutfitsRepository
@@ -19,6 +20,7 @@ public struct AppDependencies: Sendable {
         authRepository: any AuthRepository,
         timelineRepository: any TimelineRepository,
         searchRepository: any SearchRepository,
+        exploreRepository: any ExploreRepository,
         closetRepository: any ClosetRepository,
         catalogRepository: any CatalogRepository,
         outfitsRepository: any OutfitsRepository,
@@ -29,6 +31,7 @@ public struct AppDependencies: Sendable {
         self.authRepository = authRepository
         self.timelineRepository = timelineRepository
         self.searchRepository = searchRepository
+        self.exploreRepository = exploreRepository
         self.closetRepository = closetRepository
         self.catalogRepository = catalogRepository
         self.outfitsRepository = outfitsRepository
@@ -52,6 +55,7 @@ public struct AppDependencies: Sendable {
             authRepository: repos.auth,
             timelineRepository: repos.timeline,
             searchRepository: repos.search,
+            exploreRepository: repos.explore,
             closetRepository: repos.closet,
             catalogRepository: repos.catalog,
             outfitsRepository: repos.outfits,
@@ -69,6 +73,7 @@ public struct AppDependencies: Sendable {
             authRepository: InMemoryAuthRepository(backend: backend),
             timelineRepository: InMemoryTimelineRepository(backend: backend),
             searchRepository: InMemorySearchRepository(backend: backend),
+            exploreRepository: InMemoryExploreRepository(backend: backend),
             closetRepository: closetRepository,
             catalogRepository: closetRepository,
             outfitsRepository: InMemoryOutfitsRepository(backend: backend),

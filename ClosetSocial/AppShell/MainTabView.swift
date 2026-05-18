@@ -37,9 +37,11 @@ struct MainTabView: View {
             onLogout: { [session] in session.signOut() }
         )
         let explore = ExploreViewModel(
-            editorialRepository: dependencies.timelineRepository,
-            searchRepository: dependencies.searchRepository,
-            tokenProvider: tokenProvider
+            repository: dependencies.exploreRepository,
+            outfitsRepository: dependencies.outfitsRepository,
+            profileRepository: dependencies.profileRepository,
+            tokenProvider: tokenProvider,
+            currentUserIDProvider: { [session] in session.currentUser?.id }
         )
         let outfits = OutfitsViewModel(
             repository: dependencies.outfitsRepository,
@@ -50,7 +52,7 @@ struct MainTabView: View {
             onOutfitDeleted: {
                 Task {
                     await timeline.load()
-                    await explore.load()
+                    await explore.refreshAllDiscovery()
                     await profile.load()
                 }
             }
@@ -63,12 +65,14 @@ struct MainTabView: View {
             tokenProvider: tokenProvider
         ) { result in
             timeline.replace(with: result.updatedTimeline)
-            explore.replace(with: result.updatedTimeline)
             profile.replace(with: result.updatedProfile)
+            Task {
+                await explore.refreshAllDiscovery()
+            }
         } onGarmentDeleted: {
             Task {
                 await timeline.load()
-                await explore.load()
+                await explore.refreshAllDiscovery()
                 await profile.load()
             }
         }

@@ -111,6 +111,75 @@ public actor InMemoryClosetSocialBackend {
         return SearchResults(users: users, garments: garments, outfits: outfits)
     }
 
+    func exploreSearch(query: String) -> ExploreSearchResults {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else {
+            return ExploreSearchResults(outfits: [], garments: [], users: [])
+        }
+
+        let normalizedQuery = normalized(trimmed)
+        let currentUser = session.user
+
+        let users = uniqueUsers()
+            .filter { user in
+                normalized(user.displayName).contains(normalizedQuery)
+                    || normalized(user.username).contains(normalizedQuery)
+            }
+            .map { user in
+                let userPosts = timeline.filter { $0.author.id == user.id }
+                return ExploreUserItem(
+                    user: user,
+                    closetCount: closet.count,
+                    outfitCount: outfits.count,
+                    postsCount: userPosts.count,
+                    followerCount: 0,
+                    followingCount: 0,
+                    isFollowing: false
+                )
+            }
+
+        let garments = closet
+            .filter { garment in
+                normalized(garment.name).contains(normalizedQuery)
+                    || normalized(garment.brand).contains(normalizedQuery)
+                    || normalized(garment.type.displayName).contains(normalizedQuery)
+                    || normalized(garment.color).contains(normalizedQuery)
+            }
+            .map { ExploreGarmentItem(garment: $0, owner: currentUser) }
+
+        let foundOutfits = outfits
+            .filter { outfit in
+                normalized(outfit.title).contains(normalizedQuery)
+                    || normalized(outfit.note).contains(normalizedQuery)
+            }
+            .map { ExploreOutfitItem(outfit: $0, author: currentUser) }
+
+        return ExploreSearchResults(outfits: foundOutfits, garments: garments, users: users)
+    }
+
+    func discoverOutfits(limit: Int) -> [ExploreOutfitItem] {
+        Array(outfits.prefix(limit)).map { ExploreOutfitItem(outfit: $0, author: session.user) }
+    }
+
+    func discoverGarments(limit: Int) -> [ExploreGarmentItem] {
+        Array(closet.prefix(limit)).map { ExploreGarmentItem(garment: $0, owner: session.user) }
+    }
+
+    func discoverUsers(limit: Int) -> [ExploreUserItem] {
+        Array(uniqueUsers().prefix(limit)).map { user in
+            let userPosts = timeline.filter { $0.author.id == user.id }
+            return ExploreUserItem(
+                user: user,
+                closetCount: closet.count,
+                outfitCount: outfits.count,
+                postsCount: userPosts.count,
+                followerCount: 0,
+                followingCount: 0,
+                isFollowing: false
+            )
+        }
+    }
+
     func register(username: String, displayName: String) -> AuthSession {
         let user = User(id: UUID(), username: username, displayName: displayName, avatarURL: nil)
         session = AuthSession(token: "preview-token", user: user)
@@ -355,6 +424,30 @@ public struct InMemorySearchRepository: SearchRepository {
 
     public func search(token: String, query: String) async throws -> SearchResults {
         await backend.search(query: query)
+    }
+}
+
+public struct InMemoryExploreRepository: ExploreRepository {
+    private let backend: InMemoryClosetSocialBackend
+
+    public init(backend: InMemoryClosetSocialBackend) {
+        self.backend = backend
+    }
+
+    public func fetchDiscoverOutfits(token: String, limit: Int) async throws -> [ExploreOutfitItem] {
+        await backend.discoverOutfits(limit: limit)
+    }
+
+    public func fetchDiscoverGarments(token: String, limit: Int) async throws -> [ExploreGarmentItem] {
+        await backend.discoverGarments(limit: limit)
+    }
+
+    public func fetchDiscoverUsers(token: String, limit: Int) async throws -> [ExploreUserItem] {
+        await backend.discoverUsers(limit: limit)
+    }
+
+    public func search(token: String, query: String) async throws -> ExploreSearchResults {
+        await backend.exploreSearch(query: query)
     }
 }
 

@@ -134,10 +134,68 @@ extension PublicUserProfileDTO {
 extension SearchResultsDTO {
     func toDomain() -> SearchResults {
         SearchResults(
-            users: users.map { $0.toDomain() },
-            garments: garments.map { $0.toDomain() },
-            outfits: outfits.map { $0.toDomain() }
+            users: users.map { $0.user.toDomain() },
+            garments: garments.map { $0.garment.toDomain() },
+            outfits: outfits.map { $0.outfit.toDomain() }
         )
+    }
+
+    func toExploreDomain() -> ExploreSearchResults {
+        ExploreSearchResults(
+            outfits: outfits.map { $0.toDomain() },
+            garments: garments.map { $0.toDomain() },
+            users: users.map { $0.toDomain() }
+        )
+    }
+}
+
+extension ExploreUserSummaryDTO {
+    func toDomain() -> ExploreUserItem {
+        ExploreUserItem(
+            user: user.toDomain(),
+            closetCount: closetCount,
+            outfitCount: outfitCount,
+            postsCount: postsCount,
+            followerCount: followerCount,
+            followingCount: followingCount,
+            isFollowing: isFollowing
+        )
+    }
+}
+
+extension ExploreGarmentSummaryDTO {
+    func toDomain() -> ExploreGarmentItem {
+        ExploreGarmentItem(
+            garment: garment.toDomain(),
+            owner: owner?.toDomain()
+        )
+    }
+}
+
+extension ExploreOutfitSummaryDTO {
+    func toDomain() -> ExploreOutfitItem {
+        ExploreOutfitItem(
+            outfit: outfit.toDomain(),
+            author: author.toDomain()
+        )
+    }
+}
+
+extension DiscoverUsersResponseDTO {
+    func toDomain() -> [ExploreUserItem] {
+        items.map { $0.toDomain() }
+    }
+}
+
+extension DiscoverGarmentsResponseDTO {
+    func toDomain() -> [ExploreGarmentItem] {
+        items.map { $0.toDomain() }
+    }
+}
+
+extension DiscoverOutfitsResponseDTO {
+    func toDomain() -> [ExploreOutfitItem] {
+        items.map { $0.toDomain() }
     }
 }
 

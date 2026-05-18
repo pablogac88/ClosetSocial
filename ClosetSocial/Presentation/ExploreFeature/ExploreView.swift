@@ -17,18 +17,17 @@ public struct ExploreView: View {
     }
 
     public var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 28) {
-                header
-                ExploreSearchBar(text: $viewModel.searchText)
-                content
-            }
-            .padding(.top, 20)
-            .padding(.bottom, 28)
+        VStack(spacing: 0) {
+            header
+            searchBar
+            tabsBar
+            Divider()
+                .overlay(DSColor.border)
+            feedContent
         }
+        .background(DSColor.background.ignoresSafeArea())
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
-        .background(DSColor.background.ignoresSafeArea())
         .navigationDestination(item: $selectedOutfit) { outfit in
             OutfitDetailView(context: .myOutfit(outfit))
         }
@@ -42,232 +41,57 @@ public struct ExploreView: View {
             PublicProfileView(viewModel: makePublicProfileViewModel(userID))
         }
         .task { await viewModel.load() }
+        .task(id: viewModel.selectedTab) { await viewModel.loadTabIfNeeded() }
         .task(id: viewModel.searchText) { await viewModel.handleSearchTextChanged() }
-        .refreshable { await viewModel.refresh() }
-    }
-
-    @ViewBuilder
-    private var content: some View {
-        if viewModel.shouldUseBackendSearch {
-            searchContent
-        } else {
-            editorialContent
-        }
-    }
-
-    @ViewBuilder
-    private var editorialContent: some View {
-        switch viewModel.state {
-        case .idle, .loading:
-            ProgressView()
-                .frame(maxWidth: .infinity)
-                .padding(.top, 48)
-
-        case .empty:
-            EmptyStateView(
-                icon: "sparkles.square.filled.on.square",
-                title: "La comunidad acaba de empezar",
-                message: "Cuando haya actividad en el timeline aparecerán looks, prendas y personas. Prueba a buscar algo mientras tanto."
-            )
-
-        case let .error(message):
-            ContentUnavailableView(
-                "No hemos podido cargar Explore",
-                systemImage: "exclamationmark.triangle",
-                description: Text(message)
-            )
-
-        case .content:
-            if viewModel.isShortQuery {
-                ExploreHintCard(
-                    icon: "text.cursor",
-                    title: "Escribe al menos 2 caracteres",
-                    message: "Mientras tanto te dejamos contenido real del timeline para seguir navegando."
-                )
-                .padding(.horizontal, 20)
-            }
-
-            if !viewModel.outfitPosts.isEmpty {
-                ExploreSection(
-                    title: "Looks",
-                    subtitle: "Combinaciones reales que ya están compartiendo en la comunidad."
-                ) {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 18) {
-                            ForEach(viewModel.outfitPosts) { post in
-                                ExploreLookCard(post: post) {
-                                    if let outfit = post.outfit {
-                                        selectedOutfit = outfit
-                                    }
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                    }
-                }
-            }
-
-            if !viewModel.garmentPosts.isEmpty {
-                ExploreSection(
-                    title: "Prendas",
-                    subtitle: "Piezas reales que entran en el timeline a través de compras o publicaciones."
-                ) {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 16) {
-                            ForEach(viewModel.garmentPosts) { post in
-                                ExploreEditorialGarmentCard(post: post) {
-                                    if let garment = post.garment {
-                                        selectedGarment = garment
-                                    }
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                    }
-                }
-            }
-
-            if !viewModel.people.isEmpty {
-                ExploreSection(
-                    title: "Personas",
-                    subtitle: "Usuarios reales con actividad reciente en el timeline."
-                ) {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 16) {
-                            ForEach(viewModel.people) { person in
-                                ExploreEditorialPersonCard(person: person) {
-                                    selectedUserID = person.id
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                    }
-                }
-            }
-
-            if viewModel.outfitPosts.isEmpty, viewModel.garmentPosts.isEmpty, viewModel.people.isEmpty {
-                EmptyStateView(
-                    icon: "rectangle.on.rectangle.angled",
-                    title: "Aún poco contenido",
-                    message: "Cuando haya más actividad en el timeline, Explore ganará profundidad."
-                )
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var searchContent: some View {
-        switch viewModel.searchState {
-        case .idle, .loading:
-            ProgressView()
-                .frame(maxWidth: .infinity)
-                .padding(.top, 48)
-
-        case let .error(message):
-            ContentUnavailableView(
-                "No hemos podido buscar ahora mismo",
-                systemImage: "magnifyingglass",
-                description: Text(message)
-            )
-
-        case .empty:
-            EmptyStateView(
-                icon: "magnifyingglass",
-                title: "Sin resultados",
-                message: "Prueba con otro nombre, marca, color o usuario."
-            )
-
-        case .content:
-            if !viewModel.searchUsers.isEmpty {
-                ExploreSection(
-                    title: "Usuarios",
-                    subtitle: "Usuarios que coinciden con tu búsqueda."
-                ) {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 16) {
-                            ForEach(viewModel.searchUsers) { user in
-                                ExploreSearchUserCard(user: user) {
-                                    selectedUserID = user.id
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                    }
-                }
-            }
-
-            if !viewModel.searchGarments.isEmpty {
-                ExploreSection(
-                    title: "Prendas",
-                    subtitle: "Prendas que coinciden con tu búsqueda."
-                ) {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 16) {
-                            ForEach(viewModel.searchGarments) { garment in
-                                ExploreSearchGarmentCard(garment: garment) {
-                                    selectedGarment = garment
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                    }
-                }
-            }
-
-            if !viewModel.searchOutfits.isEmpty {
-                ExploreSection(
-                    title: "Outfits",
-                    subtitle: "Looks encontrados por título o nota."
-                ) {
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 18) {
-                            ForEach(viewModel.searchOutfits) { outfit in
-                                ExploreSearchOutfitCard(outfit: outfit) {
-                                    selectedOutfit = outfit
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 20)
-                    }
-                }
-            }
-        }
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 6) {
             Text("Descubre")
-                .font(.system(size: 28, weight: .bold, design: .rounded))
+                .font(.system(size: 30, weight: .bold, design: .rounded))
                 .foregroundStyle(DSColor.primaryText)
-            Text(viewModel.shouldUseBackendSearch
-                 ? "Resultados para tu búsqueda"
-                 : "Contenido real de la comunidad")
+
+            Text(subtitle)
                 .font(DSFont.body)
                 .foregroundStyle(DSColor.secondaryText)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 20)
+        .padding(.top, 18)
+        .padding(.bottom, 14)
     }
 
-}
+    private var subtitle: String {
+        if viewModel.shouldUseBackendSearch {
+            switch viewModel.selectedTab {
+            case .looks: return "Outfits reales encontrados por tu búsqueda"
+            case .garments: return "Prendas reales encontradas por tu búsqueda"
+            case .people: return "Personas reales encontradas por tu búsqueda"
+            }
+        }
 
-private struct ExploreSearchBar: View {
-    @Binding var text: String
+        switch viewModel.selectedTab {
+        case .looks: return "Looks reales de la comunidad, en formato editorial"
+        case .garments: return "Prendas reales para descubrir materiales, marcas y estilo"
+        case .people: return "Perfiles reales con movimiento y estilo propio"
+        }
+    }
 
-    var body: some View {
+    private var searchBar: some View {
         HStack(spacing: 12) {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(DSColor.secondaryText)
 
-            TextField("Busca usuarios, prendas o outfits", text: $text)
+            TextField("Busca looks, prendas o personas", text: $viewModel.searchText)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
                 .font(DSFont.body)
                 .foregroundStyle(DSColor.primaryText)
 
-            if !text.isEmpty {
+            if !viewModel.searchText.isEmpty {
                 Button {
-                    text = ""
+                    viewModel.searchText = ""
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .font(.system(size: 16, weight: .semibold))
@@ -280,427 +104,359 @@ private struct ExploreSearchBar: View {
         .padding(.vertical, 14)
         .background(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(DSColor.background)
+                .fill(DSColor.surface)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(DSColor.surface.opacity(0.75), lineWidth: 1)
+                .stroke(DSColor.border, lineWidth: 1)
         )
         .padding(.horizontal, 20)
+        .padding(.bottom, 14)
+    }
+
+    private var tabsBar: some View {
+        HStack(spacing: 10) {
+            ForEach(ExploreTab.allCases) { tab in
+                Button {
+                    viewModel.selectedTab = tab
+                } label: {
+                    Text(tab.rawValue)
+                        .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                        .foregroundStyle(viewModel.selectedTab == tab ? DSColor.actionPrimaryForeground : DSColor.secondaryText)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(
+                            Capsule()
+                                .fill(viewModel.selectedTab == tab ? DSColor.actionPrimaryBackground : DSColor.surface)
+                        )
+                        .overlay(
+                            Capsule()
+                                .stroke(viewModel.selectedTab == tab ? Color.clear : DSColor.border, lineWidth: 1)
+                        )
+                }
+                .buttonStyle(.plain)
+            }
+            Spacer()
+        }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 14)
+    }
+
+    @ViewBuilder
+    private var feedContent: some View {
+        switch viewModel.selectedTab {
+        case .looks:
+            looksFeed
+        case .garments:
+            garmentsFeed
+        case .people:
+            peopleFeed
+        }
+    }
+
+    private var looksFeed: some View {
+        ExploreFeedContainer(
+            state: viewModel.looksState,
+            emptyTitle: "Sin looks por ahora",
+            emptyMessage: viewModel.shouldUseBackendSearch
+                ? "Prueba con otra búsqueda para encontrar más outfits."
+                : "Cuando haya más outfits reales, aparecerán aquí.",
+            errorTitle: "No hemos podido cargar looks",
+            hintMessage: viewModel.isShortQuery ? "Escribe al menos 2 caracteres para buscar. Mientras tanto seguimos mostrándote discovery real." : nil,
+            onRefresh: { await viewModel.refreshSelectedTab() }
+        ) { items in
+            ExploreMediaGrid(items: items) { item in
+                ExploreLookTile(item: item) {
+                    selectedOutfit = item.outfit
+                }
+            }
+            .padding(.top, 10)
+            .padding(.bottom, 28)
+        }
+    }
+
+    private var garmentsFeed: some View {
+        ExploreFeedContainer(
+            state: viewModel.garmentsState,
+            emptyTitle: "Sin prendas por ahora",
+            emptyMessage: viewModel.shouldUseBackendSearch
+                ? "Prueba con otra búsqueda para descubrir más prendas."
+                : "Cuando entren más prendas reales, se verán aquí.",
+            errorTitle: "No hemos podido cargar prendas",
+            hintMessage: viewModel.isShortQuery ? "Escribe al menos 2 caracteres para buscar. Mientras tanto seguimos mostrándote discovery real." : nil,
+            onRefresh: { await viewModel.refreshSelectedTab() }
+        ) { items in
+            ExploreMediaGrid(items: items) { item in
+                ExploreGarmentTile(item: item) {
+                    selectedGarment = item.garment
+                }
+            }
+            .padding(.top, 10)
+            .padding(.bottom, 28)
+        }
+    }
+
+    private var peopleFeed: some View {
+        ExploreFeedContainer(
+            state: viewModel.peopleState,
+            emptyTitle: "Sin personas por ahora",
+            emptyMessage: viewModel.shouldUseBackendSearch
+                ? "Prueba con otro nombre o username para encontrar personas."
+                : "Cuando haya más usuarios activos, aparecerán aquí.",
+            errorTitle: "No hemos podido cargar personas",
+            hintMessage: viewModel.isShortQuery ? "Escribe al menos 2 caracteres para buscar. Mientras tanto seguimos mostrándote discovery real." : nil,
+            onRefresh: { await viewModel.refreshSelectedTab() }
+        ) { items in
+            LazyVStack(spacing: 20) {
+                ForEach(items) { item in
+                    ExplorePersonCard(
+                        item: item,
+                        currentUserID: viewModel.currentUserID,
+                        isFollowingLoading: viewModel.isFollowingLoading(item),
+                        onTap: { selectedUserID = item.id },
+                        onFollowTap: { Task { await viewModel.toggleFollow(for: item) } }
+                    )
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 18)
+            .padding(.bottom, 28)
+        }
     }
 }
 
-private struct ExploreSection<Content: View>: View {
-    let title: String
-    let subtitle: String
-    @ViewBuilder let content: Content
+private struct ExploreMediaGrid<Item: Identifiable, Tile: View>: View {
+    let items: [Item]
+    @ViewBuilder let tile: (Item) -> Tile
+
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 2), count: 3)
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(DSFont.title)
-                    .foregroundStyle(DSColor.primaryText)
-                Text(subtitle)
-                    .font(DSFont.footnote)
-                    .foregroundStyle(DSColor.secondaryText)
+        LazyVGrid(columns: columns, spacing: 2) {
+            ForEach(items) { item in
+                Color.clear
+                    .aspectRatio(1, contentMode: .fit)
+                    .overlay {
+                        tile(item)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
+                    .clipped()
             }
-            .padding(.horizontal, 20)
-
-            content
         }
+        .padding(.horizontal, 2)
+    }
+}
+
+private struct ExploreFeedContainer<Item: Sendable & Equatable, Content: View>: View {
+    let state: ExploreFeedState<Item>
+    let emptyTitle: String
+    let emptyMessage: String
+    let errorTitle: String
+    let hintMessage: String?
+    let onRefresh: @Sendable () async -> Void
+    @ViewBuilder let content: ([Item]) -> Content
+
+    var body: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 0) {
+                if let hintMessage {
+                    ExploreHintCard(message: hintMessage)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 18)
+                }
+
+                switch state {
+                case .idle, .loading:
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 60)
+                case let .content(items):
+                    content(items)
+                case .empty:
+                    EmptyStateView(
+                        icon: "sparkles",
+                        title: emptyTitle,
+                        message: emptyMessage
+                    )
+                    .padding(.top, 46)
+                case let .error(message):
+                    ContentUnavailableView(
+                        errorTitle,
+                        systemImage: "exclamationmark.triangle",
+                        description: Text(message)
+                    )
+                    .padding(.top, 46)
+                }
+            }
+        }
+        .refreshable { await onRefresh() }
     }
 }
 
 private struct ExploreHintCard: View {
-    let icon: String
-    let title: String
     let message: String
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: icon)
-                .font(.system(size: 16, weight: .semibold))
+        HStack(spacing: 12) {
+            Image(systemName: "text.cursor")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(DSColor.highlight)
+            Text(message)
+                .font(DSFont.footnote)
                 .foregroundStyle(DSColor.secondaryText)
+            Spacer()
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(DSColor.surfaceElevated)
+        )
+    }
+}
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(DSFont.footnoteBold)
-                    .foregroundStyle(DSColor.primaryText)
-                Text(message)
-                    .font(DSFont.footnote)
-                    .foregroundStyle(DSColor.secondaryText)
+private struct ExploreLookTile: View {
+    let item: ExploreOutfitItem
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            Group {
+                if let coverImageURL = item.outfit.coverImageURL {
+                    GarmentImage(url: coverImageURL)
+                } else {
+                    OutfitCanvasView(
+                        layout: item.outfit.layout,
+                        garments: item.outfit.garments,
+                        cornerRadius: 0,
+                        backgroundColor: DSColor.surfaceElevated
+                    )
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(DSColor.surfaceElevated)
+            .clipped()
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+private struct ExploreGarmentTile: View {
+    let item: ExploreGarmentItem
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            GarmentImage(url: item.garment.imageURL)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(DSColor.surfaceElevated)
+                .clipped()
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+private struct ExplorePersonCard: View {
+    let item: ExploreUserItem
+    let currentUserID: UUID?
+    let isFollowingLoading: Bool
+    let onTap: () -> Void
+    let onFollowTap: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(alignment: .top, spacing: 14) {
+                AvatarBubble(
+                    displayName: item.user.displayName,
+                    avatarURL: item.user.avatarURL,
+                    size: 60,
+                    fillColor: DSColor.warmFill,
+                    textColor: DSColor.secondaryText
+                )
+
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(item.user.displayName)
+                        .font(.system(size: 21, weight: .semibold, design: .rounded))
+                        .foregroundStyle(DSColor.primaryText)
+                        .multilineTextAlignment(.leading)
+                    Text("@\(item.user.username)")
+                        .font(.system(.subheadline, design: .rounded, weight: .regular))
+                        .foregroundStyle(DSColor.secondaryText)
+
+                    if let bio = item.user.bio, !bio.isEmpty {
+                        Text(bio)
+                            .font(DSFont.body)
+                            .foregroundStyle(DSColor.secondaryText)
+                            .lineLimit(3)
+                            .multilineTextAlignment(.leading)
+                    }
+                }
+
+                Spacer(minLength: 8)
+            }
+
+            HStack(spacing: 10) {
+                ExploreMetaPill(label: "\(item.outfitCount) looks")
+                ExploreMetaPill(label: "\(item.closetCount) prendas")
+                ExploreMetaPill(label: "\(item.followerCount) seguidores")
+            }
+
+            if currentUserID != item.id {
+                Button(action: onFollowTap) {
+                    HStack(spacing: 8) {
+                        if isFollowingLoading {
+                            ProgressView()
+                                .tint(item.isFollowing ? DSColor.actionSecondaryForeground : DSColor.actionPrimaryForeground)
+                                .scaleEffect(0.9)
+                        }
+                        Text(item.isFollowing ? "Siguiendo" : "Seguir")
+                            .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .fill(item.isFollowing ? DSColor.actionSecondaryBackground : DSColor.actionPrimaryBackground)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16, style: .continuous)
+                            .stroke(item.isFollowing ? DSColor.border : Color.clear, lineWidth: 1)
+                    )
+                    .foregroundStyle(item.isFollowing ? DSColor.actionSecondaryForeground : DSColor.actionPrimaryForeground)
+                }
+                .buttonStyle(.plain)
             }
         }
         .padding(16)
         .background(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(DSColor.surface.opacity(0.82))
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(DSColor.surface)
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .stroke(DSColor.surface.opacity(0.8), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .stroke(DSColor.border.opacity(0.85), lineWidth: 1)
         )
+        .contentShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .onTapGesture(perform: onTap)
     }
 }
 
-private struct ExploreLookCard: View {
-    let post: FeedPost
-    let onTap: () -> Void
-
-    private var outfit: Outfit? { post.outfit }
-
-    var body: some View {
-        Button(action: onTap) {
-            VStack(alignment: .leading, spacing: 14) {
-                OutfitCanvasView(
-                    layout: outfit?.layout,
-                    garments: outfit?.garments ?? [],
-                    cornerRadius: 24,
-                    backgroundColor: DSColor.background
-                )
-                .aspectRatio(3 / 4, contentMode: .fit)
-                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(title)
-                        .font(DSFont.headline)
-                        .foregroundStyle(DSColor.primaryText)
-                        .lineLimit(2)
-
-                    Text(post.author.displayName)
-                        .font(DSFont.footnoteBold)
-                        .foregroundStyle(DSColor.secondaryText)
-
-                    if !post.caption.isEmpty {
-                        Text(post.caption)
-                            .font(DSFont.footnote)
-                            .foregroundStyle(DSColor.primaryText)
-                            .lineLimit(2)
-                    }
-                }
-            }
-            .padding(16)
-            .frame(width: 248, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .fill(DSColor.surface)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .stroke(DSColor.surface.opacity(0.8), lineWidth: 1)
-            )
-            .shadow(color: Color.black.opacity(0.05), radius: 18, x: 0, y: 8)
-        }
-        .buttonStyle(.plain)
-    }
-
-    private var title: String {
-        if let title = outfit?.title, !title.isEmpty {
-            return title
-        }
-        return outfit?.garments.map(\.name).joined(separator: " · ") ?? "Look compartido"
-    }
-}
-
-private struct ExploreEditorialGarmentCard: View {
-    let post: FeedPost
-    let onTap: () -> Void
-
-    private var garment: Garment? { post.garment }
-
-    var body: some View {
-        Button(action: onTap) {
-            VStack(alignment: .leading, spacing: 12) {
-                GarmentImage(url: garment?.imageURL)
-                    .frame(width: 176, height: 210)
-                    .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(garment?.name ?? "Prenda")
-                        .font(DSFont.headline)
-                        .foregroundStyle(DSColor.primaryText)
-                        .lineLimit(2)
-
-                    Text(detailLine)
-                        .font(DSFont.footnote)
-                        .foregroundStyle(DSColor.secondaryText)
-                        .lineLimit(1)
-
-                    HStack(spacing: 8) {
-                        AvatarBubble(
-                            displayName: post.author.displayName,
-                            avatarURL: post.author.avatarURL,
-                            size: 28,
-                            fillColor: DSColor.imagePlaceholder,
-                            textColor: DSColor.secondaryText
-                        )
-                        Text(post.author.displayName)
-                            .font(DSFont.caption)
-                            .foregroundStyle(DSColor.primaryText)
-                            .lineLimit(1)
-                    }
-                }
-            }
-            .padding(14)
-            .frame(width: 204, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 26, style: .continuous)
-                    .fill(DSColor.surface)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 26, style: .continuous)
-                    .stroke(DSColor.surface.opacity(0.8), lineWidth: 1)
-            )
-            .shadow(color: Color.black.opacity(0.05), radius: 16, x: 0, y: 8)
-        }
-        .buttonStyle(.plain)
-    }
-
-    private var detailLine: String {
-        [
-            garment?.brand,
-            garment?.type.name,
-            garment?.color
-        ]
-        .compactMap { value in
-            guard let value else { return nil }
-            return value.isEmpty ? nil : value
-        }
-        .joined(separator: " · ")
-    }
-}
-
-private struct ExploreEditorialPersonCard: View {
-    let person: ExplorePerson
-    let onTap: () -> Void
-
-    var body: some View {
-        Button(action: onTap) {
-            VStack(alignment: .leading, spacing: 14) {
-                HStack(alignment: .top) {
-                    AvatarBubble(
-                        displayName: person.user.displayName,
-                        avatarURL: person.user.avatarURL,
-                        size: 54,
-                        fillColor: DSColor.imagePlaceholder,
-                        textColor: DSColor.secondaryText
-                    )
-                    Spacer()
-                    Text(person.lastActivityAt.formatted(date: .abbreviated, time: .omitted))
-                        .font(DSFont.caption)
-                        .foregroundStyle(DSColor.secondaryText)
-                }
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(person.user.displayName)
-                        .font(DSFont.headline)
-                        .foregroundStyle(DSColor.primaryText)
-                    Text("@\(person.user.username)")
-                        .font(DSFont.footnote)
-                        .foregroundStyle(DSColor.secondaryText)
-                }
-
-                if let bio = person.user.bio, !bio.isEmpty {
-                    Text(bio)
-                        .font(DSFont.footnote)
-                        .foregroundStyle(DSColor.secondaryText)
-                        .lineLimit(2)
-                } else if let spotlightCaption = person.spotlightCaption {
-                    Text("“\(spotlightCaption)”")
-                        .font(DSFont.footnote)
-                        .italic()
-                        .foregroundStyle(DSColor.secondaryText)
-                        .lineLimit(2)
-                }
-
-                HStack(spacing: 16) {
-                    PersonMetric(value: "\(person.postsCount)", label: "Posts")
-                    PersonMetric(value: "\(person.looksCount)", label: "Looks")
-                    PersonMetric(value: "\(person.garmentsCount)", label: "Prendas")
-                }
-            }
-            .padding(18)
-            .frame(width: 224, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .fill(DSColor.surface)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .stroke(DSColor.surface.opacity(0.8), lineWidth: 1)
-            )
-            .shadow(color: Color.black.opacity(0.05), radius: 18, x: 0, y: 8)
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-private struct ExploreSearchUserCard: View {
-    let user: User
-    let onTap: () -> Void
-
-    var body: some View {
-        Button(action: onTap) {
-            VStack(alignment: .leading, spacing: 14) {
-                AvatarBubble(
-                    displayName: user.displayName,
-                    avatarURL: user.avatarURL,
-                    size: 58,
-                    fillColor: DSColor.imagePlaceholder,
-                    textColor: DSColor.secondaryText
-                )
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(user.displayName)
-                        .font(DSFont.headline)
-                        .foregroundStyle(DSColor.primaryText)
-                    Text("@\(user.username)")
-                        .font(DSFont.footnote)
-                        .foregroundStyle(DSColor.secondaryText)
-                }
-
-                if let bio = user.bio, !bio.isEmpty {
-                    Text(bio)
-                        .font(DSFont.footnote)
-                        .foregroundStyle(DSColor.secondaryText)
-                        .lineLimit(3)
-                }
-            }
-            .padding(18)
-            .frame(width: 220, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .fill(DSColor.surface)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .stroke(DSColor.surface.opacity(0.8), lineWidth: 1)
-            )
-            .shadow(color: Color.black.opacity(0.05), radius: 18, x: 0, y: 8)
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-private struct ExploreSearchGarmentCard: View {
-    let garment: Garment
-    let onTap: () -> Void
-
-    var body: some View {
-        Button(action: onTap) {
-            VStack(alignment: .leading, spacing: 12) {
-                GarmentImage(url: garment.imageURL)
-                    .frame(width: 176, height: 210)
-                    .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(garment.name)
-                        .font(DSFont.headline)
-                        .foregroundStyle(DSColor.primaryText)
-                        .lineLimit(2)
-
-                    Text(detailLine)
-                        .font(DSFont.footnote)
-                        .foregroundStyle(DSColor.secondaryText)
-                        .lineLimit(2)
-                }
-            }
-            .padding(14)
-            .frame(width: 204, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 26, style: .continuous)
-                    .fill(DSColor.surface)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 26, style: .continuous)
-                    .stroke(DSColor.surface.opacity(0.8), lineWidth: 1)
-            )
-            .shadow(color: Color.black.opacity(0.05), radius: 16, x: 0, y: 8)
-        }
-        .buttonStyle(.plain)
-    }
-
-    private var detailLine: String {
-        [garment.brand, garment.type.name, garment.color]
-            .compactMap { value in
-                guard let value else { return nil }
-                return value.isEmpty ? nil : value
-            }
-            .joined(separator: " · ")
-    }
-}
-
-private struct ExploreSearchOutfitCard: View {
-    let outfit: Outfit
-    let onTap: () -> Void
-
-    var body: some View {
-        Button(action: onTap) {
-            VStack(alignment: .leading, spacing: 14) {
-                OutfitCanvasView(
-                    layout: outfit.layout,
-                    garments: outfit.garments,
-                    cornerRadius: 24,
-                    backgroundColor: DSColor.background
-                )
-                .aspectRatio(3 / 4, contentMode: .fit)
-                .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
-
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(title)
-                        .font(DSFont.headline)
-                        .foregroundStyle(DSColor.primaryText)
-                        .lineLimit(2)
-
-                    if let note = outfit.note, !note.isEmpty {
-                        Text(note)
-                            .font(DSFont.footnote)
-                            .foregroundStyle(DSColor.primaryText)
-                            .lineLimit(2)
-                    } else {
-                        Text(outfit.garments.map(\.name).joined(separator: " · "))
-                            .font(DSFont.footnote)
-                            .foregroundStyle(DSColor.primaryText)
-                            .lineLimit(2)
-                    }
-                }
-            }
-            .padding(16)
-            .frame(width: 248, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .fill(DSColor.surface)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .stroke(DSColor.surface.opacity(0.8), lineWidth: 1)
-            )
-            .shadow(color: Color.black.opacity(0.05), radius: 18, x: 0, y: 8)
-        }
-        .buttonStyle(.plain)
-    }
-
-    private var title: String {
-        if let title = outfit.title, !title.isEmpty {
-            return title
-        }
-        return outfit.garments.map(\.name).joined(separator: " · ")
-    }
-}
-
-private struct PersonMetric: View {
-    let value: String
+private struct ExploreMetaPill: View {
     let label: String
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(value)
-                .font(.system(size: 16, weight: .bold, design: .rounded))
-                .foregroundStyle(DSColor.primaryText)
-            Text(label)
-                .font(DSFont.caption)
-                .foregroundStyle(DSColor.secondaryText)
-        }
+        Text(label)
+            .font(.system(.caption, design: .rounded, weight: .medium))
+            .foregroundStyle(DSColor.secondaryText)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 7)
+            .background(
+                Capsule()
+                    .fill(DSColor.surfaceElevated)
+            )
     }
 }
