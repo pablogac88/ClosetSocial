@@ -40,24 +40,36 @@ struct OutfitCanvasView: View {
     // Fallback for outfits without a persisted layout (created via quick form).
     @ViewBuilder
     private func garmentFallback(geo: GeometryProxy) -> some View {
-        let cols = min(garments.count, 2)
-        let size = cols > 0 ? (geo.size.width - CGFloat(cols + 1) * 8) / CGFloat(cols) : 0
-        let rows = Int(ceil(Double(garments.count) / Double(max(cols, 1))))
-        VStack(spacing: 8) {
-            ForEach(0..<rows, id: \.self) { row in
-                HStack(spacing: 8) {
-                    ForEach(0..<cols, id: \.self) { col in
-                        let idx = row * cols + col
-                        if idx < garments.count {
-                            CanvasTile(garment: garments[idx], tileCornerRadius: 10)
-                                .frame(width: size, height: size)
+        if garments.isEmpty {
+            VStack(spacing: 10) {
+                Image(systemName: "rectangle.stack")
+                    .font(.system(size: 26, weight: .ultraLight))
+                    .foregroundStyle(DSColor.tertiaryText)
+                Text("Sin prendas")
+                    .font(.system(.caption2, design: .rounded, weight: .medium))
+                    .foregroundStyle(DSColor.tertiaryText)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            let cols = min(garments.count, 2)
+            let size = (geo.size.width - CGFloat(cols + 1) * 8) / CGFloat(cols)
+            let rows = Int(ceil(Double(garments.count) / Double(cols)))
+            VStack(spacing: 8) {
+                ForEach(0..<rows, id: \.self) { row in
+                    HStack(spacing: 8) {
+                        ForEach(0..<cols, id: \.self) { col in
+                            let idx = row * cols + col
+                            if idx < garments.count {
+                                CanvasTile(garment: garments[idx], tileCornerRadius: 10)
+                                    .frame(width: size, height: size)
+                            }
                         }
                     }
                 }
             }
+            .padding(8)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         }
-        .padding(8)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
     }
 }
 

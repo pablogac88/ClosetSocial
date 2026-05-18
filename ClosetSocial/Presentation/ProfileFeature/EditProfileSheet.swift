@@ -220,13 +220,10 @@ public struct EditProfileSheet: View {
                             .frame(width: 100, height: 100)
                             .clipShape(Circle())
                             .transition(.opacity.animation(.easeIn(duration: 0.22)))
-                    } else if let url = URL(string: baseAvatarURL), !baseAvatarURL.isEmpty {
-                        GarmentImage(url: url)
-                            .frame(width: 100, height: 100)
-                            .clipShape(Circle())
                     } else {
                         AvatarBubble(
                             displayName: displayName.isEmpty ? "?" : displayName,
+                            avatarURL: URL(string: baseAvatarURL),
                             size: 100,
                             fillColor: DSColor.warmFill,
                             textColor: DSColor.secondaryText

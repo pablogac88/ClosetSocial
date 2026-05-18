@@ -22,30 +22,43 @@ public struct AvatarBubble: View {
     }
 
     public var body: some View {
-        ZStack {
-            Circle()
-                .fill(fillColor)
-                .frame(width: size, height: size)
-                .overlay {
-                    Text(initials)
-                        .font(.system(size: size * 0.4, weight: .bold, design: .rounded))
-                        .foregroundStyle(textColor)
-                }
+        if let avatarURL {
+            AsyncImage(url: avatarURL) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: size, height: size)
+                        .clipShape(Circle())
+                        .transition(.opacity.animation(.easeIn(duration: 0.22)))
 
-            if let avatarURL {
-                AsyncImage(url: avatarURL) { phase in
-                    if case .success(let image) = phase {
-                        image
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: size, height: size)
-                            .clipShape(Circle())
-                            .transition(.opacity.animation(.easeIn(duration: 0.22)))
-                    }
+                case .failure:
+                    initialsCircle
+
+                case .empty:
+                    Circle()
+                        .fill(fillColor)
+                        .frame(width: size, height: size)
+
+                @unknown default:
+                    initialsCircle
                 }
             }
+        } else {
+            initialsCircle
         }
-        .frame(width: size, height: size)
+    }
+
+    private var initialsCircle: some View {
+        Circle()
+            .fill(fillColor)
+            .frame(width: size, height: size)
+            .overlay {
+                Text(initials)
+                    .font(.system(size: size * 0.4, weight: .bold, design: .rounded))
+                    .foregroundStyle(textColor)
+            }
     }
 
     private var initials: String {

@@ -2,10 +2,12 @@ import SwiftUI
 
 /// Drop-in for AsyncImage in garment contexts.
 /// Warm shimmer during loading; fades the image in on success.
-/// Shows a styled fallback (not an eternal shimmer) on failure.
+/// Shows a styled fallback (not an eternal shimmer) on failure or timeout.
 /// Caller is responsible for clipping and frame sizing.
 struct GarmentImage: View {
     let url: URL?
+
+    @State private var timedOut = false
 
     var body: some View {
         if let url {
@@ -26,14 +28,23 @@ struct GarmentImage: View {
                         }
 
                 case .empty:
-                    ShimmerPlaceholder()
+                    if timedOut {
+                        FailurePlaceholder()
+                    } else {
+                        ShimmerPlaceholder()
+                    }
 
                 @unknown default:
                     ShimmerPlaceholder()
                 }
             }
+            .task(id: url) {
+                timedOut = false
+                try? await Task.sleep(for: .seconds(8))
+                timedOut = true
+            }
         } else {
-            ShimmerPlaceholder()
+            FailurePlaceholder()
         }
     }
 }
@@ -44,7 +55,7 @@ private struct FailurePlaceholder: View {
     var body: some View {
         ZStack {
             DSColor.imagePlaceholder
-            Image(systemName: "photo")
+            Image(systemName: "photo.slash")
                 .font(.system(size: 18, weight: .ultraLight))
                 .foregroundStyle(DSColor.tertiaryText)
         }
@@ -63,11 +74,11 @@ private struct ShimmerPlaceholder: View {
             GeometryReader { geo in
                 LinearGradient(
                     stops: [
-                        .init(color: .clear,                    location: 0.00),
+                        .init(color: .clear,                        location: 0.00),
                         .init(color: DSColor.surface.opacity(0.42), location: 0.42),
                         .init(color: DSColor.surface.opacity(0.52), location: 0.50),
                         .init(color: DSColor.surface.opacity(0.42), location: 0.58),
-                        .init(color: .clear,                    location: 1.00),
+                        .init(color: .clear,                        location: 1.00),
                     ],
                     startPoint: .leading,
                     endPoint: .trailing
