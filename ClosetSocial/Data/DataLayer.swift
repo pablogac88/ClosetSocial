@@ -12,6 +12,7 @@ public struct RemoteRepositories: Sendable {
     public let outfits: any OutfitsRepository
     public let profile: any ProfileRepository
     public let notifications: any NotificationRepository
+    public let chat: any ChatRepository
     public let upload: any UploadRepository
 
     public init(client: any HTTPClient, baseURL: URL) {
@@ -30,6 +31,7 @@ public struct RemoteRepositories: Sendable {
         self.outfits = RemoteOutfitsRepository(client: client, encoder: encoder, decoder: decoder)
         self.profile = RemoteProfileRepository(client: client, encoder: encoder, decoder: decoder)
         self.notifications = RemoteNotificationRepository(client: client, encoder: encoder, decoder: decoder)
+        self.chat = RemoteChatRepository(client: client, encoder: encoder, decoder: decoder)
         self.upload = RemoteUploadRepository(baseURL: baseURL, decoder: decoder)
     }
 }

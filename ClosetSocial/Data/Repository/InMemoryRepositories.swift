@@ -18,6 +18,9 @@ public actor InMemoryClosetSocialBackend {
     private var outfits: [Outfit]
     private var timeline: [FeedPost]
     private var comments: [UUID: [Comment]] = [:]
+    private var conversations: [Conversation]
+    private var messagesByConversation: [UUID: [ChatMessage]]
+    private var lastReadByConversation: [UUID: Date]
 
     public init() {
         let session = Self.sampleSession
@@ -37,9 +40,35 @@ public actor InMemoryClosetSocialBackend {
             garments: [oxford],
             createdAt: .now
         )
+        let friend = User(
+            id: UUID(),
+            username: "ana",
+            displayName: "Ana López",
+            avatarURL: nil,
+            bio: "Siempre guardando looks simples."
+        )
+        let conversation = Conversation(
+            id: UUID(),
+            otherParticipant: friend,
+            createdAt: .now.addingTimeInterval(-3_600),
+            updatedAt: .now.addingTimeInterval(-1_200),
+            lastMessageAt: .now.addingTimeInterval(-600)
+        )
+        let introMessage = ChatMessage(
+            id: UUID(),
+            conversationID: conversation.id,
+            sender: friend,
+            body: "¿Te gusta más este look con zapatillas o con botas?",
+            createdAt: .now.addingTimeInterval(-600),
+            editedAt: nil,
+            deletedAt: nil
+        )
         self.session = session
         self.closet = [oxford]
         self.outfits = [baseOutfit]
+        self.conversations = [conversation]
+        self.messagesByConversation = [conversation.id: [introMessage]]
+        self.lastReadByConversation = [conversation.id: .now.addingTimeInterval(-1_800)]
         self.timeline = [
             FeedPost(
                 id: UUID(),
@@ -63,6 +92,36 @@ public actor InMemoryClosetSocialBackend {
     func currentCloset() -> [Garment] { closet }
     func currentOutfits() -> [Outfit] { outfits }
     func currentTimeline() -> [FeedPost] { timeline }
+    func currentConversations() -> [ConversationPreview] {
+        conversations
+            .map { conversation in
+                let messages = messagesByConversation[conversation.id, default: []]
+                let latest = messages.sorted { $0.createdAt > $1.createdAt }.first
+                let unreadCount = messages.reduce(into: 0) { partialResult, message in
+                    guard message.sender.id != session.user.id else { return }
+                    if let lastReadAt = lastReadByConversation[conversation.id] {
+                        if message.createdAt > lastReadAt {
+                            partialResult += 1
+                        }
+                    } else {
+                        partialResult += 1
+                    }
+                }
+                return ConversationPreview(
+                    id: conversation.id,
+                    otherParticipant: conversation.otherParticipant,
+                    lastMessage: latest?.body,
+                    lastMessageSenderID: latest?.sender.id,
+                    lastMessageAt: latest?.createdAt ?? conversation.lastMessageAt,
+                    unreadCount: unreadCount
+                )
+            }
+            .sorted { ($0.lastMessageAt ?? .distantPast) > ($1.lastMessageAt ?? .distantPast) }
+    }
+    func currentMessages(conversationID: UUID) -> [ChatMessage] {
+        messagesByConversation[conversationID, default: []]
+            .sorted { $0.createdAt < $1.createdAt }
+    }
 
     func updateProfile(displayName: String, bio: String?, avatarURL: String?) -> UserProfile {
         let updatedUser = User(
@@ -312,6 +371,68 @@ public actor InMemoryClosetSocialBackend {
         }
     }
 
+    func createOrGetConversation(with otherUserID: UUID) -> Conversation {
+        if let existing = conversations.first(where: { $0.otherParticipant.id == otherUserID }) {
+            return existing
+        }
+
+        let otherUser = User(
+            id: otherUserID,
+            username: "usuario",
+            displayName: "Usuario",
+            avatarURL: nil
+        )
+        let conversation = Conversation(
+            id: UUID(),
+            otherParticipant: otherUser,
+            createdAt: .now,
+            updatedAt: .now,
+            lastMessageAt: nil
+        )
+        conversations.insert(conversation, at: 0)
+        messagesByConversation[conversation.id] = []
+        lastReadByConversation[conversation.id] = .now
+        return conversation
+    }
+
+    func sendMessage(conversationID: UUID, body: String) -> ChatMessage {
+        let message = ChatMessage(
+            id: UUID(),
+            conversationID: conversationID,
+            sender: session.user,
+            body: body,
+            createdAt: .now,
+            editedAt: nil,
+            deletedAt: nil
+        )
+        messagesByConversation[conversationID, default: []].append(message)
+        lastReadByConversation[conversationID] = message.createdAt
+        if let index = conversations.firstIndex(where: { $0.id == conversationID }) {
+            let current = conversations[index]
+            conversations[index] = Conversation(
+                id: current.id,
+                otherParticipant: current.otherParticipant,
+                createdAt: current.createdAt,
+                updatedAt: .now,
+                lastMessageAt: message.createdAt
+            )
+        }
+        return message
+    }
+
+    func markConversationRead(conversationID: UUID) -> ConversationPreview {
+        lastReadByConversation[conversationID] = messagesByConversation[conversationID]?.last?.createdAt ?? .now
+        return currentConversations().first(where: { $0.id == conversationID })
+            ?? ConversationPreview(
+                id: conversationID,
+                otherParticipant: session.user,
+                lastMessage: nil,
+                lastMessageSenderID: nil,
+                lastMessageAt: nil,
+                unreadCount: 0
+            )
+    }
+
     private func normalized(_ value: String?) -> String {
         value?
             .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: .current)
@@ -479,6 +600,34 @@ public struct InMemoryNotificationRepository: NotificationRepository {
     public func fetchNotifications(token: String) async throws -> [AppNotification] { [] }
     public func markRead(id: UUID, token: String) async throws { }
     public func markAllRead(token: String) async throws { }
+}
+
+public struct InMemoryChatRepository: ChatRepository {
+    private let backend: InMemoryClosetSocialBackend
+
+    public init(backend: InMemoryClosetSocialBackend) {
+        self.backend = backend
+    }
+
+    public func createOrGetConversation(userID: UUID, token: String) async throws -> Conversation {
+        await backend.createOrGetConversation(with: userID)
+    }
+
+    public func fetchConversations(token: String) async throws -> [ConversationPreview] {
+        await backend.currentConversations()
+    }
+
+    public func fetchMessages(conversationID: UUID, token: String) async throws -> [ChatMessage] {
+        await backend.currentMessages(conversationID: conversationID)
+    }
+
+    public func sendMessage(conversationID: UUID, body: String, token: String) async throws -> ChatMessage {
+        await backend.sendMessage(conversationID: conversationID, body: body)
+    }
+
+    public func markRead(conversationID: UUID, token: String) async throws -> ConversationPreview {
+        await backend.markConversationRead(conversationID: conversationID)
+    }
 }
 
 public struct InMemoryProfileRepository: ProfileRepository {

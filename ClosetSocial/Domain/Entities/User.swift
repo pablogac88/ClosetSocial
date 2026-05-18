@@ -1,6 +1,6 @@
 import Foundation
 
-public enum UserRole: String, Codable, Sendable, Equatable {
+public enum UserRole: String, Codable, Sendable, Equatable, Hashable {
     case user
     case admin
 
@@ -11,7 +11,7 @@ public enum UserRole: String, Codable, Sendable, Equatable {
     }
 }
 
-public struct User: Codable, Sendable, Equatable, Identifiable {
+public struct User: Codable, Sendable, Equatable, Hashable, Identifiable {
     public let id: UUID
     public let username: String
     public let displayName: String

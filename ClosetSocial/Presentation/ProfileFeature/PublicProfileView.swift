@@ -4,9 +4,21 @@ public struct PublicProfileView: View {
     @State private var viewModel: PublicProfileViewModel
 
     @State private var followListTarget: FollowListKind?
+    @State private var selectedConversation: Conversation?
+    @State private var isStartingConversation = false
+    @State private var messageError: String?
 
-    public init(viewModel: PublicProfileViewModel) {
+    private let startConversation: (@MainActor (UUID) async throws -> Conversation)?
+    private let makeChatDetailViewModel: ((Conversation) -> ChatDetailViewModel)?
+
+    public init(
+        viewModel: PublicProfileViewModel,
+        startConversation: (@MainActor (UUID) async throws -> Conversation)? = nil,
+        makeChatDetailViewModel: ((Conversation) -> ChatDetailViewModel)? = nil
+    ) {
         self._viewModel = State(initialValue: viewModel)
+        self.startConversation = startConversation
+        self.makeChatDetailViewModel = makeChatDetailViewModel
     }
 
     public var body: some View {
@@ -32,6 +44,13 @@ public struct PublicProfileView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task { await viewModel.load() }
         .refreshable { await viewModel.load() }
+        .navigationDestination(item: $selectedConversation) { conversation in
+            if let makeChatDetailViewModel {
+                ChatDetailView(viewModel: makeChatDetailViewModel(conversation))
+            } else {
+                EmptyView()
+            }
+        }
         .sheet(item: $followListTarget) { kind in
             if case let .content(profile) = viewModel.state {
                 FollowListSheet(
@@ -76,7 +95,7 @@ public struct PublicProfileView: View {
             }
 
             if !viewModel.isOwnProfile {
-                followButton(profile)
+                actionButtons(profile)
             }
         }
         .padding(.top, 20)
@@ -110,6 +129,14 @@ public struct PublicProfileView: View {
                 .padding(.horizontal, 4)
         }
 
+        if let messageError {
+            Text(messageError)
+                .font(.system(.footnote, design: .rounded, weight: .medium))
+                .foregroundStyle(DSColor.destructive)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 4)
+        }
+
         // Posts
         if !profile.posts.isEmpty {
             VStack(alignment: .leading, spacing: 12) {
@@ -120,6 +147,17 @@ public struct PublicProfileView: View {
                 ForEach(profile.posts) { post in
                     PublicPostRow(post: post)
                 }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func actionButtons(_ profile: PublicUserProfile) -> some View {
+        HStack(spacing: 12) {
+            followButton(profile)
+
+            if startConversation != nil, makeChatDetailViewModel != nil {
+                messageButton
             }
         }
     }
@@ -162,6 +200,47 @@ public struct PublicProfileView: View {
         .buttonStyle(.plain)
         .disabled(viewModel.isFollowLoading)
         .animation(.spring(response: 0.25, dampingFraction: 0.8), value: profile.isFollowing)
+    }
+
+    private var messageButton: some View {
+        Button {
+            Task { await openConversation() }
+        } label: {
+            Group {
+                if isStartingConversation {
+                    ProgressView()
+                        .tint(DSColor.actionSecondaryForeground)
+                } else {
+                    Text("Mensaje")
+                        .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                }
+            }
+            .frame(width: 120, height: 38)
+            .background(
+                DSColor.actionSecondaryBackground,
+                in: RoundedRectangle(cornerRadius: 12, style: .continuous)
+            )
+            .foregroundStyle(DSColor.actionSecondaryForeground)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .stroke(DSColor.border, lineWidth: 1)
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(isStartingConversation)
+    }
+
+    private func openConversation() async {
+        guard let startConversation else { return }
+        messageError = nil
+        isStartingConversation = true
+        defer { isStartingConversation = false }
+
+        do {
+            selectedConversation = try await startConversation(viewModel.profileUserID)
+        } catch {
+            messageError = error.userMessage
+        }
     }
 }
 

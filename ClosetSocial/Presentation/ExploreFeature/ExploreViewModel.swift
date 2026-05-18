@@ -224,6 +224,12 @@ public final class ExploreViewModel {
         }
     }
 
+    public func findOutfitItem(forOutfitID id: UUID) -> ExploreOutfitItem? {
+        if let item = discoverLooksCache.first(where: { $0.id == id }) { return item }
+        if let item = currentSearchResults?.outfits.first(where: { $0.id == id }) { return item }
+        return nil
+    }
+
     public func isSaving(_ item: ExploreOutfitItem) -> Bool {
         savingOutfitIDs.contains(item.id)
     }

@@ -18,6 +18,7 @@ public final class ClosetViewModel {
 
     public private(set) var state: ClosetState = .idle
     public private(set) var deletingGarmentIDs: Set<UUID> = []
+    public private(set) var categories: [GarmentCategory] = []
 
     private let repository: any ClosetRepository
     private let catalogRepository: any CatalogRepository
@@ -108,6 +109,11 @@ public final class ClosetViewModel {
 
     public func isDeleting(_ garment: Garment) -> Bool {
         deletingGarmentIDs.contains(garment.id)
+    }
+
+    public func loadCategories() async {
+        guard let token = tokenProvider() else { return }
+        categories = (try? await catalogRepository.fetchGarmentCategories(token: token)) ?? []
     }
 
     private func removeGarment(id: UUID) {

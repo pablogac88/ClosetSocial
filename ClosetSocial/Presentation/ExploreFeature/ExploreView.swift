@@ -3,6 +3,8 @@ import SwiftUI
 public struct ExploreView: View {
     @Bindable private var viewModel: ExploreViewModel
     private let makePublicProfileViewModel: (UUID) -> PublicProfileViewModel
+    private let startConversation: @MainActor (UUID) async throws -> Conversation
+    private let makeChatDetailViewModel: (Conversation) -> ChatDetailViewModel
 
     @State private var selectedOutfit: Outfit?
     @State private var selectedGarment: Garment?
@@ -10,10 +12,14 @@ public struct ExploreView: View {
 
     public init(
         viewModel: ExploreViewModel,
-        makePublicProfileViewModel: @escaping (UUID) -> PublicProfileViewModel
+        makePublicProfileViewModel: @escaping (UUID) -> PublicProfileViewModel,
+        startConversation: @escaping @MainActor (UUID) async throws -> Conversation,
+        makeChatDetailViewModel: @escaping (Conversation) -> ChatDetailViewModel
     ) {
         self.viewModel = viewModel
         self.makePublicProfileViewModel = makePublicProfileViewModel
+        self.startConversation = startConversation
+        self.makeChatDetailViewModel = makeChatDetailViewModel
     }
 
     public var body: some View {
@@ -28,8 +34,12 @@ public struct ExploreView: View {
         .background(DSColor.background.ignoresSafeArea())
         .navigationTitle("")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationDestination(item: $selectedOutfit) { outfit in
-            OutfitDetailView(context: .myOutfit(outfit))
+        .navigationDestination(item: $selectedOutfit) { initial in
+            let liveItem = viewModel.findOutfitItem(forOutfitID: initial.id)
+            OutfitDetailView(
+                context: .myOutfit(liveItem?.outfit ?? initial),
+                onSaveTap: liveItem.map { item in { Task { await viewModel.toggleSave(for: item) } } }
+            )
         }
         .navigationDestination(item: $selectedGarment) { garment in
             GarmentDetailView(
@@ -38,9 +48,12 @@ public struct ExploreView: View {
             )
         }
         .navigationDestination(item: $selectedUserID) { userID in
-            PublicProfileView(viewModel: makePublicProfileViewModel(userID))
+            PublicProfileView(
+                viewModel: makePublicProfileViewModel(userID),
+                startConversation: startConversation,
+                makeChatDetailViewModel: makeChatDetailViewModel
+            )
         }
-        .task { await viewModel.load() }
         .task(id: viewModel.selectedTab) { await viewModel.loadTabIfNeeded() }
         .task(id: viewModel.searchText) { await viewModel.handleSearchTextChanged() }
     }
@@ -144,14 +157,12 @@ public struct ExploreView: View {
 
     @ViewBuilder
     private var feedContent: some View {
-        switch viewModel.selectedTab {
-        case .looks:
-            looksFeed
-        case .garments:
-            garmentsFeed
-        case .people:
-            peopleFeed
+        TabView(selection: $viewModel.selectedTab) {
+            looksFeed.tag(ExploreTab.looks)
+            garmentsFeed.tag(ExploreTab.garments)
+            peopleFeed.tag(ExploreTab.people)
         }
+        .tabViewStyle(.page(indexDisplayMode: .never))
     }
 
     private var looksFeed: some View {
@@ -321,22 +332,23 @@ private struct ExploreLookTile: View {
 
     var body: some View {
         Button(action: onTap) {
-            Group {
-                if let coverImageURL = item.outfit.coverImageURL {
-                    GarmentImage(url: coverImageURL)
-                } else {
-                    OutfitCanvasView(
-                        layout: item.outfit.layout,
-                        garments: item.outfit.garments,
-                        cornerRadius: 0,
-                        backgroundColor: DSColor.surfaceElevated
-                    )
+            Color.clear
+                .overlay {
+                    if let coverImageURL = item.outfit.coverImageURL {
+                        GarmentImage(url: coverImageURL)
+                    } else {
+                        OutfitCanvasView(
+                            layout: item.outfit.layout,
+                            garments: item.outfit.garments,
+                            cornerRadius: 0,
+                            backgroundColor: DSColor.surfaceElevated
+                        )
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    }
                 }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(DSColor.surfaceElevated)
-            .clipped()
-            .contentShape(Rectangle())
+                .background(DSColor.surfaceElevated)
+                .clipped()
+                .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .frame(maxWidth: .infinity, maxHeight: .infinity)

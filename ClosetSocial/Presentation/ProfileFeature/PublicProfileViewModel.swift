@@ -22,6 +22,7 @@ public final class PublicProfileViewModel {
     public let repository: any ProfileRepository
     private let tokenProvider: TokenProvider
 
+    public var profileUserID: UUID { userID }
     public var isOwnProfile: Bool { userID == currentUserID }
     public var currentToken: String? { tokenProvider() }
 

@@ -3,21 +3,28 @@ import SwiftUI
 public struct ProfileView: View {
     @Bindable private var viewModel: ProfileViewModel
     private let makePublicProfileViewModel: (UUID) -> PublicProfileViewModel
+    @Bindable private var conversationsViewModel: ConversationsViewModel
+    private let makeChatDetailViewModel: (Conversation) -> ChatDetailViewModel
     private let uploadRepository: any UploadRepository
     private let tokenProvider: @MainActor () -> String?
 
     @State private var followListTarget: FollowListKind?
     @State private var isEditingProfile = false
     @State private var isShowingNotifications = false
+    @State private var isShowingConversations = false
 
     public init(
         viewModel: ProfileViewModel,
         makePublicProfileViewModel: @escaping (UUID) -> PublicProfileViewModel,
+        conversationsViewModel: ConversationsViewModel,
+        makeChatDetailViewModel: @escaping (Conversation) -> ChatDetailViewModel,
         uploadRepository: any UploadRepository,
         tokenProvider: @escaping @MainActor () -> String?
     ) {
         self.viewModel = viewModel
         self.makePublicProfileViewModel = makePublicProfileViewModel
+        self.conversationsViewModel = conversationsViewModel
+        self.makeChatDetailViewModel = makeChatDetailViewModel
         self.uploadRepository = uploadRepository
         self.tokenProvider = tokenProvider
     }
@@ -52,6 +59,22 @@ public struct ProfileView: View {
             }
             ToolbarItem(placement: .topBarTrailing) {
                 HStack(spacing: 4) {
+                    Button {
+                        isShowingConversations = true
+                    } label: {
+                        ZStack(alignment: .topTrailing) {
+                            Image(systemName: "bubble.left.and.bubble.right")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundStyle(DSColor.primaryText)
+                            if conversationsViewModel.unreadCount > 0 {
+                                Circle()
+                                    .fill(DSColor.destructive)
+                                    .frame(width: 8, height: 8)
+                                    .offset(x: 4, y: -4)
+                            }
+                        }
+                    }
+
                     Button {
                         isShowingNotifications = true
                     } label: {
@@ -107,6 +130,12 @@ public struct ProfileView: View {
         }
         .navigationDestination(isPresented: $isShowingNotifications) {
             NotificationsView(viewModel: viewModel.notificationsViewModel)
+        }
+        .navigationDestination(isPresented: $isShowingConversations) {
+            ConversationsView(
+                viewModel: conversationsViewModel,
+                makeChatDetailViewModel: makeChatDetailViewModel
+            )
         }
         .sheet(item: $followListTarget) { kind in
             if case let .content(profile) = viewModel.state {

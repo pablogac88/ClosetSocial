@@ -3,6 +3,8 @@ import SwiftUI
 public struct TimelineView: View {
     @Bindable private var viewModel: TimelineViewModel
     private let makePublicProfileViewModel: (UUID) -> PublicProfileViewModel
+    private let startConversation: @MainActor (UUID) async throws -> Conversation
+    private let makeChatDetailViewModel: (Conversation) -> ChatDetailViewModel
     private let onAddGarmentTap: (@MainActor () -> Void)?
     @State private var isPresentingCreateSheet = false
     @State private var postForComments: FeedPost? = nil
@@ -13,10 +15,14 @@ public struct TimelineView: View {
     public init(
         viewModel: TimelineViewModel,
         makePublicProfileViewModel: @escaping (UUID) -> PublicProfileViewModel,
+        startConversation: @escaping @MainActor (UUID) async throws -> Conversation,
+        makeChatDetailViewModel: @escaping (Conversation) -> ChatDetailViewModel,
         onAddGarmentTap: (@MainActor () -> Void)? = nil
     ) {
         self.viewModel = viewModel
         self.makePublicProfileViewModel = makePublicProfileViewModel
+        self.startConversation = startConversation
+        self.makeChatDetailViewModel = makeChatDetailViewModel
         self.onAddGarmentTap = onAddGarmentTap
     }
 
@@ -44,7 +50,11 @@ public struct TimelineView: View {
         }
         .sheet(item: $selectedAuthor) { author in
             NavigationStack {
-                PublicProfileView(viewModel: makePublicProfileViewModel(author.id))
+                PublicProfileView(
+                    viewModel: makePublicProfileViewModel(author.id),
+                    startConversation: startConversation,
+                    makeChatDetailViewModel: makeChatDetailViewModel
+                )
             }
         }
         .sheet(item: $garmentDetail) { garment in
